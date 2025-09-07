@@ -15,7 +15,7 @@ public static class SceneSwitcherToolbar
     private static string lastActiveScene = "";
     private static VisualElement toolbarUI;
 
-    private static float positionOffset = 180f; // Move closer to Play button
+    private static float positionOffset = 120f; // Move closer to Play button
     private static float dropdownBoxHeight = 20f; // Dropdown button height
 
     private static bool fetchAllScenes
