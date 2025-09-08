@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-[CreateAssetMenu(fileName = "InputReaderSO", menuName = "InputReader")]
+// [CreateAssetMenu(fileName = "InputReaderSO", menuName = "InputReader")]
 public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerActions
 {
     private InputSystem_Actions _gameInput;
@@ -97,8 +97,7 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
     {
         if (context.phase == InputActionPhase.Performed)
         {
-            Debug.Log("navigate");
-            Navigate?.Invoke(context.ReadValue<float>());
+            Navigate.Invoke(context.ReadValue<float>());
         }
     }
 
