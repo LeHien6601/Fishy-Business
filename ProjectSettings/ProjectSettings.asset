@@ -912,7 +912,13 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Build: 0
+    Game Performance: 0
+    Legacy Analytics: 0
+    Purchasing: 0
+    UDP: 0
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -934,11 +940,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 4ef60c90-b871-482b-a4b3-2a54d6073157
+  cloudProjectId: a2618de7-835e-4d9e-b199-0a2c2c6ac2dc
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Fishy-Bussiness
-  organizationId: hnm142758
+  projectName: Fishy-Bussiness (1)
+  organizationId: lehien6601
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

@@ -6,7 +6,6 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
     private static readonly object _lock = new object();
     private static bool _applicationIsQuitting = false;
 
-    [System.Obsolete]
     public static T Instance
     {
         get
@@ -23,9 +22,9 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
             {
                 if (_instance == null)
                 {
-                    _instance = (T)FindObjectOfType(typeof(T));
+                    _instance = (T)FindFirstObjectByType(typeof(T));
 
-                    if (FindObjectsOfType(typeof(T)).Length > 1)
+                    if (FindObjectsByType(typeof(T), FindObjectsSortMode.None).Length > 1)
                     {
                         Debug.LogError("[Singleton] Something went really wrong " +
                             " - there should never be more than 1 singleton!" +
