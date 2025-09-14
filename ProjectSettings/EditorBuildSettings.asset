@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Game/_Scene/TestNetworkManager.unity
     guid: d6c9c917958eb4a448d6c9d9852a816d
+  - enabled: 1
+    path: Assets/_Game/_Scene/Lobby.unity
+    guid: 697f8ab19834332448415b5cfde6b23f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
