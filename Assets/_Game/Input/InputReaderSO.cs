@@ -112,5 +112,9 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
         if (context.phase == InputActionPhase.Performed)
             Confirm.Invoke();
     }
+
+    public void OnZoom(InputAction.CallbackContext context)
+    {
+    }
 }
 
