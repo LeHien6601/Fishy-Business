@@ -7,7 +7,6 @@ using Unity.Services.Lobbies.Models;
 using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
-using System.Threading;
 
 public class LobbyManager : SingletonMono<LobbyManager>
 {
@@ -135,7 +134,6 @@ public class LobbyManager : SingletonMono<LobbyManager>
             await RelayManager.Instance.JoinRelay(currentLobby);
             _heartbeatCoroutine = StartCoroutine(HeartbeatLobby(currentLobby.Id));
             _pollLobbyCoroutine = StartCoroutine(PollLobbyCoroutine());
-
             OnJoinedLobby?.Invoke();
         }
         catch (LobbyServiceException e)
@@ -157,6 +155,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
             Debug.Log($"Quick joined lobby: {currentLobby.Id}");
 
             await RelayManager.Instance.JoinRelay(currentLobby);
+            _heartbeatCoroutine = StartCoroutine(HeartbeatLobby(currentLobby.Id));
+            _pollLobbyCoroutine = StartCoroutine(PollLobbyCoroutine());
             OnJoinedLobby?.Invoke();
         }
         catch (LobbyServiceException e)
