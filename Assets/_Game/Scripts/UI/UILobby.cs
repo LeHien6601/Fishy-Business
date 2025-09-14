@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
@@ -10,16 +11,19 @@ public class UILobby : UIView
     [SerializeField] private TextMeshProUGUI _loobyNameText;
     [SerializeField] private TextMeshProUGUI _playerListText;
     [SerializeField] private Button _startGameButton;
+    [SerializeField] private Button _leaveLobbyButton;
     void OnEnable()
     {
         UpdateUI();
         LobbyManager.Instance.OnUpdatedCurrentLobby += HandleUpdateLobby;
         _startGameButton.onClick.AddListener(HandleClickStartGame);
+        _leaveLobbyButton.onClick.AddListener(HandleClickLeaveLobby);
     }
     void OnDisable()
     {
         LobbyManager.Instance.OnUpdatedCurrentLobby -= HandleUpdateLobby;
         _startGameButton.onClick.RemoveListener(HandleClickStartGame);
+        _leaveLobbyButton.onClick.RemoveListener(HandleClickLeaveLobby);
     }
     private void HandleUpdateLobby(LobbyManager.UpdateCurrentLobbyEventArgs args)
     {
@@ -42,5 +46,12 @@ public class UILobby : UIView
     private void HandleClickStartGame()
     {
         GameManager.Instance.StartGame();
+        UIManager.Instance.StartGameRpc();
+    }
+    private async void HandleClickLeaveLobby()
+    {
+        await LobbyManager.Instance.LeaveLobbyAsync();
+        UIManager.Instance.ShowUI(EUIState.MainMenu);
+        Hide();
     }
 }

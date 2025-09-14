@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class UIManager : SingletonMono<UIManager>
+public class UIManager : SingletonMonoNet<UIManager>
 {
     [Header("Properties")]
     [SerializeField] private List<UIViewState> _uiViewPrefabs = new();
     private List<UIViewState> _uiViewStates = new();
 
+    #region View Actions
     public void ShowUI(EUIState state)
     {
         if (!_uiViewStates.Exists(v => v.State == state))
@@ -37,8 +39,19 @@ public class UIManager : SingletonMono<UIManager>
             }
         }
     }
-}
+    #endregion
 
+    //Rpc start game
+    [Rpc(SendTo.ClientsAndHost)]
+    public void StartGameRpc()
+    {
+        var lobbyView = _uiViewStates.Find(v => v.State == EUIState.Lobby);
+        if (lobbyView.View is UILobby lobby)
+        {
+            lobbyView.View.Hide();
+        }
+    }
+}
 public enum EUIState
 {
     None,

@@ -523,6 +523,7 @@ MonoBehaviour:
   _loobyNameText: {fileID: 7018017842904575094}
   _playerListText: {fileID: 1927217960276139984}
   _startGameButton: {fileID: 8806517492437633505}
+  _leaveLobbyButton: {fileID: 6855173711786834197}
 --- !u!1 &2641265726225750430
 GameObject:
   m_ObjectHideFlags: 0

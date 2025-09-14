@@ -192,10 +192,13 @@ public class LobbyManager : SingletonMono<LobbyManager>
         {
             if (currentLobby != null)
             {
-                await LobbyService.Instance.RemovePlayerAsync(currentLobby.Id, AuthenticationService.Instance.PlayerId);
                 if (isHost)
                 {
                     await LobbyService.Instance.DeleteLobbyAsync(currentLobby.Id);
+                }
+                else
+                {
+                    await LobbyService.Instance.RemovePlayerAsync(currentLobby.Id, AuthenticationService.Instance.PlayerId);
                 }
                 currentLobby = null;
                 isHost = false;
