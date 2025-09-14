@@ -1,29 +1,24 @@
-using System.Threading.Tasks;
 using TMPro;
-using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UILobby : UIView
+public class UILobbyInfo : UIView
 {
     [Header("References")]
     [SerializeField] private TextMeshProUGUI _loobyNameText;
     [SerializeField] private TextMeshProUGUI _playerListText;
-    [SerializeField] private Button _startGameButton;
-    [SerializeField] private Button _leaveLobbyButton;
+    [SerializeField] private Button _backButton;
     void OnEnable()
     {
         UpdateUI();
         LobbyManager.Instance.OnUpdatedCurrentLobby += HandleUpdateLobby;
-        _startGameButton.onClick.AddListener(HandleClickStartGame);
-        _leaveLobbyButton.onClick.AddListener(HandleClickLeaveLobby);
+        _backButton.onClick.AddListener(HandleClickBack);
     }
     void OnDisable()
     {
         LobbyManager.Instance.OnUpdatedCurrentLobby -= HandleUpdateLobby;
-        _startGameButton.onClick.RemoveListener(HandleClickStartGame);
-        _leaveLobbyButton.onClick.RemoveListener(HandleClickLeaveLobby);
+        _backButton.onClick.RemoveListener(HandleClickBack);
     }
     private void HandleUpdateLobby(LobbyManager.UpdateCurrentLobbyEventArgs args)
     {
@@ -33,7 +28,6 @@ public class UILobby : UIView
     {
         if (LobbyManager.Instance.currentLobby != null)
         {
-            _startGameButton.gameObject.SetActive(NetworkManager.Singleton.IsHost);
             Lobby lobby = LobbyManager.Instance.currentLobby;
             _loobyNameText.text = $"{lobby.Name} {lobby.Players.Count}/{lobby.MaxPlayers} {lobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value}";
             _playerListText.text = "";
@@ -43,15 +37,9 @@ public class UILobby : UIView
             }
         }
     }
-    private void HandleClickStartGame()
+    private void HandleClickBack()
     {
-        GameManager.Instance.StartGame();
-        UIManager.Instance.StartGameRpc();
-    }
-    private async void HandleClickLeaveLobby()
-    {
-        await LobbyManager.Instance.LeaveLobbyAsync();
-        UIManager.Instance.ShowUI(EUIState.MainMenu);
         Hide();
+        UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
     }
 }

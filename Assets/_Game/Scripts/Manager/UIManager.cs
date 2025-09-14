@@ -9,6 +9,33 @@ public class UIManager : SingletonMonoNet<UIManager>
     [SerializeField] private List<UIViewState> _uiViewPrefabs = new();
     private List<UIViewState> _uiViewStates = new();
 
+    void Update()
+    {
+        if (true)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                bool isShowingLobbyUI = false;
+                foreach (var viewState in _uiViewStates)
+                {
+                    if (viewState.State == EUIState.LobbyGameplay && viewState.View.gameObject.activeSelf)
+                    {
+                        isShowingLobbyUI = true;
+                        break;
+                    }
+                }
+                if (isShowingLobbyUI)
+                {
+                    HideUI(EUIState.LobbyGameplay);
+                }
+                else
+                {
+                    ShowUI(EUIState.LobbyGameplay);
+                }
+            }
+        }
+    }
+
     #region View Actions
     public void ShowUI(EUIState state)
     {
@@ -41,24 +68,14 @@ public class UIManager : SingletonMonoNet<UIManager>
     }
     #endregion
 
-    //Rpc start game
-    [Rpc(SendTo.ClientsAndHost)]
-    public void StartGameRpc()
-    {
-        var lobbyView = _uiViewStates.Find(v => v.State == EUIState.Lobby);
-        if (lobbyView.View is UILobby lobby)
-        {
-            lobbyView.View.Hide();
-        }
-    }
 }
 public enum EUIState
 {
     None,
     MainMenu,
     CustomGame,
-    Lobby,
-    InGame,
+    LobbyInfo,
+    LobbyGameplay,
 }
 [Serializable]
 public struct UIViewState

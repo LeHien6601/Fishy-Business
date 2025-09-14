@@ -34,12 +34,6 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
         MakeSingleton(true);
     }
 
-    public virtual void Start()
-    {
-        
-    }
-
-
     public void MakeSingleton(bool destroyOnload)
     {
         if (m_ins == null)

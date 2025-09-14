@@ -7,6 +7,7 @@ using Unity.Services.Lobbies.Models;
 using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
+using Unity.Netcode;
 
 public class LobbyManager : SingletonMono<LobbyManager>
 {
@@ -233,7 +234,6 @@ public class LobbyManager : SingletonMono<LobbyManager>
             }
         };
     }
-
 
     private IEnumerator HeartbeatLobby(string lobbyId)
     {
