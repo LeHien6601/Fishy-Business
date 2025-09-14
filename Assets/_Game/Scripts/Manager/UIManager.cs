@@ -44,6 +44,7 @@ public enum EUIState
     None,
     MainMenu,
     CustomGame,
+    Lobby,
     InGame,
 }
 [Serializable]

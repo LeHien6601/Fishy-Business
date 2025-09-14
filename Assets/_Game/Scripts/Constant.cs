@@ -8,4 +8,13 @@ public class Constant
     // public const int OUTLINE_LAYER = 12;
 
     public const string PLAYER_TAG = "Player";
+    public const string KEY_PLAYER_NAME = "PlayerName";
+    public const string KEY_PLAYER_ID = "PlayerID";
+    public const string KEY_PLAYER_ICON_ID = "PlayerIconID";
+    public const string KEY_NUMBER_OF_PLAYERS = "NumOfPlayers";
+    public const string KEY_START_GAME = "StartGame";
+    public const string KEY_HOST_ID = "HostID";
+    public const string KEY_RELAY_JOIN_CODE = "RelayJoinCode";
+    public const string KEY_LOBBY_CODE = "LobbyCode";
+    public const int MAX_PLAYERS = 8;
 }

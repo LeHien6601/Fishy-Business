@@ -1,7 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Utils : MonoBehaviour
 {
+    public static Dictionary<float, WaitForSeconds> WaitForSecondsCache = new();
+    public static WaitForSeconds GetWaitForSeconds(float seconds)
+    {
+        if (!WaitForSecondsCache.ContainsKey(seconds))
+        {
+            WaitForSecondsCache[seconds] = new WaitForSeconds(seconds);
+        }
+        return WaitForSecondsCache[seconds];
+    }
     public static string GetRandomPlayerName()
     {
         string[] names = { "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu" };

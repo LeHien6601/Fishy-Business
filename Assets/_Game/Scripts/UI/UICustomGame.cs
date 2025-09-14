@@ -1,3 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,25 +11,122 @@ public class UICustomGame : UIView
     [SerializeField] private Button _backBtn;
     [SerializeField] private Button _createBtn;
     [SerializeField] private Button _joinBtn;
-
+    [SerializeField] private RectTransform _lobbyListContent;
+    [SerializeField] private UILobbyItem _lobbyItemPrefab;
+    private Coroutine _refreshLobbyListCoroutine;
+    private string _selectedLobbyCode = "";
+    private string _selectedRelayJoinCode = "";
+    private List<UILobbyItem> _lobbyItems = new();
     private void Awake()
     {
         _backBtn.onClick.AddListener(Back);
         _createBtn.onClick.AddListener(Create);
         _joinBtn.onClick.AddListener(Join);
     }
+
+    void OnEnable()
+    {
+        _refreshLobbyListCoroutine = StartCoroutine(RefreshLobbyList());
+        LobbyManager.Instance.OnUpdatedLobbyList += HandleChangeLobbyList;
+    }
+    void OnDisable()
+    {
+        LobbyManager.Instance.OnUpdatedLobbyList -= HandleChangeLobbyList;
+        if (_refreshLobbyListCoroutine != null)
+        {
+            StopCoroutine(_refreshLobbyListCoroutine);
+            _refreshLobbyListCoroutine = null;
+        }
+    }
+    private IEnumerator RefreshLobbyList()
+    {
+        while (true)
+        {
+            yield return LobbyManager.Instance.QueryLobbiesAsync();
+            yield return Utils.GetWaitForSeconds(10f);
+        }
+    }
+    private void HandleChangeLobbyList(LobbyManager.UpdatedLoobyListEventArgs args)
+    {
+        // Update lobby list UI
+        Debug.Log("Lobby list updated: " + args.LobbyList.Count + " lobbies available.");
+        foreach (var lobby in args.LobbyList)
+        {
+            Debug.Log($"Lobby ID: {lobby.Id}, Name: {lobby.Name}, Players: {lobby.Players.Count}/{lobby.MaxPlayers}");
+            Debug.Log(lobby.Data[Constant.KEY_LOBBY_CODE].Value);
+            for (int i = 0; i < lobby.Players.Count; i++)
+            {
+                Debug.Log($" - Player {i + 1}:");
+                // Debug.Log($"{ lobby.Players[i].Data[Constant.KEY_PLAYER_NAME].Value}");
+            }
+        }
+        HandleChangeLobbyListUI(args.LobbyList);
+    }
+    private void HandleChangeLobbyListUI(List<Lobby> lobbyList)
+    {
+        Debug.Log("Updating lobby list UI");
+        if (_lobbyItems.Count < lobbyList.Count)
+        {
+            Debug.Log("Need to create more lobby items");
+            int toCreate = lobbyList.Count - _lobbyItems.Count;
+            for (int i = 0; i < toCreate; i++)
+            {
+                var item = Instantiate(_lobbyItemPrefab, _lobbyListContent);
+                item.OnClickedLobbyItem += HandleClickLobbyItem;
+                _lobbyItems.Add(item);
+            }
+        }
+        else if (_lobbyItems.Count > lobbyList.Count)
+        {
+            Debug.Log("Need to remove some lobby items");
+            int toRemove = _lobbyItems.Count - lobbyList.Count;
+            for (int i = 0; i < toRemove; i++)
+            {
+                var item = _lobbyItems[^1];
+                item.OnClickedLobbyItem -= HandleClickLobbyItem;
+                Destroy(item.gameObject);
+                _lobbyItems.RemoveAt(_lobbyItems.Count - 1);
+            }
+        }
+        Debug.Log("Updating lobby items");
+        for (int i = 0; i < lobbyList.Count; i++)
+        {
+            _lobbyItems[i].SetLobbyInfo(lobbyList[i]);
+        }
+    }   
+
+    private void HandleClickLobbyItem(UILobbyItem.ClickedLobbyItemEventArgs args)
+    {
+        _selectedLobbyCode = args.LobbyCode;
+        _selectedRelayJoinCode = args.RelayJoinCode;
+        Debug.Log($"Selected Lobby Code: {_selectedLobbyCode}, Relay Join Code: {_selectedRelayJoinCode}");
+    }
+
     private void Back()
     {
         UIManager.Instance.ShowUI(EUIState.MainMenu);
         UIManager.Instance.HideUI(EUIState.CustomGame);
     }
-    private void Create()
+    private async void Create()
     {
-
-    } 
-
-    private void Join()
-    {
-
+        await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
+        UIManager.Instance.ShowUI(EUIState.Lobby);
+        UIManager.Instance.HideUI(EUIState.CustomGame);
     }
+
+    private async void Join()
+    {
+        if (!string.IsNullOrEmpty(_selectedLobbyCode))
+        {
+            await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
+            UIManager.Instance.ShowUI(EUIState.Lobby);
+            UIManager.Instance.HideUI(EUIState.CustomGame);
+        }
+        else
+        {
+            Debug.LogWarning("No lobby selected to join.");
+        }
+    }
+    
+
 }

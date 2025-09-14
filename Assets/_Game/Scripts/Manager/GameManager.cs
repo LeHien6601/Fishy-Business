@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class GameManager : SingletonMono<GameManager>
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public string PlayerName { get; private set; }
+    public int PlayerIconID { get; private set; }
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        PlayerName = Utils.GetRandomPlayerName();
+        PlayerIconID = Random.Range(0, 20); // Assuming there are 20 player icons
+        Debug.Log($"Player Name: {PlayerName}, Icon ID: {PlayerIconID}");
     }
 }
