@@ -201,10 +201,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   _target: {fileID: 6716421213915585209}
-  _fadedAlpha: 0.33
+  _fadedAlpha: 0.1
   _retainShadows: 1
   _targetPositionOffset: {x: 0, y: 1, z: 0}
-  _fadeSpeed: 3
+  _fadeSpeed: 2
   _objectsBlockingView: []
 --- !u!1001 &4654457968180258215
 PrefabInstance:
