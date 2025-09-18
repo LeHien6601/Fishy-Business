@@ -1,21 +1,28 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class PlayerController : NetworkBehaviour
 {
+    [SerializeField] private Interactor _interactor;
     [SerializeField] private InputReaderSO _inputReader;
     [SerializeField] private TransformEventChannelSO _targetTransformChannel;
     [SerializeField] private float _moveSpeed = 5f;
+    public NavMeshAgent Agent;
     public Vector3 MoveDirection { get; private set; }
     private IState _currentState;
     private IdleState _idleState;
     private MoveState _moveState;
     private AttackState _attackState;
+    private SitState _sitState;
+    public bool CanInteract { get => _interactor.enabled; set => _interactor.enabled = value; }
 
     public override void OnNetworkSpawn()
     {
         if (!IsOwner)
         {
+            _interactor.enabled = false;
             return;
         }
         base.OnNetworkSpawn();
@@ -23,6 +30,7 @@ public class PlayerController : NetworkBehaviour
         _idleState = new IdleState(animator);
         _moveState = new MoveState(this, animator, _moveSpeed);
         _attackState = new AttackState(animator);
+        _sitState = new SitState(this, animator);
         _currentState = _idleState;
 
         _inputReader.Move += HandleMove;
@@ -79,6 +87,12 @@ public class PlayerController : NetworkBehaviour
         _currentState.OnExit();
         _currentState = newState;
         _currentState.OnEnter();
+    }
+
+    public void Sit(Seat seat)
+    {
+        _sitState.With(seat);
+        ToState(_sitState);
     }
 
     // called by animation event
