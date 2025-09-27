@@ -51,23 +51,6 @@ public class MaterialGenerator
         AssetDatabase.Refresh();
 
         Debug.Log("✅ Materials generated in " + materialFolder);
-        Type type;
-        bool[] cards = new bool[4];
-        cards[(int)Direction.N] = true;
     }
-    enum Direction
-    {
-        N = 0,
-        E,
-        S,
-        W,
 
-    }
-    enum Type
-    {
-        Path,
-        DeadEnd,
-        Goal,
-        Start
-    }
 }
