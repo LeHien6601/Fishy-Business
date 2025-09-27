@@ -43,12 +43,10 @@ public class GameManager : SingletonMonoNet<GameManager>
         if (NetworkManager.Singleton.IsHost)
         {
             Debug.Log("Starting Game...");
-            //SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
             NetworkManager.Singleton.SceneManager.OnLoadComplete += HandleLoadComplete;
             NetworkManager.Singleton.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
             _spawnedPlayerIds.Clear();
             Debug.Log("Game Started.");
-            //HandleLoadComplete(NetworkManager.Singleton.LocalClientId, "GameScene", LoadSceneMode.Single);
         }
     }
 
