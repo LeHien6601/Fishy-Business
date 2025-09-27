@@ -17295,6 +17295,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Lighting
       objectReference: {fileID: 0}
+    - target: {fileID: 5663212053959012206, guid: 849dfd95c3a235c4db9ebafe8041c2c9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8658014762854197423, guid: 849dfd95c3a235c4db9ebafe8041c2c9, type: 3}
       propertyPath: m_Color.b
       value: 0.99155396
