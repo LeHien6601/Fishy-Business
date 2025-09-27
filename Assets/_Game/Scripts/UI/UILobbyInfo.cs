@@ -1,21 +1,24 @@
 using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
-using UnityEngine.XR;
+using UnityEngine.UI;
 
-public class UILobby : UIView
+public class UILobbyInfo : UIView
 {
     [Header("References")]
     [SerializeField] private TextMeshProUGUI _loobyNameText;
     [SerializeField] private TextMeshProUGUI _playerListText;
+    [SerializeField] private Button _backButton;
     void OnEnable()
     {
         UpdateUI();
         LobbyManager.Instance.OnUpdatedCurrentLobby += HandleUpdateLobby;
+        _backButton.onClick.AddListener(HandleClickBack);
     }
     void OnDisable()
     {
         LobbyManager.Instance.OnUpdatedCurrentLobby -= HandleUpdateLobby;
+        _backButton.onClick.RemoveListener(HandleClickBack);
     }
     private void HandleUpdateLobby(LobbyManager.UpdateCurrentLobbyEventArgs args)
     {
@@ -33,5 +36,10 @@ public class UILobby : UIView
                 _playerListText.text += player.Data[Constant.KEY_PLAYER_NAME].Value + "\n";
             }
         }
+    }
+    private void HandleClickBack()
+    {
+        Hide();
+        UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
     }
 }

@@ -1,13 +1,42 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class UIManager : SingletonMono<UIManager>
+public class UIManager : SingletonMonoNet<UIManager>
 {
     [Header("Properties")]
     [SerializeField] private List<UIViewState> _uiViewPrefabs = new();
     private List<UIViewState> _uiViewStates = new();
 
+    void Update()
+    {
+        if (true)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                bool isShowingLobbyUI = false;
+                foreach (var viewState in _uiViewStates)
+                {
+                    if (viewState.State == EUIState.LobbyGameplay && viewState.View.gameObject.activeSelf)
+                    {
+                        isShowingLobbyUI = true;
+                        break;
+                    }
+                }
+                if (isShowingLobbyUI)
+                {
+                    HideUI(EUIState.LobbyGameplay);
+                }
+                else
+                {
+                    ShowUI(EUIState.LobbyGameplay);
+                }
+            }
+        }
+    }
+
+    #region View Actions
     public void ShowUI(EUIState state)
     {
         if (!_uiViewStates.Exists(v => v.State == state))
@@ -37,15 +66,16 @@ public class UIManager : SingletonMono<UIManager>
             }
         }
     }
-}
+    #endregion
 
+}
 public enum EUIState
 {
     None,
     MainMenu,
     CustomGame,
-    Lobby,
-    InGame,
+    LobbyInfo,
+    LobbyGameplay,
 }
 [Serializable]
 public struct UIViewState

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
+public class SingletonMonoNet<T> : NetworkBehaviour where T : NetworkBehaviour
 {
     // private static instance
     static T m_ins;
