@@ -38,6 +38,14 @@ public class UICustomGame : UIView
             _refreshLobbyListCoroutine = null;
         }
     }
+    public override void HideWithParams(object param)
+    {
+        base.HideWithParams(param);
+        if ((bool)param)
+        {
+            UIManager.Instance.HideUI(EUIState.Footer);
+        }
+    }
     private IEnumerator RefreshLobbyList()
     {
         while (true)
@@ -107,12 +115,12 @@ public class UICustomGame : UIView
     private void Back()
     {
         UIManager.Instance.ShowUI(EUIState.MainMenu);
-        UIManager.Instance.HideUI(EUIState.CustomGame);
+        UIManager.Instance.HideUI(EUIState.CustomGame, false);
     }
     private async void Create()
     {
         await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
-        UIManager.Instance.HideUI(EUIState.CustomGame);
+        UIManager.Instance.HideUI(EUIState.CustomGame, true);
         GameManager.Instance.StartGame();
     }
 
@@ -121,7 +129,7 @@ public class UICustomGame : UIView
         if (!string.IsNullOrEmpty(_selectedLobbyCode))
         {
             await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
-            UIManager.Instance.HideUI(EUIState.CustomGame);
+            UIManager.Instance.HideUI(EUIState.CustomGame, true);
         }
         else
         {

@@ -17,6 +17,12 @@ public class UIMainMenu : UIView
         _exitBtn.onClick.AddListener(Exit);
     }
 
+    public override void Show()
+    {
+        base.Show();
+        UIManager.Instance.ShowUI(EUIState.Footer);
+    }
+
     private void QuickMatch()
     {
 
