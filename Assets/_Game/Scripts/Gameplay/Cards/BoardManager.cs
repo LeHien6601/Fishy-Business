@@ -6,29 +6,38 @@ public class BoardManager : MonoBehaviour
     [Header("Board Settings")]
     public int rows = 5;
     public int cols = 9;
-    public Vector2 cardSize = new Vector2(3, 2);  // X = width, Y = height
+    public Vector2 cardSize = new Vector2(2, 3);  // X = width, Y = height
     public GameObject cardPrefab;
-
+    [SerializeField] private CardInforSO _startCardInfor;
     private Card[,] board;
+
+    [Header("Deal Cards")]
+    [SerializeField] private CardHolder playerHand;
+    [SerializeField] private List<CardInforSO> availableCards;
+
 
     [Header("Gameplay Settings")]
     public Vector2Int startPos = new Vector2Int(0, 0);
-    public Vector2Int goalPos = new Vector2Int(4, 8);
+    public List<Vector2Int> goalPos;
 
     void Start()
     {
         GenerateBoard();
+        for (int i = 0; i < 5; i++)
+            playerHand.AddCard(availableCards[i]);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             bool canReach = CheckPath();
             Debug.Log("Check Path: " + (canReach ? "REACHABLE!" : "BLOCKED!"));
         }
     }
 
+
+    [ContextMenu("Gen Board")]
     void GenerateBoard()
     {
         board = new Card[rows, cols];
@@ -38,12 +47,21 @@ public class BoardManager : MonoBehaviour
         {
             for (int c = 0; c < cols; c++)
             {
-                Vector3 pos = origin + new Vector3(c * cardSize.x, 0, r * cardSize.y);
-                GameObject go = Instantiate(cardPrefab, pos, Quaternion.identity, transform);
+                Vector3 pos = new Vector3(c * cardSize.x, 0f, r * cardSize.y);
+                GameObject go = Instantiate(cardPrefab, transform);
+                go.transform.localPosition = pos;
                 go.transform.localRotation = cardPrefab.transform.localRotation;
                 go.name = $"Card_{r}_{c}";
                 Card card = go.GetComponent<Card>();
-                card.Refresh();
+                Vector2Int temp = new Vector2Int(r, c);
+                if (temp == startPos || goalPos.Contains(temp))
+                {
+                    card.SetData(_startCardInfor);
+                }
+                else
+                {
+                    card.Refresh();
+                }
                 board[r, c] = card;
             }
         }
@@ -51,8 +69,11 @@ public class BoardManager : MonoBehaviour
 
     bool CheckPath()
     {
-        if (board == null) return false;
-
+        if (board == null)
+        {
+            Debug.LogWarning("Board is null!");
+            return false;
+        }
         bool[,] visited = new bool[rows, cols];
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
 
@@ -62,7 +83,7 @@ public class BoardManager : MonoBehaviour
         while (queue.Count > 0)
         {
             Vector2Int current = queue.Dequeue();
-            if (current == goalPos) return true;
+            if (goalPos.Contains(current)) return true;
 
             Card currentCard = board[current.x, current.y];
             if (currentCard == null) continue;

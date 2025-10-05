@@ -9,9 +9,10 @@ public class CardInforSO : ScriptableObject
     public PathCardType PathCardType;
 }
 
-public enum CardType { Path, Action, Goal }
+public enum CardType { None, Path, Action, Goal }
 public enum PathCardType
 {
+    None,
     PathCard,
     DeadEnd,
 }

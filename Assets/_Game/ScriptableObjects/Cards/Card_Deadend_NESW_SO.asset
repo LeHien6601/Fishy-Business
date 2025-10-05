@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: e2d611fa6ea2cff40af7cf833c1e9b5a, type: 2}
   Connections: 01010101
-  CardType: 0
-  PathCardType: 1
+  CardType: 1
+  PathCardType: 2
