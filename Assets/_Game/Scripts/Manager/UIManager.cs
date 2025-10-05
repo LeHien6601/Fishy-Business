@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Netcode;
 using UnityEngine;
 
 public class UIManager : SingletonMonoNet<UIManager>
 {
-    [Header("Properties")]
-    [SerializeField] private List<UIViewState> _uiViewPrefabs = new();
+    private List<UIViewState> _uiViewPrefabs = new();
     private List<UIViewState> _uiViewStates = new();
+
+    private void Start()
+    {
+        _uiViewPrefabs = GameConfig.Instance.uiViewPrefabs;
+    }
 
     void Update()
     {
