@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Mono.Cecil.Cil;
 using UnityEngine;
 
 public class CardHolder : MonoBehaviour
@@ -16,21 +17,28 @@ public class CardHolder : MonoBehaviour
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
-    
-    
+
+
     /// <summary>
     /// Thêm card đã có sẵn (được spawn từ nơi khác)
+    /// Using on Deal Cards or Draw Card
     /// </summary>
     public void AddCard(Card card)
     {
         if (card == null) return;
         handCards.Add(card);
         card.transform.SetParent(transform, true);
+        var hover = card.GetComponent<CardHoverHandler>();
+        if (hover != null)
+        {
+            hover.SetData();
+        }
         UpdateCardPositions();
     }
 
     /// <summary>
     /// Tạo mới card dựa trên CardInforSO
+    /// Using on Spawn Card
     /// </summary>
     public void AddCard(CardInforSO cardSO)
     {
@@ -38,7 +46,6 @@ public class CardHolder : MonoBehaviour
 
         Card newCard = Instantiate(cardPrefab, transform);
         newCard.SetData(cardSO);
-        newCard.SetMaterial();
         handCards.Add(newCard);
 
         UpdateCardPositions();
@@ -151,6 +158,11 @@ public class CardHolder : MonoBehaviour
         Vector3 endPos = transform.TransformPoint(localPos) + offset;
 
         return (endPos, endRotation);
+    }
+
+    public (Vector3, Quaternion) GetCardPositionAndRotationPublic(int index)
+    {
+        return GetCardPositionAndRotation(index);
     }
 
     public bool IsEmpty() => handCards.Count == 0;

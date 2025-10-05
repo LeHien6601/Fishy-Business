@@ -3,7 +3,7 @@ using UnityEngine;
 [SelectionBase]
 public class Card : MonoBehaviour
 {
-    [SerializeField] private CardInforSO CardInforSO;
+    public CardInforSO CardInforSO;
     [SerializeField] private MeshRenderer meshRenderer;
     public CardType CardType;
     public PathCardType PathCardType;   // just use if cardType is PathCard
@@ -41,10 +41,25 @@ public class Card : MonoBehaviour
             PathCardType = CardInforSO.PathCardType;
             Connections = (bool[])cardInforSO.Connections.Clone(); // clone để giữ asset gốc
             isFlipped = false;
-            transform.localRotation = _initRotation;
         }
     }
+    [ContextMenu("Set Material")]
+    public void SetMaterial()
+    {
+        if (CardInforSO != null && meshRenderer != null)
+        {
+            // Reset Flip
+            isFlipped = false;
+            transform.localRotation = Quaternion.Euler(90f, 0f, _initRotation.z);
 
+            // Set new Material
+            meshRenderer.material = CardInforSO.material;
+
+            CardType = CardInforSO.CardType;
+            PathCardType = CardInforSO.PathCardType;
+            Connections = (bool[])CardInforSO.Connections.Clone();
+        }
+    }
     /// <summary>
     /// Rotate 180° around Y, swap N<->S and E<->W in Connections.
     /// </summary>
@@ -66,22 +81,5 @@ public class Card : MonoBehaviour
         Connections = newCon;
     }
 
-    [ContextMenu("Set Material")]
-    public void SetMaterial()
-    {
-        if (CardInforSO != null && meshRenderer != null)
-        {
-            // Reset Flip
-            isFlipped = false;
-            transform.localRotation = Quaternion.Euler(90f, 0f, _initRotation.z);
-
-            // Set new Material
-            meshRenderer.material = CardInforSO.material;
-
-            CardType = CardInforSO.CardType;
-            PathCardType = CardInforSO.PathCardType;
-            Connections = (bool[])CardInforSO.Connections.Clone();
-        }
-    }
 
 }

@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
+using DG.Tweening;
 
 public class BoardManager : MonoBehaviour
 {
@@ -7,14 +9,19 @@ public class BoardManager : MonoBehaviour
     public int rows = 5;
     public int cols = 9;
     public Vector2 cardSize = new Vector2(2, 3);  // X = width, Y = height
-    public GameObject cardPrefab;
+    public Card cardPrefab;
     [SerializeField] private CardInforSO _startCardInfor;
     private Card[,] board;
 
     [Header("Deal Cards")]
-    [SerializeField] private CardHolder playerHand;
+    [SerializeField] private Transform deckPosition;
+    [SerializeField] private List<CardHolder> playerHand;
     [SerializeField] private List<CardInforSO> availableCards;
+    [Header("Deck Config")]
+    [SerializeField] private int copiesPerCard = 4; // tổng 40 lá nếu availableCards = 10
+    [SerializeField] private float cardStackOffset = 0.002f;
 
+    private List<Card> deckObjects = new List<Card>(); // chỉ cần giữ object vật lý
 
     [Header("Gameplay Settings")]
     public Vector2Int startPos = new Vector2Int(0, 0);
@@ -23,8 +30,7 @@ public class BoardManager : MonoBehaviour
     void Start()
     {
         GenerateBoard();
-        for (int i = 0; i < 5; i++)
-            playerHand.AddCard(availableCards[i]);
+        // DealCard();
     }
 
     void Update()
@@ -36,6 +42,103 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    #region DealCards
+
+    [ContextMenu("Start Game")]
+    public void StartGame()
+    {
+        InitializeDeck();   // Create card deck
+        StartCoroutine(DealCardsCoroutine());   // Deal Cards
+    }
+
+    public void InitializeDeck()
+    {
+        // Delete old deck 
+        foreach (var c in deckObjects)
+            if (c != null) DestroyImmediate(c.gameObject);
+
+        deckObjects.Clear();
+
+        // Create cards base on availableCards
+        List<CardInforSO> tempList = new List<CardInforSO>();
+        for (int i = 0; i < copiesPerCard; i++)
+        {
+            tempList.AddRange(availableCards);
+        }
+
+        // Shuffle (Fisher–Yates)
+        for (int i = 0; i < tempList.Count; i++)
+        {
+            int rand = Random.Range(i, tempList.Count);
+            (tempList[i], tempList[rand]) = (tempList[rand], tempList[i]);
+        }
+
+        // Instantiate a deck Cards on table
+        for (int i = 0; i < tempList.Count; i++)
+        {
+            Card card = Instantiate(cardPrefab, deckPosition);
+            card.transform.localPosition = new Vector3(0, i * cardStackOffset, 0);
+            Quaternion quaternion = cardPrefab.transform.localRotation;
+            quaternion.x = -quaternion.x;
+            card.transform.localRotation = quaternion;
+
+            card.SetData(tempList[i]);
+            // card.SetMaterial();
+
+            deckObjects.Add(card);
+        }
+
+        Debug.Log($"✅ Created physical deck with {deckObjects.Count} cards.");
+    }
+
+    private IEnumerator DealCardsCoroutine()
+    {
+        float dealDelay = 0.05f;
+        int cardsPerPlayer = 5;
+
+        for (int i = 0; i < cardsPerPlayer; i++)
+        {
+            foreach (var player in playerHand)
+            {
+                if (deckObjects.Count == 0)
+                {
+                    Debug.LogWarning("❌ Deck is empty!");
+                    yield break;
+                }
+
+                // Draw Card on top
+                int lastIndex = deckObjects.Count - 1;
+                Card cardObj = deckObjects[lastIndex];
+                deckObjects.RemoveAt(lastIndex);
+
+                // Remove from deck parent to move to Player
+                cardObj.transform.SetParent(null);
+
+                // Calculate Pos and Rotate of card of player
+                int playerCardIndex = player.CardCount;
+                var (targetPos, targetRot) = player.GetCardPositionAndRotationPublic(playerCardIndex);
+
+                // Effect draw card
+                Vector3 liftPos = cardObj.transform.position + Vector3.up * 0.2f;
+
+                Sequence seq = DOTween.Sequence();
+                seq.Append(cardObj.transform.DOMove(liftPos, 0.03f).SetEase(Ease.OutQuad));
+                seq.Append(cardObj.transform.DOMove(targetPos, 0.1f).SetEase(Ease.OutCubic));
+
+                seq.Join(cardObj.transform.DORotate(new Vector3(0, 180, 0), 0.05f)
+                    .SetLoops(2, LoopType.Yoyo)
+                    .SetEase(Ease.InOutQuad));
+
+                seq.Append(cardObj.transform.DORotateQuaternion(targetRot, 0.05f).SetEase(Ease.OutCubic));
+
+                player.AddCard(cardObj);
+
+                yield return seq.WaitForCompletion();
+                yield return new WaitForSeconds(dealDelay);
+            }
+        }
+    }
+    #endregion
 
     [ContextMenu("Gen Board")]
     void GenerateBoard()
@@ -48,11 +151,10 @@ public class BoardManager : MonoBehaviour
             for (int c = 0; c < cols; c++)
             {
                 Vector3 pos = new Vector3(c * cardSize.x, 0f, r * cardSize.y);
-                GameObject go = Instantiate(cardPrefab, transform);
-                go.transform.localPosition = pos;
-                go.transform.localRotation = cardPrefab.transform.localRotation;
-                go.name = $"Card_{r}_{c}";
-                Card card = go.GetComponent<Card>();
+                Card card = Instantiate(cardPrefab, transform);
+                card.transform.localPosition = pos;
+                card.transform.localRotation = cardPrefab.transform.localRotation;
+                card.name = $"Card_{r}_{c}";
                 Vector2Int temp = new Vector2Int(r, c);
                 if (temp == startPos || goalPos.Contains(temp))
                 {
@@ -67,6 +169,8 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+
+    #region Check Win/Lose Condition
     bool CheckPath()
     {
         if (board == null)
@@ -142,4 +246,5 @@ public class BoardManager : MonoBehaviour
     {
         return pos.x >= 0 && pos.x < rows && pos.y >= 0 && pos.y < cols;
     }
+    #endregion
 }
