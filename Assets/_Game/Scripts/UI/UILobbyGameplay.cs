@@ -28,11 +28,24 @@ public class UILobbyGameplay : UIView
         _leaveLobbyBtn.onClick.RemoveListener(HandleClickLeaveLobby);
         _exitToDesktopBtn.onClick.RemoveListener(HandleClickExitToDesktop);
     }
+    public override void Show()
+    {
+        base.Show();
+        UIManager.Instance.ShowUI(EUIState.Footer);
+    }
+    public override void HideWithParams(object param)
+    {
+        base.HideWithParams(param);
+        if ((bool)param)
+        {
+            UIManager.Instance.HideUI(EUIState.Footer);
+        }
+    }
     private void HandleClickContinue()
     {
         // Continue button logic here
         Debug.Log("Continue button clicked");
-        Hide();
+        HideWithParams(true);
     }
     private void HandleClickLobbyInfo()
     {

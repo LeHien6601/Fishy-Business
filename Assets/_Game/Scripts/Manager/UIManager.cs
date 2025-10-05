@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ public class UIManager : SingletonMonoNet<UIManager>
                 }
                 if (isShowingLobbyUI)
                 {
-                    HideUI(EUIState.LobbyGameplay);
+                    HideUI(EUIState.LobbyGameplay, true);
                 }
                 else
                 {
@@ -37,7 +38,7 @@ public class UIManager : SingletonMonoNet<UIManager>
     }
 
     #region View Actions
-    public void ShowUI(EUIState state)
+    public void ShowUI(EUIState state, object param = null)
     {
         if (!_uiViewStates.Exists(v => v.State == state))
         {
@@ -48,21 +49,35 @@ public class UIManager : SingletonMonoNet<UIManager>
                 _uiViewStates.Add(new UIViewState() { State = state, View = viewInstance });
             }
         }
-        foreach (var viewState in _uiViewStates)
+        foreach (var viewState in _uiViewStates.ToList())
         {
             if (viewState.State == state)
             {
-                viewState.View.Show();
+                if (param != null)
+                {
+                    viewState.View.ShowWithParams(param);
+                }
+                else
+                {
+                    viewState.View.Show();
+                }                
             }
         }
     }
-    public void HideUI(EUIState state)
+    public void HideUI(EUIState state, object param = null)
     {
         foreach (var viewState in _uiViewStates)
         {
             if (viewState.State == state)
             {
-                viewState.View.Hide();
+                if (param != null)
+                {
+                    viewState.View.HideWithParams(param);
+                }
+                else
+                {
+                    viewState.View.Hide();
+                }                
             }
         }
     }
@@ -76,6 +91,7 @@ public enum EUIState
     CustomGame,
     LobbyInfo,
     LobbyGameplay,
+    Footer
 }
 [Serializable]
 public struct UIViewState
