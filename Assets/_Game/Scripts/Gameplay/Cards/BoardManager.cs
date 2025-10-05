@@ -6,17 +6,17 @@ using DG.Tweening;
 public class BoardManager : MonoBehaviour
 {
     [Header("Board Settings")]
-    public int rows = 5;
-    public int cols = 9;
-    public Vector2 cardSize = new Vector2(2, 3);  // X = width, Y = height
-    public Card cardPrefab;
+    [SerializeField] private int rows = 5;
+    [SerializeField] private int cols = 9;
+    [SerializeField] private Vector2 cardSize = new Vector2(2, 3);  // X = width, Y = height
+    [SerializeField] private Card cardPrefab;
     [SerializeField] private CardInforSO _startCardInfor;
-    private Card[,] board;
 
     [Header("Deal Cards")]
     [SerializeField] private Transform deckPosition;
     [SerializeField] private List<CardHolder> playerHand;
     [SerializeField] private List<CardInforSO> availableCards;
+
     [Header("Deck Config")]
     [SerializeField] private int copiesPerCard = 4; // tổng 40 lá nếu availableCards = 10
     [SerializeField] private float cardStackOffset = 0.002f;
@@ -24,8 +24,13 @@ public class BoardManager : MonoBehaviour
     private List<Card> deckObjects = new List<Card>(); // chỉ cần giữ object vật lý
 
     [Header("Gameplay Settings")]
-    public Vector2Int startPos = new Vector2Int(0, 0);
-    public List<Vector2Int> goalPos;
+    [SerializeField] private Vector2Int startPos = new Vector2Int(0, 0);
+    [SerializeField] private List<Vector2Int> goalPos;
+
+
+    // Private paramater
+    private Card[,] board;
+    // private int _currentPlayer = 0;
 
     void Start()
     {
@@ -83,6 +88,7 @@ public class BoardManager : MonoBehaviour
             card.transform.localRotation = quaternion;
 
             card.SetData(tempList[i]);
+            card.SetLocation(CardLocation.Deck);
             // card.SetMaterial();
 
             deckObjects.Add(card);
@@ -113,6 +119,7 @@ public class BoardManager : MonoBehaviour
 
                 // Remove from deck parent to move to Player
                 cardObj.transform.SetParent(null);
+                cardObj.SetLocation(CardLocation.None);
 
                 // Calculate Pos and Rotate of card of player
                 int playerCardIndex = player.CardCount;
@@ -169,6 +176,9 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    #region Handle PlayGame
+
+    #endregion
 
     #region Check Win/Lose Condition
     bool CheckPath()
@@ -247,4 +257,5 @@ public class BoardManager : MonoBehaviour
         return pos.x >= 0 && pos.x < rows && pos.y >= 0 && pos.y < cols;
     }
     #endregion
+
 }

@@ -1,85 +1,125 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using DG.Tweening;
+using Unity.Collections;
 
 [SelectionBase]
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public CardInforSO CardInforSO;
-    [SerializeField] private MeshRenderer meshRenderer;
-    public CardType CardType;
-    public PathCardType PathCardType;   // just use if cardType is PathCard
-    public bool[] Connections;
-    private bool isFlipped = false; // false = normal, true = rotated 180°
+    [SerializeField] private MeshRenderer _meshRenderer;
+
+    [Header("Card State")]
+    public CardLocation Location = CardLocation.None;
+    [HideInInspector] public CardHolder Holder;
+
+    [ReadOnly] public CardType CardType;
+    [ReadOnly] public PathCardType PathCardType;
+    [ReadOnly] public bool[] Connections;
+
+    private bool _isFlipped = false;
     private Quaternion _initRotation;
+    private int _indexInHolder = -1;
+
     void Awake()
     {
         _initRotation = transform.localRotation;
     }
 
-    [ContextMenu("Refresh")]
-    public void Refresh()
+    #region Set Data
+    public void SetData(CardInforSO cardInforSO)
     {
-        CardInforSO = null;
-        meshRenderer.material = null;
+        CardInforSO = cardInforSO;
+        if (cardInforSO == null) return;
 
-        CardType = CardType.None;
-        PathCardType = PathCardType.None;
-        Connections = null;
-        isFlipped = false;
-        transform.localRotation = _initRotation;
-    }
+        if (_meshRenderer != null)
+            _meshRenderer.material = cardInforSO.material;
 
-    public void SetData(CardInforSO cardInforSO = null)
-    {
-        if (cardInforSO != null)
-        {
-            CardInforSO = cardInforSO;
-            if (meshRenderer != null)
-            {
-                meshRenderer.material = CardInforSO.material;
-            }
-            CardType = cardInforSO.CardType;
-            PathCardType = CardInforSO.PathCardType;
-            Connections = (bool[])cardInforSO.Connections.Clone(); // clone để giữ asset gốc
-            isFlipped = false;
-        }
+        _isFlipped = false;
+        CardType = cardInforSO.CardType;
+        PathCardType = cardInforSO.PathCardType;
+        Connections = (bool[])cardInforSO.Connections.Clone();
     }
     [ContextMenu("Set Material")]
     public void SetMaterial()
     {
-        if (CardInforSO != null && meshRenderer != null)
+        if (CardInforSO != null && _meshRenderer != null)
         {
             // Reset Flip
-            isFlipped = false;
+            _isFlipped = false;
             transform.localRotation = Quaternion.Euler(90f, 0f, _initRotation.z);
 
             // Set new Material
-            meshRenderer.material = CardInforSO.material;
+            _meshRenderer.material = CardInforSO.material;
 
             CardType = CardInforSO.CardType;
             PathCardType = CardInforSO.PathCardType;
             Connections = (bool[])CardInforSO.Connections.Clone();
         }
     }
-    /// <summary>
-    /// Rotate 180° around Y, swap N<->S and E<->W in Connections.
-    /// </summary>
-    [ContextMenu("Rotate")]
+    public void Refresh()
+    {
+        CardInforSO = null;
+        _meshRenderer.material = null;
+        CardType = CardType.None;
+        PathCardType = PathCardType.None;
+        Connections = null;
+        _isFlipped = false;
+        transform.localRotation = _initRotation;
+    }
+
     public void Rotate()
     {
         if (Connections == null || Connections.Length < 4) return;
+        _isFlipped = !_isFlipped;
+        transform.localRotation = Quaternion.Euler(90f, _isFlipped ? 180f : 0f, _initRotation.z);
 
-        isFlipped = !isFlipped;
-        transform.localRotation = Quaternion.Euler(90f, isFlipped ? 180f : 0f, _initRotation.z);
-
-        // N,E,S,W = 0,1,2,3 -> swap 0<->2, 1<->3
         bool[] newCon = new bool[4];
-        newCon[0] = Connections[2]; // N = S
-        newCon[1] = Connections[3]; // E = W
-        newCon[2] = Connections[0]; // S = N
-        newCon[3] = Connections[1]; // W = E
-
+        newCon[0] = Connections[2];
+        newCon[1] = Connections[3];
+        newCon[2] = Connections[0];
+        newCon[3] = Connections[1];
         Connections = newCon;
     }
 
+    public void SetLocation(CardLocation cardLocation)
+    {
+        Location = cardLocation;
+    }
+    #endregion
 
+    #region Handle Hover
+    // ------------------------
+    // 🔹 UI Interaction Handling
+    // ------------------------
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (Location != CardLocation.PlayerHand) return;
+        if (Holder == null) return;
+
+        _indexInHolder = Holder.GetCardIndex(this);
+        if (_indexInHolder >= 0)
+            Holder.SelectCard(_indexInHolder);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (Location != CardLocation.PlayerHand || Holder == null) return;
+
+        if (_indexInHolder >= 0)
+        {
+            Holder.UnSelectCard(_indexInHolder);
+            _indexInHolder = -1;
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (Location == CardLocation.PlayerHand)
+        {
+            Debug.Log($"🃏 Card clicked: {CardInforSO.name}");
+            // TODO: implement use card, play to board, discard, etc.
+        }
+    }
+    #endregion
 }

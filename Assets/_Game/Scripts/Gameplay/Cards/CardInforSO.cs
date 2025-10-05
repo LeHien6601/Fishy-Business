@@ -23,3 +23,12 @@ public enum Direction
     S,
     W
 }
+
+public enum CardLocation
+{
+    None,
+    Deck,
+    PlayerHand,
+    OnBoard,
+    Discarded
+}
