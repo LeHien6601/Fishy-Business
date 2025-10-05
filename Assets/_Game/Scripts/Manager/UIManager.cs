@@ -56,6 +56,7 @@ public class UIManager : SingletonMonoNet<UIManager>
         {
             if (viewState.State == state)
             {
+                viewState.View.SetSortingOrder(viewState.SortingOrder);
                 if (param != null)
                 {
                     viewState.View.ShowWithParams(param);
@@ -101,4 +102,5 @@ public struct UIViewState
 {
     public EUIState State;
     public UIView View;
+    public int SortingOrder;
 }

@@ -12,21 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f16718a9ff9b324494e85b08ef8f6bb, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  maxLives: 3
-  playerSpeed: 5
-  gameTitle: My Awesome Game
-  enableDebugMode: 0
-  musicVolume: 0.8
-  sfxVolume: 0.6
-  defaultDifficulty: 1
   uiViewPrefabs:
   - State: 1
     View: {fileID: 4747767118075654663, guid: 9346b67e7f2c1c44689c26fa49f1284f, type: 3}
+    SortingOrder: 0
   - State: 2
     View: {fileID: 5209213446142926961, guid: a41e02a2314ee6240a25b3c2ce3bbc1c, type: 3}
+    SortingOrder: 0
   - State: 3
     View: {fileID: -6230636468975272045, guid: 852d9e7640a289843b1f6936edc8ada1, type: 3}
+    SortingOrder: 0
   - State: 4
     View: {fileID: 392927606908382715, guid: 56be211ffc6ee6547b239f46e793e6ec, type: 3}
+    SortingOrder: 0
   - State: 5
     View: {fileID: 9052830829739115278, guid: df856596f754dfe48828a2d12e35a340, type: 3}
+    SortingOrder: 1
