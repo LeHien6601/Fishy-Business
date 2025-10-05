@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -46,16 +47,19 @@ public class UILobbyGameplay : UIView
         // Continue button logic here
         Debug.Log("Continue button clicked");
         HideWithParams(true);
+        EventSystem.current.SetSelectedGameObject(null);
     }
     private void HandleClickLobbyInfo()
     {
         Hide();
         UIManager.Instance.ShowUI(EUIState.LobbyInfo);
+        EventSystem.current.SetSelectedGameObject(null);
     }
     private void HandleClickSettings()
     {
         // Settings button logic here
         Debug.Log("Settings button clicked");
+        EventSystem.current.SetSelectedGameObject(null);
     }
     private async void HandleClickLeaveLobby()
     {
@@ -67,11 +71,12 @@ public class UILobbyGameplay : UIView
         NetworkManager.Singleton.SceneManager.OnLoadComplete += GameManager.Instance.HandleLoadComplete;
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         GameManager.Instance.HandleLoadComplete(NetworkManager.Singleton.LocalClientId, "Lobby", LoadSceneMode.Single);
-        //NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        EventSystem.current.SetSelectedGameObject(null);
     }
 
     private void HandleClickExitToDesktop()
     {
+        EventSystem.current.SetSelectedGameObject(null);
         Application.Quit();
     }
 }

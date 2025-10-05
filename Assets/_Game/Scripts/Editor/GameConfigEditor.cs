@@ -85,6 +85,7 @@ public class GameConfigEditor : EditorWindow
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
         GUILayout.Label("State", EditorStyles.boldLabel, GUILayout.Width(100));
         GUILayout.Label("View", EditorStyles.boldLabel, GUILayout.Width(100));
+        GUILayout.Label("Order", EditorStyles.boldLabel, GUILayout.Width(50));
         GUILayout.Label("Actions", EditorStyles.boldLabel, GUILayout.Width(60));
         EditorGUILayout.EndHorizontal();
 
@@ -98,9 +99,11 @@ public class GameConfigEditor : EditorWindow
             // Draw fields for each item
             SerializedProperty stateProp = itemProp.FindPropertyRelative("State");
             SerializedProperty viewProp = itemProp.FindPropertyRelative("View");
+            SerializedProperty orderProp = itemProp.FindPropertyRelative("SortingOrder");
 
             EditorGUILayout.PropertyField(stateProp, GUIContent.none, GUILayout.Width(100));
             EditorGUILayout.PropertyField(viewProp, GUIContent.none, GUILayout.Width(100));
+            EditorGUILayout.PropertyField(orderProp, GUIContent.none, GUILayout.Width(50));
 
             // Delete button
             if (GUILayout.Button("Delete", GUILayout.Width(60)))
@@ -120,6 +123,7 @@ public class GameConfigEditor : EditorWindow
             SerializedProperty newItem = uiViewProp.GetArrayElementAtIndex(uiViewProp.arraySize - 1);
             newItem.FindPropertyRelative("State").enumValueIndex = 0;
             newItem.FindPropertyRelative("View").objectReferenceValue = null;
+            newItem.FindPropertyRelative("SortingOrder").intValue = 0;
         }
     }
 }
