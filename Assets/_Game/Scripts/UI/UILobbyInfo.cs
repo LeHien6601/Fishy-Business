@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,8 +10,8 @@ public class UILobbyInfo : UIView
 {
     [Header("References")]
     [SerializeField] private TextMeshProUGUI _loobyNameText;
-    [SerializeField] private TextMeshProUGUI _playerListText;
     [SerializeField] private Button _backButton;
+    [SerializeField] private List<UILobbyMember> _uiMembers = new();
     void OnEnable()
     {
         UpdateUI();
@@ -29,11 +32,23 @@ public class UILobbyInfo : UIView
         if (LobbyManager.Instance.currentLobby != null)
         {
             Lobby lobby = LobbyManager.Instance.currentLobby;
-            _loobyNameText.text = $"{lobby.Name} {lobby.Players.Count}/{lobby.MaxPlayers} {lobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value}";
-            _playerListText.text = "";
-            foreach (var player in LobbyManager.Instance.currentLobby.Players)
+            _loobyNameText.text = $"{lobby.Name}";
+            int currentNumOfPlayer = LobbyManager.Instance.currentLobby.Players.Count;
+            string mineId = AuthenticationService.Instance.PlayerId;
+            Lobby currentLobby = LobbyManager.Instance.currentLobby;
+            for (int i = 0; i < Constant.MAX_PLAYERS; i++)
             {
-                _playerListText.text += player.Data[Constant.KEY_PLAYER_NAME].Value + "\n";
+                if (i < currentNumOfPlayer)
+                {
+                    _uiMembers[i].SetMemberData(
+                        mineId == currentLobby.Players[i].Id,
+                        currentLobby.Players[i].Data[Constant.KEY_PLAYER_NAME].Value,
+                        null,
+                        currentLobby.Players[i].Id);
+                }
+                else {
+                    _uiMembers[i].ResetMemberData();
+                }
             }
         }
     }
