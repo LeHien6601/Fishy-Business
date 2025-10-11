@@ -8,6 +8,7 @@ using UnityEditor;
 public class UIAnimation : MonoBehaviour
 {
     #region Properties
+    public UIAnimationType Type;
     public bool MoveEnabled = false;
     public float MoveDuration = 1f;
     public float MoveDelay = 0f;
@@ -89,7 +90,7 @@ public class UIAnimation : MonoBehaviour
         }
 
         _canvasGroup ??= GetComponent<CanvasGroup>();
-        
+
         // Kill any existing tweens
         DOTween.Kill(gameObject);
 
@@ -112,6 +113,7 @@ public class UIAnimation : MonoBehaviour
         if (RotateEnabled) AnimateRotate();
         if (ScaleEnabled) AnimateScale();
         if (FadeEnabled) AnimateFade();
+        else _canvasGroup.alpha = 1;
     }
 
     private void AnimateMove()
@@ -149,4 +151,18 @@ public class UIAnimation : MonoBehaviour
     }
 
     #endregion
+
+    #region Getters
+    public float GetOverallDuration()
+    {
+        float duration = 0;
+        if (MoveEnabled) duration = Mathf.Max(duration, MoveDuration + MoveDelay);
+        if (RotateEnabled) duration = Mathf.Max(duration, RotateDuration + RotateDelay);
+        if (ScaleEnabled) duration = Mathf.Max(duration, ScaleDuration + ScaleDelay);
+        if (FadeEnabled) duration = Mathf.Max(duration, FadeDuration + FadeDelay);
+        return duration;
+    }
+    #endregion
 }
+
+public enum UIAnimationType {Show,Hide,Others}

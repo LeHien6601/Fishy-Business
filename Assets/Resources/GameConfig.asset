@@ -15,7 +15,7 @@ MonoBehaviour:
   uiViewPrefabs:
   - State: 1
     View: {fileID: 4747767118075654663, guid: 9346b67e7f2c1c44689c26fa49f1284f, type: 3}
-    SortingOrder: 0
+    SortingOrder: 1
   - State: 2
     View: {fileID: 5209213446142926961, guid: a41e02a2314ee6240a25b3c2ce3bbc1c, type: 3}
     SortingOrder: 0
@@ -27,4 +27,4 @@ MonoBehaviour:
     SortingOrder: 0
   - State: 5
     View: {fileID: 9052830829739115278, guid: df856596f754dfe48828a2d12e35a340, type: 3}
-    SortingOrder: 1
+    SortingOrder: 2

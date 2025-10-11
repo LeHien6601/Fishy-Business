@@ -11,6 +11,8 @@ public class UIAnimationEditor : Editor
     {
         serializedObject.Update();
 
+        EditorGUILayout.Space();
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("Type"), new GUIContent("Name"));
         // Draw tab toolbar
         EditorGUILayout.Space();
         selectedTab = GUILayout.Toolbar(selectedTab, tabNames, GUILayout.Height(25f));

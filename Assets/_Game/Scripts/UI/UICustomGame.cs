@@ -38,7 +38,7 @@ public class UICustomGame : UIView
             _refreshLobbyListCoroutine = null;
         }
     }
-    public override void HideWithParams(object param)
+    public override async void HideWithParams(object param)
     {
         base.HideWithParams(param);
         if ((bool)param)

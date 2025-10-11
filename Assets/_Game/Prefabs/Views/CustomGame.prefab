@@ -943,6 +943,9 @@ GameObject:
   - component: {fileID: 2327246632782465326}
   - component: {fileID: 7153418976089324764}
   - component: {fileID: 5209213446142926961}
+  - component: {fileID: 7253113726185326475}
+  - component: {fileID: 4817011708286800656}
+  - component: {fileID: 6894805733225923220}
   m_Layer: 5
   m_Name: CustomGame
   m_TagString: Untagged
@@ -959,7 +962,7 @@ RectTransform:
   m_GameObject: {fileID: 2570996792641200560}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1342676850349210648}
@@ -1046,11 +1049,99 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35096e96e0a163242815616c31023ce8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _showAnimation: {fileID: 4817011708286800656}
+  _hideAnimation: {fileID: 6894805733225923220}
   _backBtn: {fileID: 6855173711786834197}
   _createBtn: {fileID: 8806517492437633505}
   _joinBtn: {fileID: 4231453647485365919}
   _lobbyListContent: {fileID: 6027735493756635368}
   _lobbyItemPrefab: {fileID: 5010621185371853725, guid: 32c6e37b4ae499949b1711be5566e8fc, type: 3}
+--- !u!225 &7253113726185326475
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2570996792641200560}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &4817011708286800656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2570996792641200560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da31f5f47a0cf1c4f9869eed70f0f38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 0
+  MoveEnabled: 1
+  MoveDuration: 0.5
+  MoveDelay: 0
+  MoveEaseType: 27
+  MoveStartValue: {x: 1, y: 0}
+  MoveEndValue: {x: 0, y: 0}
+  RotateEnabled: 0
+  RotateDuration: 1
+  RotateDelay: 1
+  RotateEaseType: 1
+  RotateStartValue: {x: 0, y: 0, z: 90}
+  RotateEndValue: {x: 0, y: 0, z: 0}
+  ScaleEnabled: 1
+  ScaleDuration: 0.2
+  ScaleDelay: 0
+  ScaleEaseType: 27
+  ScaleStartValue: {x: 1, y: 0}
+  ScaleEndValue: {x: 1, y: 1}
+  FadeEnabled: 0
+  FadeDuration: 1
+  FadeDelay: 0
+  FadeEaseType: 1
+  FadeStartValue: 0
+  FadeEndValue: 1
+--- !u!114 &6894805733225923220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2570996792641200560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da31f5f47a0cf1c4f9869eed70f0f38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 1
+  MoveEnabled: 1
+  MoveDuration: 0.6
+  MoveDelay: 0
+  MoveEaseType: 26
+  MoveStartValue: {x: 0, y: 0}
+  MoveEndValue: {x: 1, y: 0}
+  RotateEnabled: 0
+  RotateDuration: 1
+  RotateDelay: 1
+  RotateEaseType: 1
+  RotateStartValue: {x: 0, y: 0, z: 90}
+  RotateEndValue: {x: 0, y: 0, z: 0}
+  ScaleEnabled: 1
+  ScaleDuration: 0.6
+  ScaleDelay: 0
+  ScaleEaseType: 26
+  ScaleStartValue: {x: 1, y: 1}
+  ScaleEndValue: {x: 1, y: 0}
+  FadeEnabled: 0
+  FadeDuration: 1
+  FadeDelay: 0
+  FadeEaseType: 1
+  FadeStartValue: 0
+  FadeEndValue: 1
 --- !u!1 &2641265726225750430
 GameObject:
   m_ObjectHideFlags: 0
@@ -1427,7 +1518,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6708480879449190556}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
