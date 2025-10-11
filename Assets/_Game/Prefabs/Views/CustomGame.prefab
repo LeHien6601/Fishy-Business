@@ -971,7 +971,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 1920, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7678439543237763413
@@ -1083,7 +1083,7 @@ MonoBehaviour:
   Type: 0
   MoveEnabled: 1
   MoveDuration: 0.5
-  MoveDelay: 0
+  MoveDelay: 0.1
   MoveEaseType: 27
   MoveStartValue: {x: 1, y: 0}
   MoveEndValue: {x: 0, y: 0}
@@ -1093,10 +1093,10 @@ MonoBehaviour:
   RotateEaseType: 1
   RotateStartValue: {x: 0, y: 0, z: 90}
   RotateEndValue: {x: 0, y: 0, z: 0}
-  ScaleEnabled: 1
-  ScaleDuration: 0.2
-  ScaleDelay: 0
-  ScaleEaseType: 27
+  ScaleEnabled: 0
+  ScaleDuration: 0.5
+  ScaleDelay: 0.1
+  ScaleEaseType: 26
   ScaleStartValue: {x: 1, y: 0}
   ScaleEndValue: {x: 1, y: 1}
   FadeEnabled: 0
@@ -1119,8 +1119,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 1
   MoveEnabled: 1
-  MoveDuration: 0.6
-  MoveDelay: 0
+  MoveDuration: 0.5
+  MoveDelay: 0.1
   MoveEaseType: 26
   MoveStartValue: {x: 0, y: 0}
   MoveEndValue: {x: 1, y: 0}
@@ -1130,12 +1130,12 @@ MonoBehaviour:
   RotateEaseType: 1
   RotateStartValue: {x: 0, y: 0, z: 90}
   RotateEndValue: {x: 0, y: 0, z: 0}
-  ScaleEnabled: 1
-  ScaleDuration: 0.6
-  ScaleDelay: 0
+  ScaleEnabled: 0
+  ScaleDuration: 0.5
+  ScaleDelay: 0.1
   ScaleEaseType: 26
-  ScaleStartValue: {x: 1, y: 1}
-  ScaleEndValue: {x: 1, y: 0}
+  ScaleStartValue: {x: 1, y: 0}
+  ScaleEndValue: {x: 1, y: 1}
   FadeEnabled: 0
   FadeDuration: 1
   FadeDelay: 0
@@ -1518,7 +1518,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6708480879449190556}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

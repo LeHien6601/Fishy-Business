@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using UnityEditor;
+using System.Threading.Tasks;
 
 [RequireComponent(typeof(CanvasGroup))]
 [RequireComponent(typeof(RectTransform))]
@@ -49,6 +50,7 @@ public class UIAnimation : MonoBehaviour
     {
         EditorApplication.update += EditorUpdate;
         _lastEditorTime = EditorApplication.timeSinceStartup;
+
     }
     void OnDisable()
     {
@@ -72,9 +74,8 @@ public class UIAnimation : MonoBehaviour
         _rectTransform = GetComponent<RectTransform>();
         _canvasGroup = GetComponent<CanvasGroup>();
     }
-
     [ContextMenu("Play Animation")]
-    public void PlayAnimation()
+    public async void PlayAnimation()
     {
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -114,6 +115,15 @@ public class UIAnimation : MonoBehaviour
         if (ScaleEnabled) AnimateScale();
         if (FadeEnabled) AnimateFade();
         else _canvasGroup.alpha = 1;
+
+        if (Type == UIAnimationType.Hide || Type == UIAnimationType.Show)
+        {
+            await Task.Delay((int)(1000 * (0.5f + GetOverallDuration())));
+            _rectTransform.sizeDelta = Vector2.zero;
+            _canvasGroup.alpha = 1;
+            _rectTransform.localScale = Vector2.one;
+            _rectTransform.localPosition = Vector3.zero;
+        }
     }
 
     private void AnimateMove()

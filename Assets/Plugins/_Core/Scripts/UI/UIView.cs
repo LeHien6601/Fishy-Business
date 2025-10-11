@@ -7,6 +7,7 @@ public class UIView : MonoBehaviour
     [Header("Animations")]
     [SerializeField] private UIAnimation _showAnimation;
     [SerializeField] private UIAnimation _hideAnimation;
+    private bool _isShowing = false;
     private Canvas _canvas;
     void Awake()
     {
@@ -20,11 +21,15 @@ public class UIView : MonoBehaviour
     }
     public virtual void Show()
     {
+        if (_isShowing) return;
+        _isShowing = true;
         gameObject.SetActive(true);
         if (_showAnimation) _showAnimation.PlayAnimation();
     }
     public virtual async void Hide()
     {
+        if (!_isShowing) return;
+        _isShowing = false;
         if (_hideAnimation)
         {
             _hideAnimation.PlayAnimation();
@@ -34,16 +39,20 @@ public class UIView : MonoBehaviour
     }
     public virtual void ShowWithParams(object param)
     {
+        if (_isShowing) return;
+        _isShowing = true;
         gameObject.SetActive(true);
+        if (_showAnimation) _showAnimation.PlayAnimation();
     }
     public virtual async void HideWithParams(object param)
     {
+        if (!_isShowing) return;
+        _isShowing = false;
         if (_hideAnimation)
         {
             _hideAnimation.PlayAnimation();
             await Task.Delay((int)(1000 * _hideAnimation.GetOverallDuration()));
         }
-        Debug.Log(_hideAnimation.GetOverallDuration());
         gameObject.SetActive(false);
     }
 }
