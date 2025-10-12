@@ -19,6 +19,7 @@ public class CardHolder : MonoBehaviour
     public int CardCount => handCards.Count;
 
 
+
     /// <summary>
     /// Thêm card đã có sẵn (được spawn từ nơi khác)
     /// Using on Deal Cards or Draw Card
@@ -26,35 +27,37 @@ public class CardHolder : MonoBehaviour
     public void AddCard(Card card)
     {
         if (card == null) return;
+
         handCards.Add(card);
         card.transform.SetParent(transform, true);
-        var hover = card.GetComponent<CardHoverHandler>();
-        if (hover != null)
-        {
-            hover.SetData();
-        }
+        card.Holder = this;
+        card.Location = CardLocation.PlayerHand;
+
         UpdateCardPositions();
     }
 
     /// <summary>
-    /// Tạo mới card dựa trên CardInforSO
-    /// Using on Spawn Card
+    /// Using when click right mouse on card
     /// </summary>
-    public void AddCard(CardInforSO cardSO)
-    {
-        if (cardSO == null || cardPrefab == null) return;
-
-        Card newCard = Instantiate(cardPrefab, transform);
-        newCard.SetData(cardSO);
-        handCards.Add(newCard);
-
-        UpdateCardPositions();
-    }
-
+    /// <param name="card"></param>
+    /// <returns></returns>
     public Card RemoveCard(Card card)
     {
         if (card == null) return null;
+
         handCards.Remove(card);
+        card.Holder = null;
+        card.Location = CardLocation.Discarded; // hoặc OnBoard nếu chơi ra bàn
+        UpdateCardPositions();
+        return card;
+    }
+
+    public Card RemoveCard(Card card, CardLocation cardLocation)
+    {
+        if (card == null) return null;
+
+        handCards.Remove(card);
+        card.Location = cardLocation;
         UpdateCardPositions();
         return card;
     }
@@ -64,6 +67,25 @@ public class CardHolder : MonoBehaviour
         if (cardIndex < 0 || cardIndex >= handCards.Count) return null;
         return RemoveCard(handCards[cardIndex]);
     }
+
+    /// <summary>
+    /// Invoke when click left mouse on Card
+    /// </summary>
+    /// <param name="card"></param>
+    /// <returns></returns>
+    public Card UseCard(Card card)
+    {
+        // TODO: Move Card to Board Game
+        // Remove from hand and hand will not mark it OnBoard yet.
+        // BoardManager sẽ tiếp nhận object và quản lý tiếp (place / cancel)
+        return RemoveCard(card, CardLocation.None);
+    }
+
+    public int GetCardIndex(Card card)
+    {
+        return handCards.IndexOf(card);
+    }
+
 
     public List<Card> RemoveCards(List<int> indexes)
     {
@@ -132,6 +154,7 @@ public class CardHolder : MonoBehaviour
             Vector3 offset = (i - handCards.Count / 2f) * CardThickness * transform.forward;
             Vector3 endPos = transform.TransformPoint(localPos) + offset;
 
+            handCards[i].DOKill();
             // Animate with DOTween
             handCards[i].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
             handCards[i].transform.DORotateQuaternion(endRotation, AnimationDuration).SetEase(Ease.OutQuad);
