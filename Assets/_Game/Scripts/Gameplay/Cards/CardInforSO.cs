@@ -30,5 +30,6 @@ public enum CardLocation
     Deck,
     PlayerHand,
     OnBoard,
-    Discarded
+    Discarded,
+    Hidden,
 }

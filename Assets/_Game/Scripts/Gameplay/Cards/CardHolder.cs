@@ -37,21 +37,6 @@ public class CardHolder : MonoBehaviour
     }
 
     /// <summary>
-    /// Tạo mới card dựa trên CardInforSO
-    /// Using on Spawn Card
-    /// </summary>
-    public void AddCard(CardInforSO cardSO)
-    {
-        if (cardSO == null || cardPrefab == null) return;
-
-        Card newCard = Instantiate(cardPrefab, transform);
-        newCard.SetData(cardSO);
-        handCards.Add(newCard);
-
-        UpdateCardPositions();
-    }
-
-    /// <summary>
     /// Using when click right mouse on card
     /// </summary>
     /// <param name="card"></param>
@@ -72,7 +57,6 @@ public class CardHolder : MonoBehaviour
         if (card == null) return null;
 
         handCards.Remove(card);
-        card.Holder = null;
         card.Location = cardLocation;
         UpdateCardPositions();
         return card;
@@ -92,7 +76,9 @@ public class CardHolder : MonoBehaviour
     public Card UseCard(Card card)
     {
         // TODO: Move Card to Board Game
-        return RemoveCard(card, CardLocation.OnBoard);
+        // Remove from hand and hand will not mark it OnBoard yet.
+        // BoardManager sẽ tiếp nhận object và quản lý tiếp (place / cancel)
+        return RemoveCard(card, CardLocation.None);
     }
 
     public int GetCardIndex(Card card)
@@ -168,6 +154,7 @@ public class CardHolder : MonoBehaviour
             Vector3 offset = (i - handCards.Count / 2f) * CardThickness * transform.forward;
             Vector3 endPos = transform.TransformPoint(localPos) + offset;
 
+            handCards[i].DOKill();
             // Animate with DOTween
             handCards[i].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
             handCards[i].transform.DORotateQuaternion(endRotation, AnimationDuration).SetEase(Ease.OutQuad);
