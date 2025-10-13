@@ -1,14 +1,47 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class UIManager : SingletonMono<UIManager>
+public class UIManager : SingletonMonoNet<UIManager>
 {
-    [Header("Properties")]
-    [SerializeField] private List<UIViewState> _uiViewPrefabs = new();
+    private List<UIViewState> _uiViewPrefabs = new();
     private List<UIViewState> _uiViewStates = new();
 
-    public void ShowUI(EUIState state)
+    private void Start()
+    {
+        _uiViewPrefabs = GameConfig.Instance.uiViewPrefabs;
+    }
+
+    void Update()
+    {
+        if (true)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                bool isShowingLobbyUI = false;
+                foreach (var viewState in _uiViewStates)
+                {
+                    if (viewState.State == EUIState.LobbyGameplay && viewState.View.gameObject.activeSelf)
+                    {
+                        isShowingLobbyUI = true;
+                        break;
+                    }
+                }
+                if (isShowingLobbyUI)
+                {
+                    HideUI(EUIState.LobbyGameplay, true);
+                }
+                else
+                {
+                    ShowUI(EUIState.LobbyGameplay);
+                }
+            }
+        }
+    }
+
+    #region View Actions
+    public void ShowUI(EUIState state, object param = null)
     {
         if (!_uiViewStates.Exists(v => v.State == state))
         {
@@ -19,37 +52,55 @@ public class UIManager : SingletonMono<UIManager>
                 _uiViewStates.Add(new UIViewState() { State = state, View = viewInstance });
             }
         }
-        foreach (var viewState in _uiViewStates)
+        foreach (var viewState in _uiViewStates.ToList())
         {
             if (viewState.State == state)
             {
-                viewState.View.Show();
+                viewState.View.SetSortingOrder(viewState.SortingOrder);
+                if (param != null)
+                {
+                    viewState.View.ShowWithParams(param);
+                }
+                else
+                {
+                    viewState.View.Show();
+                }                
             }
         }
     }
-    public void HideUI(EUIState state)
+    public void HideUI(EUIState state, object param = null)
     {
         foreach (var viewState in _uiViewStates)
         {
             if (viewState.State == state)
             {
-                viewState.View.Hide();
+                if (param != null)
+                {
+                    viewState.View.HideWithParams(param);
+                }
+                else
+                {
+                    viewState.View.Hide();
+                }                
             }
         }
     }
-}
+    #endregion
 
+}
 public enum EUIState
 {
     None,
     MainMenu,
     CustomGame,
-    Lobby,
-    InGame,
+    LobbyInfo,
+    LobbyGameplay,
+    Footer
 }
 [Serializable]
 public struct UIViewState
 {
     public EUIState State;
     public UIView View;
+    public int SortingOrder;
 }

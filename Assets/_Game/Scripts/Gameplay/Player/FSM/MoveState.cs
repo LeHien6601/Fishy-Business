@@ -54,7 +54,7 @@ public class MoveState : IState
     private void MoveWithCameraDirection()
     {
         float _targetRotation = Mathf.Atan2(_host.MoveDirection.x, _host.MoveDirection.z) * Mathf.Rad2Deg +
-               mainCamera.transform.eulerAngles.y;
+               Camera.main.transform.eulerAngles.y;
 
         // rotate to face input direction relative to camera position
         _host.transform.rotation = Quaternion.Euler(0.0f, _targetRotation, 0.0f);

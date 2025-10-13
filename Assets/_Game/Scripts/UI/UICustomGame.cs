@@ -38,6 +38,14 @@ public class UICustomGame : UIView
             _refreshLobbyListCoroutine = null;
         }
     }
+    public override async void HideWithParams(object param)
+    {
+        base.HideWithParams(param);
+        if ((bool)param)
+        {
+            UIManager.Instance.HideUI(EUIState.Footer);
+        }
+    }
     private IEnumerator RefreshLobbyList()
     {
         while (true)
@@ -46,6 +54,7 @@ public class UICustomGame : UIView
             yield return Utils.GetWaitForSeconds(10f);
         }
     }
+    #region Lobby List Handling
     private void HandleChangeLobbyList(LobbyManager.UpdatedLoobyListEventArgs args)
     {
         // Update lobby list UI
@@ -101,17 +110,18 @@ public class UICustomGame : UIView
         _selectedRelayJoinCode = args.RelayJoinCode;
         Debug.Log($"Selected Lobby Code: {_selectedLobbyCode}, Relay Join Code: {_selectedRelayJoinCode}");
     }
+    #endregion
 
     private void Back()
     {
         UIManager.Instance.ShowUI(EUIState.MainMenu);
-        UIManager.Instance.HideUI(EUIState.CustomGame);
+        UIManager.Instance.HideUI(EUIState.CustomGame, false);
     }
     private async void Create()
     {
         await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
-        UIManager.Instance.ShowUI(EUIState.Lobby);
-        UIManager.Instance.HideUI(EUIState.CustomGame);
+        UIManager.Instance.HideUI(EUIState.CustomGame, true);
+        GameManager.Instance.StartGame();
     }
 
     private async void Join()
@@ -119,8 +129,7 @@ public class UICustomGame : UIView
         if (!string.IsNullOrEmpty(_selectedLobbyCode))
         {
             await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
-            UIManager.Instance.ShowUI(EUIState.Lobby);
-            UIManager.Instance.HideUI(EUIState.CustomGame);
+            UIManager.Instance.HideUI(EUIState.CustomGame, true);
         }
         else
         {

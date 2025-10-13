@@ -1,75 +1,61 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
 {
-    private static T _instance;
-    private static readonly object _lock = new object();
-    private static bool _applicationIsQuitting = false;
+    // private static instance
+    static T m_ins;
 
+    // public static instance used to refer to Singleton (e.g. MyClass.Instance)
     public static T Instance
     {
         get
         {
-            if (_applicationIsQuitting)
+            // if no instance is found, find the first GameObject of type T
+            if (m_ins == null)
             {
-                Debug.LogWarning("[Singleton] Instance '" + typeof(T) +
-                    "' already destroyed on application quit." +
-                    " Won't create again - returning null.");
-                return null;
-            }
+                m_ins = FindFirstObjectByType<T>();
 
-            lock (_lock)
-            {
-                if (_instance == null)
+                // if no instance exists in the Scene, create a new GameObject and add the Component T 
+                if (m_ins == null)
                 {
-                    _instance = (T)FindFirstObjectByType(typeof(T));
-
-                    if (FindObjectsByType(typeof(T), FindObjectsSortMode.None).Length > 1)
-                    {
-                        Debug.LogError("[Singleton] Something went really wrong " +
-                            " - there should never be more than 1 singleton!" +
-                            " Reopening the scene might fix it.");
-                        return _instance;
-                    }
-
-                    if (_instance == null)
-                    {
-                        GameObject singleton = new GameObject();
-                        _instance = singleton.AddComponent<T>();
-                        singleton.name = "(singleton) " + typeof(T).ToString();
-
-                        DontDestroyOnLoad(singleton);
-
-                        Debug.Log("[Singleton] An instance of " + typeof(T) +
-                            " is needed in the scene, so '" + singleton +
-                            "' was created with DontDestroyOnLoad.");
-                    }
-                    else
-                    {
-                        Debug.Log("[Singleton] Using instance already created: " +
-                            _instance.gameObject.name);
-                    }
+                    GameObject singleton = new GameObject(typeof(T).Name);
+                    m_ins = singleton.AddComponent<T>();
                 }
-
-                return _instance;
             }
+            // return the singleton instance
+            return m_ins;
         }
     }
 
-    public void OnDestroy()
+    public virtual void Awake()
     {
-        _applicationIsQuitting = true;
+        MakeSingleton(true);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void MakeSingleton(bool destroyOnload)
     {
-        
-    }
+        if (m_ins == null)
+        {
+            m_ins = this as T;
+            if (destroyOnload)
+            {
+                var root = transform.root;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+                if (root != transform)
+                {
+                    DontDestroyOnLoad(root);
+                }
+                else
+                {
+                    DontDestroyOnLoad(this.gameObject);
+                }
+            }
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 }
