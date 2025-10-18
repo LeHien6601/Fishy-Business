@@ -291,6 +291,7 @@ public class BoardManager : MonoBehaviour
         }
         _placingCard = card;
         _originalHolder = originalHolder;
+        _manualRotated = false;
         _placingOriginalLocalRot = card.transform.localRotation;
         if (card.Connections != null)
         {
@@ -470,25 +471,30 @@ public class BoardManager : MonoBehaviour
 
             if (best.HasValue && bestDist <= _snapDistance)
             {
-                // hover this slot
-                if (!_hoverSlot.HasValue || _hoverSlot.Value != best.Value)
+                if (CanPlaceCardAt(_placingCard, best.Value))
                 {
-                    // update rotation to best fit (auto)
-                    // Quaternion bestRot = GetBestRotationForCard(_placingCard, best.Value);
-                    // // bestRot.z = 0f;
-                    // Debug.Log("BestRot: " + bestRot);
-                    // _placingCard.transform.DORotateQuaternion(bestRot, 0.06f).SetEase(Ease.OutQuad);
-                    Vector3 angle = GetBestVector3RotationForCard(_placingCard, best.Value);
-                    Debug.Log("angle: " + angle);
-                    angle.z = 0f;
-                    Debug.Log("angle: " + angle);
-                    _placingCard.transform.DOLocalRotate(angle, 0.06f).SetEase(Ease.OutQuad);
-                    _hoverSlot = best.Value;
-                }
+                    // hover this slot
+                    if (!_hoverSlot.HasValue || _hoverSlot.Value != best.Value)
+                    {
+                        // update rotation to best fit (auto)
+                        // Quaternion bestRot = GetBestRotationForCard(_placingCard, best.Value);
+                        // // bestRot.z = 0f;
+                        // Debug.Log("BestRot: " + bestRot);
+                        // _placingCard.transform.DORotateQuaternion(bestRot, 0.06f).SetEase(Ease.OutQuad);
+                        Vector3 angle = GetBestVector3RotationForCard(_placingCard, best.Value);
+                        angle.z = 0f;
+                        _placingCard.transform.DOLocalRotate(angle, 0.06f).SetEase(Ease.OutQuad);
+                        _hoverSlot = best.Value;
+                    }
 
-                // move card visually to this slot position (slightly above)
-                Vector3 targetPos = GetWorldPositionForSlot(best.Value) + Vector3.up * _placingOffset;
-                _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
+                    // move card visually to this slot position (slightly above)
+                    Vector3 targetPos = GetWorldPositionForSlot(best.Value) + Vector3.up * _placingOffset;
+                    _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
+                }
+                else
+                {
+                    _hoverSlot = null;
+                }
             }
         }
 
@@ -672,9 +678,9 @@ public class BoardManager : MonoBehaviour
         switch (dir)
         {
             case Direction.N: return new Vector2Int(pos.x + 1, pos.y);
-            case Direction.E: return new Vector2Int(pos.x, pos.y + 1);
+            case Direction.E: return new Vector2Int(pos.x, pos.y - 1);
             case Direction.S: return new Vector2Int(pos.x - 1, pos.y);
-            case Direction.W: return new Vector2Int(pos.x, pos.y - 1);
+            case Direction.W: return new Vector2Int(pos.x, pos.y + 1);
         }
         return pos;
     }

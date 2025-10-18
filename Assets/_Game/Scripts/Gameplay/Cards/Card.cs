@@ -119,7 +119,19 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
         newCon[3] = Connections[1];
         Connections = newCon;
     }
+    public void Rotate(bool isFlip)
+    {
+        if (Connections == null || Connections.Length < 4) return;
+        _isFlipped = isFlip;
+        transform.localRotation = Quaternion.Euler(90f, isFlip ? 180f : 0f, _initRotation.z);
 
+        bool[] newCon = new bool[4];
+        newCon[0] = Connections[2];
+        newCon[1] = Connections[3];
+        newCon[2] = Connections[0];
+        newCon[3] = Connections[1];
+        Connections = newCon;
+    }
     public void SetLocation(CardLocation cardLocation)
     {
         Location = cardLocation;
