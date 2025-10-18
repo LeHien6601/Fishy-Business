@@ -25,6 +25,7 @@ public class SitState : IState
         _seat.OnEnterSeat();
         _animator.Play(_animHash);
         _animator.transform.SetPositionAndRotation(_seat.SitPosition(), _seat.SitRotation());
+        _host.transform.SetParent(_seat.transform);
     }
 
     public virtual void OnExit()
@@ -32,6 +33,7 @@ public class SitState : IState
         _seat.OnExitSeat();
         _host.Agent.enabled = true;
         _host.CanInteract = true;
+        _host.transform.SetParent(null);
     }
 
     public virtual void OnTick()

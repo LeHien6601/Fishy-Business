@@ -40,7 +40,7 @@ public class BoardManager : MonoBehaviour
     private Vector2Int? _hoverSlot = null;
     private float _snapDistance = 1.5f; // threshold để snap tới ô gần nhất
     private bool _placing = false;
-
+    public int _playerTurnId;
     void Start()
     {
         GenerateBoard();
@@ -101,7 +101,7 @@ public class BoardManager : MonoBehaviour
             quaternion.x = -quaternion.x;
             card.transform.localRotation = quaternion;
 
-            card.SetData(tempList[i], this, CardLocation.Deck);
+            card.SetData(tempList[i], CardLocation.Deck);
             card.SetLocation(CardLocation.Deck);
             card.OnClickCard += OnClickCard;
             // card.SetMaterial();
@@ -181,11 +181,11 @@ public class BoardManager : MonoBehaviour
                 Vector2Int temp = new Vector2Int(r, c);
                 if (temp == startPos)
                 {
-                    card.SetData(_startCardInfor, this, CardLocation.OnBoard);
+                    card.SetData(_startCardInfor, CardLocation.OnBoard);
                 }
                 else if (goalPos.Contains(temp))
                 {
-                    card.SetData(_startCardInfor, this, CardLocation.Hidden);
+                    card.SetData(_startCardInfor, CardLocation.Hidden);
                 }
                 else
                 {
@@ -399,7 +399,7 @@ public class BoardManager : MonoBehaviour
         if (slotCard == null) return;
 
         // gán data từ _placingCard vào ô slotCard
-        slotCard.SetData(_placingCard.CardInforSO, this, CardLocation.OnBoard);
+        slotCard.SetData(_placingCard.CardInforSO, CardLocation.OnBoard);
         slotCard.SetLocation(CardLocation.OnBoard);
         // Optional: hiệu ứng chuyển động
         Sequence seq = DOTween.Sequence();

@@ -30,8 +30,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -0.005}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 6690096049369308658}
+  m_Children: []
   m_Father: {fileID: 1534530974233970113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8180842164369675597
@@ -65,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 6de718fc5b103564cbdb31a22fb983ad, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -220,13 +219,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f29d3d73d4bd53d42a387cf156135d46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CardInforSO: {fileID: 11400000, guid: 17348d1f63096834ca9f4db71e71ac01, type: 2}
+  _cardInforSO: {fileID: 0}
   _meshRenderer: {fileID: 5990605564472442173}
   Location: 0
-  Holder: {fileID: 0}
   CardType: 0
   PathCardType: 0
   Connections: 
+  _holder: {fileID: 0}
 --- !u!65 &8148190997577735675
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -246,5 +245,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.8, y: 2.9, z: 0.02}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.8, y: 3, z: 0.02}
+  m_Center: {x: 0, y: -0.2, z: 2.513276e-16}

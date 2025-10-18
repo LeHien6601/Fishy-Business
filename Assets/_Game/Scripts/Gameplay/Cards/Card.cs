@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using DG.Tweening;
 using Unity.Collections;
 using System;
+using UnityEngine.Events;
 
 [SelectionBase]
 public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
@@ -28,7 +29,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         }
     }
 
-    public event Action<Card, CardHolder> OnClickCard;
+    public event UnityAction<Card, CardHolder> OnClickCard;
+    public event UnityAction<Card, CardHolder> OnDiscardCard;
+
     private bool _isFlipped = false;
     private Quaternion _initRotation;
     private int _indexInHolder = -1;
@@ -39,7 +42,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     }
 
     #region Set Data
-    public void SetData(CardInforSO cardInforSO, BoardManager boardManager, CardLocation cardLocation)
+    public void SetData(CardInforSO cardInforSO, CardLocation cardLocation)
     {
         _cardInforSO = cardInforSO;
         // BoardManagerRef = boardManager;
@@ -112,13 +115,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     // ------------------------
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (!_holder && !_holder.IsTurn)
+            return;
+
         if (Location == CardLocation.PlayerHand)
         {
             if (Holder == null) return;
 
-            _indexInHolder = Holder.GetCardIndex(this);
-            if (_indexInHolder >= 0)
-                Holder.SelectCard(_indexInHolder);
+            Holder.SelectCard(this);
+            // _indexInHolder = Holder.GetCardIndex(this);
+            // if (_indexInHolder >= 0)
+            //     Holder.SelectCard(_indexInHolder);
         }
         else if (Location == CardLocation.OnBoard)
         {
@@ -128,14 +135,19 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (!_holder && !_holder.IsTurn)
+            return;
+
         if (Location == CardLocation.PlayerHand)
         {
+
             if (Holder == null) return;
-            if (_indexInHolder >= 0)
-            {
-                Holder.UnSelectCard(_indexInHolder);
-                _indexInHolder = -1;
-            }
+            Holder.UnSelectCard(this);
+            // if (_indexInHolder >= 0)
+            // {
+            //     Holder.UnSelectCard(_indexInHolder);
+            //     _indexInHolder = -1;
+            // }
         }
         else if (Location == CardLocation.OnBoard)
         {
@@ -189,6 +201,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         //         }
         //     }
         // }
+        if (!_holder && !_holder.IsTurn)
+            return;
         OnClickCard?.Invoke(this, Holder);
     }
     public void ResetRotate()
