@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -22,10 +23,11 @@ public class Seat : NetworkBehaviour, IInteractable
         _occupyingClientId.OnValueChanged += OnOccupyingClientChanged;
     }
 
-    public void Interact(PlayerController actor)
+    public async void Interact(PlayerController actor)
     {
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsClient)
         {
+            await Task.Yield();
             actor.Sit(this);
         }
     }

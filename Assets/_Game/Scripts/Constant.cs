@@ -8,6 +8,7 @@ public class Constant
     // public const int OUTLINE_LAYER = 12;
 
     public const string PLAYER_TAG = "Player";
+    public const string GAME_SEAT_TAG = "GameSeat";
     public const string KEY_PLAYER_NAME = "PlayerName";
     public const string KEY_PLAYER_ID = "PlayerID";
     public const string KEY_PLAYER_ICON_ID = "PlayerIconID";

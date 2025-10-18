@@ -2,9 +2,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
 using Unity.Collections;
+using System;
+using UnityEngine.Events;
+using NUnit.Framework;
 
 [SelectionBase]
-public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [SerializeField] private CardInforSO _cardInforSO;
     [SerializeField] private MeshRenderer _meshRenderer;
@@ -27,7 +30,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         }
     }
 
-    [HideInInspector] public BoardManager BoardManagerRef;
+    public event UnityAction<Card, CardHolder> OnClickCard;
+    public event UnityAction<Card, CardHolder> OnDiscardCard;
+
     private bool _isFlipped = false;
     private Quaternion _initRotation;
     private int _indexInHolder = -1;
@@ -38,10 +43,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     }
 
     #region Set Data
-    public void SetData(CardInforSO cardInforSO, BoardManager boardManager, CardLocation cardLocation)
+    public void SetData(CardInforSO cardInforSO, CardLocation cardLocation)
     {
         _cardInforSO = cardInforSO;
-        BoardManagerRef = boardManager;
+        // BoardManagerRef = boardManager;
         if (cardInforSO == null) return;
 
         if (_meshRenderer != null)
@@ -52,6 +57,22 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         CardType = cardInforSO.CardType;
         PathCardType = cardInforSO.PathCardType;
         Connections = (bool[])cardInforSO.Connections.Clone();
+    }
+    public void PlaceCard(CardInforSO cardInforSO, CardLocation cardLocation, bool isFlip)
+    {
+        _cardInforSO = cardInforSO;
+        // BoardManagerRef = boardManager;
+        if (cardInforSO == null) return;
+
+        if (_meshRenderer != null)
+            _meshRenderer.material = cardInforSO.material;
+
+        Location = cardLocation;
+        CardType = cardInforSO.CardType;
+        PathCardType = cardInforSO.PathCardType;
+        Connections = (bool[])cardInforSO.Connections.Clone();
+        _isFlipped = isFlip;
+        transform.localRotation = Quaternion.Euler(90f, _isFlipped ? 180f : 0f, _initRotation.z);
     }
     public void SetHolder(CardHolder cardHolder)
     {
@@ -98,7 +119,19 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         newCon[3] = Connections[1];
         Connections = newCon;
     }
+    public void Rotate(bool isFlip)
+    {
+        if (Connections == null || Connections.Length < 4) return;
+        _isFlipped = isFlip;
+        transform.localRotation = Quaternion.Euler(90f, isFlip ? 180f : 0f, _initRotation.z);
 
+        bool[] newCon = new bool[4];
+        newCon[0] = Connections[2];
+        newCon[1] = Connections[3];
+        newCon[2] = Connections[0];
+        newCon[3] = Connections[1];
+        Connections = newCon;
+    }
     public void SetLocation(CardLocation cardLocation)
     {
         Location = cardLocation;
@@ -109,15 +142,69 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     // ------------------------
     // 🔹 UI Interaction Handling
     // ------------------------
-    public void OnPointerEnter(PointerEventData eventData)
+    // public void OnPointerEnter(PointerEventData eventData)
+    // {
+    //     Debug.Log("??");
+    //     if (Holder == null && !Holder.IsTurn)
+    //     {
+    //         Debug.Log("Holder or not turn");
+    //         return;
+    //     }
+
+    //     if (Location == CardLocation.PlayerHand)
+    //     {
+    //         if (Holder == null) return;
+
+    //         Holder.SelectCard(this);
+    //         // _indexInHolder = Holder.GetCardIndex(this);
+    //         // if (_indexInHolder >= 0)
+    //         //     Holder.SelectCard(_indexInHolder);
+    //     }
+    //     else if (Location == CardLocation.OnBoard)
+    //     {
+
+    //     }
+    // }
+
+    public void OnMouseEnter()
     {
+        if (Holder == null || !Holder.IsTurn)
+        {
+            return;
+        }
+
         if (Location == CardLocation.PlayerHand)
         {
             if (Holder == null) return;
 
-            _indexInHolder = Holder.GetCardIndex(this);
-            if (_indexInHolder >= 0)
-                Holder.SelectCard(_indexInHolder);
+            Holder.SelectCard(this);
+            // _indexInHolder = Holder.GetCardIndex(this);
+            // if (_indexInHolder >= 0)
+            //     Holder.SelectCard(_indexInHolder);
+        }
+        else if (Location == CardLocation.OnBoard)
+        {
+
+        }
+    }
+    void OnMouseExit()
+    {
+        if (Holder == null || !Holder.IsTurn)
+        {
+            Debug.Log("Holder or not turn");      
+            return;
+        }
+
+        if (Location == CardLocation.PlayerHand)
+        {
+
+            if (Holder == null) return;
+            Holder.UnSelectCard(this);
+            // if (_indexInHolder >= 0)
+            // {
+            //     Holder.UnSelectCard(_indexInHolder);
+            //     _indexInHolder = -1;
+            // }
         }
         else if (Location == CardLocation.OnBoard)
         {
@@ -125,22 +212,30 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         }
     }
 
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (Location == CardLocation.PlayerHand)
-        {
-            if (Holder == null) return;
-            if (_indexInHolder >= 0)
-            {
-                Holder.UnSelectCard(_indexInHolder);
-                _indexInHolder = -1;
-            }
-        }
-        else if (Location == CardLocation.OnBoard)
-        {
+    // public void OnPointerExit(PointerEventData eventData)
+    // {
+    //     if (Holder == null && !Holder.IsTurn)
+    //     {
+    //         Debug.Log("Holder or not turn");      
+    //         return;
+    //     }
 
-        }
-    }
+    //     if (Location == CardLocation.PlayerHand)
+    //     {
+
+    //         if (Holder == null) return;
+    //         Holder.UnSelectCard(this);
+    //         // if (_indexInHolder >= 0)
+    //         // {
+    //         //     Holder.UnSelectCard(_indexInHolder);
+    //         //     _indexInHolder = -1;
+    //         // }
+    //     }
+    //     else if (Location == CardLocation.OnBoard)
+    //     {
+
+    //     }
+    // }
 
     #endregion
     #region Highlight (dùng để làm sáng ô có thể đặt)
@@ -172,22 +267,31 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     #endregion
 
     #region Handle Click Card
-    public void OnPointerClick(PointerEventData eventData)
+    // public void OnPointerClick(PointerEventData eventData)
+    // {
+    //     // if (Location == CardLocation.PlayerHand)
+    //     // {
+    //     //     Debug.Log($"🃏 Card clicked: {CardInforSO.name}");
+    //     //     // TODO: implement use card, play to board, discard, etc.
+    //     //     if (Holder != null && BoardManagerRef != null)
+    //     //     {
+    //     //         // Remove from holder and start placing
+    //     //         Card removed = Holder.UseCard(this);
+    //     //         if (removed != null)
+    //     //         {
+    //     //             BoardManagerRef.StartPlacing(removed, Holder);
+    //     //         }
+    //     //     }
+    //     // }
+    //     if (!_holder && !_holder.IsTurn)
+    //         return;
+    //     OnClickCard?.Invoke(this, Holder);
+    // }
+    void OnMouseDown()
     {
-        if (Location == CardLocation.PlayerHand)
-        {
-            Debug.Log($"🃏 Card clicked: {CardInforSO.name}");
-            // TODO: implement use card, play to board, discard, etc.
-            if (Holder != null && BoardManagerRef != null)
-            {
-                // Remove from holder and start placing
-                Card removed = Holder.UseCard(this);
-                if (removed != null)
-                {
-                    BoardManagerRef.StartPlacing(removed, Holder);
-                }
-            }
-        }
+        if (!_holder || !_holder.IsTurn)
+            return;
+        OnClickCard?.Invoke(this, Holder);
     }
     public void ResetRotate()
     {

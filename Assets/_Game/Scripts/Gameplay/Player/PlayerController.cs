@@ -26,7 +26,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
         base.OnNetworkSpawn();
-        Animator animator = GetComponent<Animator>();
+        Animator animator = GetComponent<Animator>(); 
         _idleState = new IdleState(animator);
         _moveState = new MoveState(this, animator, _moveSpeed);
         _attackState = new AttackState(animator);
@@ -35,6 +35,7 @@ public class PlayerController : NetworkBehaviour
 
         _inputReader.Move += HandleMove;
         _inputReader.Attack += HandleAttack;
+        _inputReader.Interact += HandleInteract;
 
         _targetTransformChannel.RaiseEvent(transform);
     }
@@ -46,12 +47,13 @@ public class PlayerController : NetworkBehaviour
         base.OnNetworkDespawn();
         _inputReader.Move -= HandleMove;
         _inputReader.Attack -= HandleAttack;
+        _inputReader.Interact -= HandleInteract;
     }
 
 
     private void HandleMove(Vector2 arg0)
     {
-        if (_currentState == _attackState)
+        if (_currentState == _attackState || _currentState == _sitState)
             return;
         MoveDirection = new Vector3(arg0.x, 0, arg0.y).normalized;
         Debug.Log("Move");
@@ -74,6 +76,12 @@ public class PlayerController : NetworkBehaviour
         ToState(_attackState);
     }
 
+    private void HandleInteract()
+    {
+        if (_currentState == _sitState)
+            ToState(_idleState);
+    }
+
     void Update()
     {
         if (!IsOwner)
@@ -92,6 +100,7 @@ public class PlayerController : NetworkBehaviour
     public void Sit(Seat seat)
     {
         _sitState.With(seat);
+
         ToState(_sitState);
     }
 

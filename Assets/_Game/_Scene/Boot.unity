@@ -613,17 +613,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _uiViewPrefabs:
-  - State: 1
-    View: {fileID: 4747767118075654663, guid: 9346b67e7f2c1c44689c26fa49f1284f, type: 3}
-  - State: 2
-    View: {fileID: 5209213446142926961, guid: a41e02a2314ee6240a25b3c2ce3bbc1c, type: 3}
-  - State: 3
-    View: {fileID: -6230636468975272045, guid: 852d9e7640a289843b1f6936edc8ada1, type: 3}
-  - State: 4
-    View: {fileID: 392927606908382715, guid: 56be211ffc6ee6547b239f46e793e6ec, type: 3}
-  - State: 5
-    View: {fileID: 9052830829739115278, guid: df856596f754dfe48828a2d12e35a340, type: 3}
 --- !u!114 &1961655917
 MonoBehaviour:
   m_ObjectHideFlags: 0

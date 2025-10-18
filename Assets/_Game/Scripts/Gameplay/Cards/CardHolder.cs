@@ -11,13 +11,14 @@ public class CardHolder : MonoBehaviour
     public static float ArcRadius = 1.8f;
     public static float AnimationDuration = 0.3f;
     public static float CardThickness = 0.01f;
-
-    [SerializeField] private Card cardPrefab;
     [SerializeField] private Quaternion rotationOffset = Quaternion.identity;
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
 
+    public bool IsTurn = true;
+
+    private Card _hoveringCard; // hovering 1 card at a time
 
 
     /// <summary>
@@ -104,25 +105,49 @@ public class CardHolder : MonoBehaviour
     /// <summary>
     /// Chọn card, đẩy nó lên một chút (hiệu ứng chọn)
     /// </summary>
-    public void SelectCard(int index)
-    {
-        if (index < 0 || index >= handCards.Count) return;
+    // public void SelectCard(int index)
+    // {
+    //     if (index < 0 || index >= handCards.Count) return;
 
-        Transform card = handCards[index].transform;
-        Vector3 endPos = card.position + card.up * 0.1f;
-        card.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
+    //     Transform card = handCards[index].transform;
+    //     Vector3 endPos = card.position + card.up * 0.1f;
+    //     card.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
+    // }
+
+    public void SelectCard(Card card)
+    {
+        if (handCards.Contains(card) == false) return;
+        if (_hoveringCard)
+            return;
+        _hoveringCard = card;
+        Transform t = card.transform;
+        Vector3 endPos = t.position + t.up * 0.1f;
+        t.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
     }
+
 
     /// <summary>
     /// Bỏ chọn card, đưa về vị trí ban đầu
     /// </summary>
     public void UnSelectCard(int index)
     {
+
+        if (index < 0 || index >= handCards.Count) return;
+        var (endPos, endRot) = GetCardPositionAndRotation(index);
+        handCards[index].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
+        handCards[index].transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        _hoveringCard = null;
+    }
+
+    public void UnSelectCard(Card card)
+    {
+        int index = handCards.IndexOf(card);
         if (index < 0 || index >= handCards.Count) return;
 
         var (endPos, endRot) = GetCardPositionAndRotation(index);
         handCards[index].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
         handCards[index].transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        _hoveringCard = null;
     }
 
     /// <summary>
