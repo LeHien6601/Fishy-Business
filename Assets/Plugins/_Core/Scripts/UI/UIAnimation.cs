@@ -2,6 +2,8 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEditor;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(CanvasGroup))]
 [RequireComponent(typeof(RectTransform))]
@@ -116,14 +118,20 @@ public class UIAnimation : MonoBehaviour
         if (FadeEnabled) AnimateFade();
         else _canvasGroup.alpha = 1;
 
+#if UNITY_EDITOR
+        if (Application.isPlaying)
+        {
+            return;
+        }
+        await Task.Delay((int)(1000 * (0.5f + GetOverallDuration())));
+        _rectTransform.sizeDelta = Vector2.zero;
+        _canvasGroup.alpha = 1;
+        _rectTransform.localScale = Vector2.one;
         if (Type == UIAnimationType.Hide || Type == UIAnimationType.Show)
         {
-            await Task.Delay((int)(1000 * (0.5f + GetOverallDuration())));
-            _rectTransform.sizeDelta = Vector2.zero;
-            _canvasGroup.alpha = 1;
-            _rectTransform.localScale = Vector2.one;
             _rectTransform.localPosition = Vector3.zero;
         }
+#endif
     }
 
     private void AnimateMove()
@@ -173,6 +181,47 @@ public class UIAnimation : MonoBehaviour
         return duration;
     }
     #endregion
+
+    #region Setters
+    public void SetAnimation(UIAnimationType type, int index)
+    {
+        List<AnimationPreset> presets = (type == UIAnimationType.Button) ?
+            AnimationPresets.Instance.ButtonPresets :
+            AnimationPresets.Instance.Presets;
+        if (index < 0 || index >= presets.Count) return;
+        AnimationPreset preset = presets[index];
+        Type = type;
+        // Move
+        MoveEnabled = preset.MoveEnabled;
+        MoveDuration = preset.MoveDuration;
+        MoveDelay = preset.MoveDelay;
+        MoveEaseType = preset.MoveEaseType;
+        MoveStartValue = preset.MoveStartValue;
+        MoveEndValue = preset.MoveEndValue;
+        // Rotate
+        RotateEnabled = preset.RotateEnabled;
+        RotateDuration = preset.RotateDuration;
+        RotateDelay = preset.RotateDelay;
+        RotateEaseType = preset.RotateEaseType;
+        RotateStartValue = preset.RotateStartValue;
+        RotateEndValue = preset.RotateEndValue;
+        // Fade
+        FadeEnabled = preset.FadeEnabled;
+        FadeDuration = preset.FadeDuration;
+        FadeDelay = preset.FadeDelay;
+        FadeEaseType = preset.FadeEaseType;
+        FadeStartValue = preset.FadeStartValue;
+        FadeEndValue = preset.FadeEndValue;
+        // Rotate
+        ScaleEnabled = preset.ScaleEnabled;
+        ScaleDuration = preset.ScaleDuration;
+        ScaleDelay = preset.ScaleDelay;
+        ScaleEaseType = preset.ScaleEaseType;
+        ScaleStartValue = preset.ScaleStartValue;
+        ScaleEndValue = preset.ScaleEndValue;
+    }
+    #endregion
+
 }
 
-public enum UIAnimationType {Show,Hide,Others}
+public enum UIAnimationType {Show,Hide,Button,Others}

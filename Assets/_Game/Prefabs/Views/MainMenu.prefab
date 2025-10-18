@@ -339,6 +339,9 @@ GameObject:
   - component: {fileID: 5332739246045896198}
   - component: {fileID: 4961805934303446893}
   - component: {fileID: 1856494194751603506}
+  - component: {fileID: 4476080260096313404}
+  - component: {fileID: 7173806612169905320}
+  - component: {fileID: 4145979086440942846}
   m_Layer: 5
   m_Name: BTN QuickMatch
   m_TagString: Untagged
@@ -353,9 +356,9 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2451418960713076718}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6636475939615597097}
@@ -483,7 +486,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -508,6 +511,74 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &4476080260096313404
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2451418960713076718}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &7173806612169905320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2451418960713076718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da31f5f47a0cf1c4f9869eed70f0f38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 2
+  MoveEnabled: 0
+  MoveDuration: 1
+  MoveDelay: 0
+  MoveEaseType: 1
+  MoveStartValue: {x: 0, y: 0}
+  MoveEndValue: {x: 0, y: 0}
+  RotateEnabled: 0
+  RotateDuration: 1
+  RotateDelay: 0
+  RotateEaseType: 1
+  RotateStartValue: {x: 0, y: 0, z: 0}
+  RotateEndValue: {x: 0, y: 0, z: 0}
+  ScaleEnabled: 1
+  ScaleDuration: 1
+  ScaleDelay: 0
+  ScaleEaseType: 27
+  ScaleStartValue: {x: 1.1, y: 1.1}
+  ScaleEndValue: {x: 1, y: 1}
+  FadeEnabled: 0
+  FadeDuration: 1
+  FadeDelay: 0
+  FadeEaseType: 1
+  FadeStartValue: 0
+  FadeEndValue: 1
+--- !u!114 &4145979086440942846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2451418960713076718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3024307315bd0b745be949ad7d66002f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enterAnimation: {fileID: 0}
+  _exitAnimation: {fileID: 0}
+  _clickAnimation: {fileID: 0}
+  _globalAnimation: {fileID: 7173806612169905320}
+  EnterPresetIndex: 4
+  ExitPresetIndex: 5
+  ClickPresetIndex: -1
 --- !u!1 &2505733833618661591
 GameObject:
   m_ObjectHideFlags: 0
@@ -520,6 +591,9 @@ GameObject:
   - component: {fileID: 1894975173885809767}
   - component: {fileID: 3721859857128460953}
   - component: {fileID: 2471088739365244834}
+  - component: {fileID: 3684959091220155764}
+  - component: {fileID: 4655297246054277087}
+  - component: {fileID: 4780669800715794381}
   m_Layer: 5
   m_Name: BTN Settings
   m_TagString: Untagged
@@ -664,7 +738,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -689,6 +763,74 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &3684959091220155764
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2505733833618661591}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &4655297246054277087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2505733833618661591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da31f5f47a0cf1c4f9869eed70f0f38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 0
+  MoveEnabled: 0
+  MoveDuration: 1
+  MoveDelay: 0
+  MoveEaseType: 1
+  MoveStartValue: {x: 0, y: 0}
+  MoveEndValue: {x: 0, y: 0}
+  RotateEnabled: 0
+  RotateDuration: 1
+  RotateDelay: 0
+  RotateEaseType: 1
+  RotateStartValue: {x: 0, y: 0, z: 0}
+  RotateEndValue: {x: 0, y: 0, z: 0}
+  ScaleEnabled: 0
+  ScaleDuration: 1
+  ScaleDelay: 0
+  ScaleEaseType: 1
+  ScaleStartValue: {x: 0, y: 0}
+  ScaleEndValue: {x: 1, y: 1}
+  FadeEnabled: 0
+  FadeDuration: 1
+  FadeDelay: 0
+  FadeEaseType: 1
+  FadeStartValue: 0
+  FadeEndValue: 1
+--- !u!114 &4780669800715794381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2505733833618661591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3024307315bd0b745be949ad7d66002f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enterAnimation: {fileID: 0}
+  _exitAnimation: {fileID: 0}
+  _clickAnimation: {fileID: 0}
+  _globalAnimation: {fileID: 4655297246054277087}
+  EnterPresetIndex: 4
+  ExitPresetIndex: 5
+  ClickPresetIndex: -1
 --- !u!1 &5033922953091702136
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,6 +880,9 @@ GameObject:
   - component: {fileID: 3662830808230805026}
   - component: {fileID: 7502039540260068421}
   - component: {fileID: 1566696996474199794}
+  - component: {fileID: 4060848894998491554}
+  - component: {fileID: 8086104238467421254}
+  - component: {fileID: 9157290400341971985}
   m_Layer: 5
   m_Name: BTN CustomGame
   m_TagString: Untagged
@@ -882,7 +1027,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -907,6 +1052,74 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &4060848894998491554
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6232727865421976373}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &8086104238467421254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6232727865421976373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da31f5f47a0cf1c4f9869eed70f0f38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 0
+  MoveEnabled: 0
+  MoveDuration: 1
+  MoveDelay: 0
+  MoveEaseType: 1
+  MoveStartValue: {x: 0, y: 0}
+  MoveEndValue: {x: 0, y: 0}
+  RotateEnabled: 0
+  RotateDuration: 1
+  RotateDelay: 0
+  RotateEaseType: 1
+  RotateStartValue: {x: 0, y: 0, z: 0}
+  RotateEndValue: {x: 0, y: 0, z: 0}
+  ScaleEnabled: 0
+  ScaleDuration: 1
+  ScaleDelay: 0
+  ScaleEaseType: 1
+  ScaleStartValue: {x: 0, y: 0}
+  ScaleEndValue: {x: 1, y: 1}
+  FadeEnabled: 0
+  FadeDuration: 1
+  FadeDelay: 0
+  FadeEaseType: 1
+  FadeStartValue: 0
+  FadeEndValue: 1
+--- !u!114 &9157290400341971985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6232727865421976373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3024307315bd0b745be949ad7d66002f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enterAnimation: {fileID: 0}
+  _exitAnimation: {fileID: 0}
+  _clickAnimation: {fileID: 0}
+  _globalAnimation: {fileID: 8086104238467421254}
+  EnterPresetIndex: 4
+  ExitPresetIndex: 5
+  ClickPresetIndex: -1
 --- !u!1 &7272357328906804752
 GameObject:
   m_ObjectHideFlags: 0
@@ -1055,6 +1268,9 @@ GameObject:
   - component: {fileID: 2090760688646575904}
   - component: {fileID: 7722673153237419796}
   - component: {fileID: 6033175336688075275}
+  - component: {fileID: 2103496539134549386}
+  - component: {fileID: 3957610778413098669}
+  - component: {fileID: 1909817334512491810}
   m_Layer: 5
   m_Name: BTN ExitGame
   m_TagString: Untagged
@@ -1199,7 +1415,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -1224,6 +1440,74 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &2103496539134549386
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7473433036628890045}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &3957610778413098669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7473433036628890045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da31f5f47a0cf1c4f9869eed70f0f38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 0
+  MoveEnabled: 0
+  MoveDuration: 1
+  MoveDelay: 0
+  MoveEaseType: 1
+  MoveStartValue: {x: 0, y: 0}
+  MoveEndValue: {x: 0, y: 0}
+  RotateEnabled: 0
+  RotateDuration: 1
+  RotateDelay: 0
+  RotateEaseType: 1
+  RotateStartValue: {x: 0, y: 0, z: 0}
+  RotateEndValue: {x: 0, y: 0, z: 0}
+  ScaleEnabled: 0
+  ScaleDuration: 1
+  ScaleDelay: 0
+  ScaleEaseType: 1
+  ScaleStartValue: {x: 0, y: 0}
+  ScaleEndValue: {x: 1, y: 1}
+  FadeEnabled: 0
+  FadeDuration: 1
+  FadeDelay: 0
+  FadeEaseType: 1
+  FadeStartValue: 0
+  FadeEndValue: 1
+--- !u!114 &1909817334512491810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7473433036628890045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3024307315bd0b745be949ad7d66002f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enterAnimation: {fileID: 0}
+  _exitAnimation: {fileID: 0}
+  _clickAnimation: {fileID: 0}
+  _globalAnimation: {fileID: 3957610778413098669}
+  EnterPresetIndex: 4
+  ExitPresetIndex: 5
+  ClickPresetIndex: -1
 --- !u!1 &8469775814400054663
 GameObject:
   m_ObjectHideFlags: 0

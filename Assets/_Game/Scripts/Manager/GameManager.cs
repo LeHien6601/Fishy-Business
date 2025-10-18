@@ -20,7 +20,6 @@ public class GameManager : SingletonMonoNet<GameManager>
         public string PlayerName;
         public int PlayerIconID;
     }
-
     public void Start()
     {
         PlayerName = Utils.GetRandomPlayerName();
@@ -32,15 +31,6 @@ public class GameManager : SingletonMonoNet<GameManager>
         });
         Debug.Log($"Player Name: {PlayerName}, Icon ID: {PlayerIconID}");
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
-    }
-
-    void OnEnable()
-    {
-        // while (NetworkManager.Singleton == null || NetworkManager.Singleton.SceneManager == null)
-        // {
-        //     await System.Threading.Tasks.Task.Yield();
-        // }
-        // NetworkManager.Singleton.SceneManager.OnLoadComplete += HandleLoadComplete;
     }
     void OnDisable()
     {

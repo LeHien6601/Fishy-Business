@@ -128,7 +128,7 @@ public class UICustomGame : UIView
         UIManager.Instance.ShowUI(EUIState.Loading);
         await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
         GameManager.Instance.StartGame();
-        await System.Threading.Tasks.Task.Delay(500);
+        await Task.Delay(500);
         UIManager.Instance.HideUI(EUIState.Loading);
     }
 
@@ -139,7 +139,7 @@ public class UICustomGame : UIView
             UIManager.Instance.HideUI(EUIState.CustomGame, true);
             UIManager.Instance.ShowUI(EUIState.Loading);
             await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
-            await Task.Delay(1000);
+            await Task.Delay(2500);
             UIManager.Instance.HideUI(EUIState.Loading);
         }
         else
