@@ -296,6 +296,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _3rdPersonCamera: {fileID: 1913107470011895820}
   _1stPersonCamera: {fileID: 1420860187302064821}
+  _cinemachineInputAxisController: {fileID: 8057290443681473576}
   _targetTransformChannel: {fileID: 11400000, guid: 64e9b6e076ceb5440aba58b59e857a59, type: 2}
 --- !u!1 &5787224056174319044
 GameObject:
@@ -603,7 +604,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7966566271491405297}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.15304594, y: 0.6903456, z: -0.15304594, w: 0.6903456}
   m_LocalPosition: {x: -10.525, y: 4.278, z: 6.632}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -692,17 +693,17 @@ MonoBehaviour:
     Range: {x: -40, y: 40}
     Wrap: 0
     Recentering:
-      Enabled: 0
+      Enabled: 1
       Wait: 1
       Time: 2
     Restrictions: 0
   TiltAxis:
-    Value: 0
-    Center: 0
+    Value: 25
+    Center: 25
     Range: {x: -10, y: 30}
     Wrap: 0
     Recentering:
-      Enabled: 0
+      Enabled: 1
       Wait: 1
       Time: 2
     Restrictions: 0
@@ -742,7 +743,7 @@ MonoBehaviour:
       Owner: {fileID: 8027836494066444864}
       Enabled: 1
       Input:
-        InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
+        InputAction: {fileID: 1190983414842484879, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         Gain: 1
         LegacyInput: 
         LegacyGain: 1
@@ -755,7 +756,7 @@ MonoBehaviour:
       Owner: {fileID: 8027836494066444864}
       Enabled: 1
       Input:
-        InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
+        InputAction: {fileID: 1190983414842484879, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         Gain: -1
         LegacyInput: 
         LegacyGain: 1
