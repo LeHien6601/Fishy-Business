@@ -24,9 +24,9 @@ public class SitState : IState
         _host.CanInteract = false;
         _seat.OnEnterSeat();
         _animator.Play(_animHash);
-        _animator.transform.SetPositionAndRotation(_seat.SitPosition(), _seat.SitRotation());
         _host.transform.SetParent(_seat.transform);
-        CameraController.SwitchCamMode(CameraMode.FirstPerson);
+        _animator.transform.SetPositionAndRotation(_seat.SitPosition(), _seat.SitRotation());
+        if (_seat.CompareTag(Constant.GAME_SEAT_TAG)) CameraController.SwitchCamMode(CameraMode.FirstPerson);
     }
 
     public virtual void OnExit()
