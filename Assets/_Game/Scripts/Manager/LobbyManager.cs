@@ -162,7 +162,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
         catch (LobbyServiceException e)
         {
             Debug.LogException(e);
-        }
+            throw;
+        }  
     }
 
     public async Task UpdatePlayerDataAsync(string playerName, int iconId)
