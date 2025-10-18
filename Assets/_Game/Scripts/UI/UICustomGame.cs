@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,10 +37,10 @@ public class UICustomGame : UIView
             _refreshLobbyListCoroutine = null;
         }
     }
-    public override async void HideWithParams(object param)
+    public override async void HideWithParams(object isCreating)
     {
-        base.HideWithParams(param);
-        if ((bool)param)
+        base.HideWithParams(isCreating);
+        if ((bool)isCreating)
         {
             UIManager.Instance.HideUI(EUIState.Footer);
         }

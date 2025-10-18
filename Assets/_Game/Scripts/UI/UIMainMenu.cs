@@ -23,9 +23,11 @@ public class UIMainMenu : UIView
         UIManager.Instance.ShowUI(EUIState.Footer);
     }
 
-    private void QuickMatch()
+    private async void QuickMatch()
     {
-
+        await LobbyManager.Instance.QuickJoinAsync();
+        UIManager.Instance.HideUI(EUIState.MainMenu);
+        UIManager.Instance.HideUI(EUIState.Footer);
     }
     private void CustomGame()
     {
