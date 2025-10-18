@@ -1,18 +1,42 @@
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UILobbyMember : MonoBehaviour
+public class UILobbyMember : MonoBehaviour, IPointerClickHandler
 {
+    #region Properties
     [Header("References")]
     [SerializeField] private Image _avaImg;
     [SerializeField] private TextMeshProUGUI _nameTMP;
     [SerializeField] private TextMeshProUGUI _emptyTMP;
     [SerializeField] private RectTransform _mineRect;
     [SerializeField] private RectTransform _soundRect;
+    [SerializeField] private RectTransform _dataRect;
+    [SerializeField] private RectTransform _kickRect;
+    [SerializeField] private TextMeshProUGUI _kickTMP;
+    [SerializeField] private Button _yesBTN;
+    [SerializeField] private Button _noBTN;
 
     private bool _isMine = false;
     private string _id;
+    #endregion
+
+    #region Cycle
+    void OnEnable()
+    {
+        _yesBTN.onClick.AddListener(HandleClickYes);
+        _noBTN.onClick.AddListener(HandleClickNo);
+    }
+    void OnDisable()
+    {
+        _yesBTN.onClick.RemoveListener(HandleClickYes);
+        _noBTN.onClick.RemoveListener(HandleClickNo);
+    }
+    #endregion
+
+    #region Behaviors
     public void SetMemberData(bool isMine, string name, Sprite ava, string id)
     {
         _isMine = isMine;
@@ -34,4 +58,29 @@ public class UILobbyMember : MonoBehaviour
         _mineRect.gameObject.SetActive(false);
         _soundRect.gameObject.SetActive(false);
     }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!NetworkManager.Singleton.IsHost) return;
+        if (_isMine) return;
+        if (_emptyTMP.gameObject.activeSelf) return;
+        ToggleKickContainer();
+    }
+
+    private void ToggleKickContainer()
+    {
+        _dataRect.gameObject.SetActive(!_dataRect.gameObject.activeSelf);
+        _kickRect.gameObject.SetActive(!_kickRect.gameObject.activeSelf);
+        _kickTMP.text = $"Kick {_nameTMP.text}?";
+    }
+    private void HandleClickYes()
+    {
+        LobbyManager.Instance.KickPlayerAsync(_id);
+        ToggleKickContainer();
+    }
+    private void HandleClickNo()
+    {
+        ToggleKickContainer();
+    }
+    #endregion
 }
