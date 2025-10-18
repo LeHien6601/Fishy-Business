@@ -92,6 +92,7 @@ public class PlayerController : NetworkBehaviour
     public void Sit(Seat seat)
     {
         _sitState.With(seat);
+
         ToState(_sitState);
     }
 

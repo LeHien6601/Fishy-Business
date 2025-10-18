@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using DG.Tweening;
+using Unity.Services.Lobbies.Models;
 
 public class BoardManager : MonoBehaviour
 {
@@ -43,8 +44,7 @@ public class BoardManager : MonoBehaviour
     public int _playerTurnId;
     void Start()
     {
-        GenerateBoard();
-        StartGame();
+        // StartGame();
     }
 
     void Update()
@@ -61,11 +61,12 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    #region DealCards
+    #region Start game
 
     [ContextMenu("Start Game")]
     public void StartGame()
     {
+        GenerateBoard();
         InitializeDeck();   // Create card deck
         StartCoroutine(DealCardsCoroutine());   // Deal Cards
     }
@@ -161,7 +162,6 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
-    #endregion
 
     [ContextMenu("Gen Board")]
     void GenerateBoard()
@@ -195,30 +195,18 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
-    // overload helper: kiểm tra với một mảng connections bất kỳ (dùng cho simulate rotate)
-    private bool CanPlaceCardAtWithConnections(Vector2Int pos, bool[] connections)
+    #endregion
+
+    #region Get CardHolder
+    public void GetCardHolder(CardHolder cardHolder)
     {
-        if (connections == null || connections.Length < 4) return false;
-        bool connected = false;
-        for (int d = 0; d < 4; d++)
+        if (playerHand == null)
         {
-            Vector2Int neighbor = GetNeighbor(pos, (Direction)d);
-            if (!IsInside(neighbor)) continue;
-
-            Card neighborCard = board[neighbor.x, neighbor.y];
-            if (neighborCard == null || neighborCard.CardType != CardType.Path)
-                continue;
-
-            int opposite = (d + 2) % 4;
-
-            bool match = connections[d] && neighborCard.Connections[opposite];
-            if (match) connected = true;
-            else if (connections[d] != neighborCard.Connections[opposite])
-                return false;
+            playerHand = new();
         }
-
-        return connected;
+        playerHand.Add(cardHolder);
     }
+    #endregion
 
     #region Handle PlayGame
 
@@ -667,6 +655,33 @@ public class BoardManager : MonoBehaviour
         return pos.x >= 0 && pos.x < rows && pos.y >= 0 && pos.y < cols;
     }
     #endregion
+
+    #region Helper
+    // overload helper: kiểm tra với một mảng connections bất kỳ (dùng cho simulate rotate)
+    private bool CanPlaceCardAtWithConnections(Vector2Int pos, bool[] connections)
+    {
+        if (connections == null || connections.Length < 4) return false;
+        bool connected = false;
+        for (int d = 0; d < 4; d++)
+        {
+            Vector2Int neighbor = GetNeighbor(pos, (Direction)d);
+            if (!IsInside(neighbor)) continue;
+
+            Card neighborCard = board[neighbor.x, neighbor.y];
+            if (neighborCard == null || neighborCard.CardType != CardType.Path)
+                continue;
+
+            int opposite = (d + 2) % 4;
+
+            bool match = connections[d] && neighborCard.Connections[opposite];
+            if (match) connected = true;
+            else if (connections[d] != neighborCard.Connections[opposite])
+                return false;
+        }
+
+        return connected;
+    }
+
     // tính point trên mặt board từ vị trí chuột (raycast plane)
     private Vector3 GetMouseWorldPointOnBoard()
     {
@@ -679,4 +694,5 @@ public class BoardManager : MonoBehaviour
         }
         return Vector3.zero;
     }
+    #endregion
 }

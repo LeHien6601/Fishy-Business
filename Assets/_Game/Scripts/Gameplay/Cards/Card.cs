@@ -115,8 +115,12 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     // ------------------------
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!_holder && !_holder.IsTurn)
+            Debug.Log("??");   
+        if (Holder == null && !Holder.IsTurn)
+        {
+            Debug.Log("Holder or not turn");   
             return;
+        }
 
         if (Location == CardLocation.PlayerHand)
         {
@@ -135,8 +139,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (!_holder && !_holder.IsTurn)
+        if (Holder == null && !Holder.IsTurn)
+        {
+            Debug.Log("Holder or not turn");      
             return;
+        }
 
         if (Location == CardLocation.PlayerHand)
         {

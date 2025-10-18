@@ -11,8 +11,6 @@ public class CardHolder : MonoBehaviour
     public static float ArcRadius = 1.8f;
     public static float AnimationDuration = 0.3f;
     public static float CardThickness = 0.01f;
-
-    [SerializeField] private Card cardPrefab;
     [SerializeField] private Quaternion rotationOffset = Quaternion.identity;
 
     private readonly List<Card> handCards = new();
