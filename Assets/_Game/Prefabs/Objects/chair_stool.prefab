@@ -57,6 +57,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 10772a8fbb4254e4a972d5f396f64f18, type: 3}
+      propertyPath: m_TagString
+      value: GameSeat
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 10772a8fbb4254e4a972d5f396f64f18, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
