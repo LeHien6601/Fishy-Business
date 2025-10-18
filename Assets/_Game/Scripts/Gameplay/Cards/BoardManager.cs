@@ -42,9 +42,12 @@ public class BoardManager : MonoBehaviour
     private float _snapDistance = 1.5f; // threshold để snap tới ô gần nhất
     private bool _placing = false;
     public int _playerTurnId;
+
+    [SerializeField] private bool _isDev;
     void Start()
     {
-        // StartGame();
+        if (_isDev == true)
+            StartGame();
     }
 
     void Update()
@@ -283,7 +286,6 @@ public class BoardManager : MonoBehaviour
             // đang có bài đang đặt -> hủy trước
             CancelPlacing(true);
         }
-        _placing = true;
         _placingCard = card;
         _originalHolder = originalHolder;
         _placingOriginalLocalRot = card.transform.localRotation;
@@ -322,6 +324,8 @@ public class BoardManager : MonoBehaviour
         }
 
         HighlightSlots(_validSlots, true);
+        _placing = true;
+
     }
 
     // Cancel placing: nếu cancelled = true -> trả bài về tay (origin holder)
@@ -478,10 +482,10 @@ public class BoardManager : MonoBehaviour
                     transform.position.y + 0.5f,
                     Mathf.Clamp(mouseWorld.z, minZ, maxZ)
                 );
-
+                float temp = 0.01f;
                 // Nếu chuột vượt hẳn ra ngoài → không di chuyển nữa
-                if (mouseWorld.x < minX - 1f || mouseWorld.x > maxX + 1f ||
-                    mouseWorld.z < minZ - 1f || mouseWorld.z > maxZ + 1f)
+                if (mouseWorld.x < minX - temp || mouseWorld.x > maxX + temp ||
+                    mouseWorld.z < minZ - temp || mouseWorld.z > maxZ + temp)
                 {
                     return; // card đứng yên
                 }

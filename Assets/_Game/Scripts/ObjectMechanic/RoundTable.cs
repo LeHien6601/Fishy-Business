@@ -11,6 +11,7 @@ public class RoundTable : NetworkBehaviour
 
     [SerializeField] private List<Seat> _seats;
     [SerializeField] private BoardManager _boardManager;
+    private bool _gameplaying;
 
     public override void OnNetworkSpawn()
     {
@@ -40,7 +41,17 @@ public class RoundTable : NetworkBehaviour
             _seats[i].gameObject.SetActive(true);
         }
     }
-
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.L))
+        {
+            if(_gameplaying == false)
+            {
+                ArrangeSeats();
+                _gameplaying = true;
+            }
+        }
+    }
     // @TODO: ease the animation
     [ContextMenu("ArrangeSeats")]
     private void ArrangeSeats()
@@ -61,6 +72,7 @@ public class RoundTable : NetworkBehaviour
 
             var holder = Instantiate(_cardHolderPrefab, _seats[i].transform);
             holder.transform.localPosition = _cardHolderPrefab.transform.localPosition;
+            holder.transform.localRotation = _cardHolderPrefab.transform.localRotation;
             _boardManager.GetCardHolder(holder);
         }
         _boardManager.StartGame();

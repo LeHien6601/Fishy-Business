@@ -3055,8 +3055,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00c07882376ffaa438135f1f88cb5049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   rotationOffset: {x: 0, y: 0, z: 0, w: 1}
+  IsTurn: 1
 --- !u!4 &339764050
 Transform:
   m_ObjectHideFlags: 0
@@ -6302,8 +6302,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00c07882376ffaa438135f1f88cb5049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   rotationOffset: {x: 0, y: 0, z: 0, w: 1}
+  IsTurn: 1
 --- !u!4 &770421802
 Transform:
   m_ObjectHideFlags: 0
@@ -8323,6 +8323,10 @@ MonoBehaviour:
   - {x: 0, y: 8}
   - {x: 2, y: 8}
   - {x: 4, y: 8}
+  _originalHolder: {fileID: 0}
+  _placingOriginalLocalRot: {x: 0, y: 0, z: 0, w: 0}
+  _playerTurnId: 0
+  _isDev: 1
 --- !u!1 &1023179922
 GameObject:
   m_ObjectHideFlags: 0

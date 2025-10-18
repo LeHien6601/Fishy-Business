@@ -6,7 +6,7 @@ using System;
 using UnityEngine.Events;
 
 [SelectionBase]
-public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [SerializeField] private CardInforSO _cardInforSO;
     [SerializeField] private MeshRenderer _meshRenderer;
@@ -113,12 +113,34 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     // ------------------------
     // 🔹 UI Interaction Handling
     // ------------------------
-    public void OnPointerEnter(PointerEventData eventData)
+    // public void OnPointerEnter(PointerEventData eventData)
+    // {
+    //     Debug.Log("??");
+    //     if (Holder == null && !Holder.IsTurn)
+    //     {
+    //         Debug.Log("Holder or not turn");
+    //         return;
+    //     }
+
+    //     if (Location == CardLocation.PlayerHand)
+    //     {
+    //         if (Holder == null) return;
+
+    //         Holder.SelectCard(this);
+    //         // _indexInHolder = Holder.GetCardIndex(this);
+    //         // if (_indexInHolder >= 0)
+    //         //     Holder.SelectCard(_indexInHolder);
+    //     }
+    //     else if (Location == CardLocation.OnBoard)
+    //     {
+
+    //     }
+    // }
+
+    public void OnMouseEnter()
     {
-            Debug.Log("??");   
-        if (Holder == null && !Holder.IsTurn)
+        if (Holder == null || !Holder.IsTurn)
         {
-            Debug.Log("Holder or not turn");   
             return;
         }
 
@@ -136,10 +158,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
         }
     }
-
-    public void OnPointerExit(PointerEventData eventData)
+    void OnMouseExit()
     {
-        if (Holder == null && !Holder.IsTurn)
+        if (Holder == null || !Holder.IsTurn)
         {
             Debug.Log("Holder or not turn");      
             return;
@@ -161,6 +182,31 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
         }
     }
+
+    // public void OnPointerExit(PointerEventData eventData)
+    // {
+    //     if (Holder == null && !Holder.IsTurn)
+    //     {
+    //         Debug.Log("Holder or not turn");      
+    //         return;
+    //     }
+
+    //     if (Location == CardLocation.PlayerHand)
+    //     {
+
+    //         if (Holder == null) return;
+    //         Holder.UnSelectCard(this);
+    //         // if (_indexInHolder >= 0)
+    //         // {
+    //         //     Holder.UnSelectCard(_indexInHolder);
+    //         //     _indexInHolder = -1;
+    //         // }
+    //     }
+    //     else if (Location == CardLocation.OnBoard)
+    //     {
+
+    //     }
+    // }
 
     #endregion
     #region Highlight (dùng để làm sáng ô có thể đặt)
@@ -192,23 +238,29 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     #endregion
 
     #region Handle Click Card
-    public void OnPointerClick(PointerEventData eventData)
+    // public void OnPointerClick(PointerEventData eventData)
+    // {
+    //     // if (Location == CardLocation.PlayerHand)
+    //     // {
+    //     //     Debug.Log($"🃏 Card clicked: {CardInforSO.name}");
+    //     //     // TODO: implement use card, play to board, discard, etc.
+    //     //     if (Holder != null && BoardManagerRef != null)
+    //     //     {
+    //     //         // Remove from holder and start placing
+    //     //         Card removed = Holder.UseCard(this);
+    //     //         if (removed != null)
+    //     //         {
+    //     //             BoardManagerRef.StartPlacing(removed, Holder);
+    //     //         }
+    //     //     }
+    //     // }
+    //     if (!_holder && !_holder.IsTurn)
+    //         return;
+    //     OnClickCard?.Invoke(this, Holder);
+    // }
+    void OnMouseDown()
     {
-        // if (Location == CardLocation.PlayerHand)
-        // {
-        //     Debug.Log($"🃏 Card clicked: {CardInforSO.name}");
-        //     // TODO: implement use card, play to board, discard, etc.
-        //     if (Holder != null && BoardManagerRef != null)
-        //     {
-        //         // Remove from holder and start placing
-        //         Card removed = Holder.UseCard(this);
-        //         if (removed != null)
-        //         {
-        //             BoardManagerRef.StartPlacing(removed, Holder);
-        //         }
-        //     }
-        // }
-        if (!_holder && !_holder.IsTurn)
+        if (!_holder || !_holder.IsTurn)
             return;
         OnClickCard?.Invoke(this, Holder);
     }
