@@ -25,7 +25,7 @@ public class UIMainMenu : UIView
 
     private async void QuickMatch()
     {
-        await LobbyManager.Instance.QuickJoinAsync();
+        await LobbyManager.Instance.QuickJoinAsync(GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
         UIManager.Instance.HideUI(EUIState.MainMenu);
         UIManager.Instance.HideUI(EUIState.Footer);
     }

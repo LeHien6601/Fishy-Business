@@ -461,6 +461,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _showAnimation: {fileID: 7390585863752139108}
   _hideAnimation: {fileID: 3053076047140975748}
+  _playerNameTMP: {fileID: 4718975389033923486}
 --- !u!225 &7008078767074391027
 CanvasGroup:
   m_ObjectHideFlags: 0
