@@ -7,7 +7,8 @@ using UnityEngine.UI;
 public class UILobbyItem : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private TextMeshProUGUI _lobbyNameText;
+    [SerializeField] private TextMeshProUGUI _lobbyNameTMP;
+    [SerializeField] private TextMeshProUGUI _lobbyStatusTMP;
     [SerializeField] private Button _btn;
     private string _relayJoinCode = "";
     private string _lobbyCode = "";
@@ -29,13 +30,14 @@ public class UILobbyItem : MonoBehaviour
     }
     public void SetLobbyInfo(Lobby lobby)
     {
-        _lobbyNameText.text = $"{lobby.Name} {lobby.Players.Count}/{lobby.MaxPlayers}";
+        _lobbyNameTMP.text = $"{lobby.Name}";
+        _lobbyStatusTMP.text = $"{lobby.Players.Count}/{lobby.MaxPlayers} in Game";
         _relayJoinCode = lobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value;
         _lobbyCode = lobby.Data[Constant.KEY_LOBBY_CODE].Value;
     }
     public void SetLobbyName(string name)
     {
-        _lobbyNameText.text = name;
+        _lobbyNameTMP.text = name;
     }
     public void SetRelayJoinCode(string code)
     {
