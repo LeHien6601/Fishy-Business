@@ -70,9 +70,7 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
         Location = cardLocation;
         CardType = cardInforSO.CardType;
         PathCardType = cardInforSO.PathCardType;
-        Connections = (bool[])cardInforSO.Connections.Clone();
-        _isFlipped = isFlip;
-        transform.localRotation = Quaternion.Euler(90f, _isFlipped ? 180f : 0f, _initRotation.z);
+        Rotate(isFlip);
     }
     public void SetHolder(CardHolder cardHolder)
     {
@@ -110,7 +108,7 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
     {
         if (Connections == null || Connections.Length < 4) return;
         _isFlipped = !_isFlipped;
-        transform.localRotation = Quaternion.Euler(90f, _isFlipped ? 180f : 0f, _initRotation.z);
+        transform.localRotation = Quaternion.Euler(90f, _isFlipped ? 180f : 0f, 0f);
 
         bool[] newCon = new bool[4];
         newCon[0] = Connections[2];
@@ -121,16 +119,44 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
     }
     public void Rotate(bool isFlip)
     {
-        if (Connections == null || Connections.Length < 4) return;
+        if (CardInforSO.Connections == null || CardInforSO.Connections.Length < 4) return;
+        if (CardInforSO.CardType != CardType.Path) return;
         _isFlipped = isFlip;
-        transform.localRotation = Quaternion.Euler(90f, isFlip ? 180f : 0f, _initRotation.z);
+        bool[] temp = (bool[])CardInforSO.Connections.Clone();
+        transform.localRotation = Quaternion.Euler(90f, isFlip ? 180f : 0f, 0f);
 
-        bool[] newCon = new bool[4];
-        newCon[0] = Connections[2];
-        newCon[1] = Connections[3];
-        newCon[2] = Connections[0];
-        newCon[3] = Connections[1];
-        Connections = newCon;
+        if (_isFlipped)
+        {
+            bool[] newCon = new bool[4];
+            newCon[0] = temp[2];
+            newCon[1] = temp[3];
+            newCon[2] = temp[0];
+            newCon[3] = temp[1];
+            Connections = newCon;
+        }
+        else
+        {
+            Connections = temp;
+        }
+    }
+    public void SetConnectionByRotate(bool isFlip)
+    {
+        bool[] _origin = (bool[])CardInforSO.Connections.Clone();
+        _isFlipped = isFlip;
+        if (isFlip)
+        {
+            bool[] newCon = new bool[4];
+            newCon[0] = _origin[2];
+            newCon[1] = _origin[3];
+            newCon[2] = _origin[0];
+            newCon[3] = _origin[1];
+            Connections = newCon;
+        }
+        else
+        {
+            Connections = _origin;
+        }
+
     }
     public void SetLocation(CardLocation cardLocation)
     {
@@ -191,7 +217,7 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
     {
         if (Holder == null || !Holder.IsTurn)
         {
-            Debug.Log("Holder or not turn");      
+            Debug.Log("Holder or not turn");
             return;
         }
 
