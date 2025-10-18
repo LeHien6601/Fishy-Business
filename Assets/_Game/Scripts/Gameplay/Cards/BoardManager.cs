@@ -41,7 +41,10 @@ public class BoardManager : MonoBehaviour
     private Vector2Int? _hoverSlot = null;
     private float _snapDistance = 1.5f; // threshold để snap tới ô gần nhất
     private bool _placing = false;
+    private float _placingOffset = 0.05f;
     public int _playerTurnId;
+
+    private bool _manualRotated = false; // check rotate of placing card
 
     [SerializeField] private bool _isDev;
     void Start()
@@ -108,7 +111,7 @@ public class BoardManager : MonoBehaviour
             card.SetData(tempList[i], CardLocation.Deck);
             card.SetLocation(CardLocation.Deck);
             card.OnClickCard += OnClickCard;
-            // card.SetMaterial();
+
 
             deckObjects.Add(card);
         }
@@ -304,9 +307,10 @@ public class BoardManager : MonoBehaviour
         // nếu không có ô hợp lệ với orientation hiện tại -> thử auto-rotate để tìm orientation phù hợp
         if (_validSlots.Count == 0 && _placingOriginalConnections != null)
         {
-            for (int i = 1; i <= 3; i++)
+            for (int flip = 0; flip <= 1; flip++)
             {
-                bool[] rotated = RotateConnectionsSimulate(_placingOriginalConnections, i);
+                // bool[] rotated = RotateConnectionsSimulate(_placingOriginalConnections, flip == 1);
+                bool[] rotated = _placingCard.Connections;
                 List<Vector2Int> temp = new();
                 for (int r = 0; r < rows; r++)
                     for (int c = 0; c < cols; c++)
@@ -316,7 +320,7 @@ public class BoardManager : MonoBehaviour
                 if (temp.Count > 0)
                 {
                     // apply rotation to the visual and actual card (auto-rotate as user requested)
-                    for (int j = 0; j < i; j++) _placingCard.Rotate();
+                    for (int j = 0; j < flip; j++) _placingCard.Rotate();
                     _validSlots = temp;
                     break;
                 }
@@ -324,8 +328,14 @@ public class BoardManager : MonoBehaviour
         }
 
         HighlightSlots(_validSlots, true);
-        _placing = true;
 
+        StartCoroutine(WaitForPlacing());
+
+    }
+    private IEnumerator WaitForPlacing()
+    {
+        yield return new WaitForSeconds(0.2f);
+        _placing = true;
     }
 
     // Cancel placing: nếu cancelled = true -> trả bài về tay (origin holder)
@@ -333,6 +343,7 @@ public class BoardManager : MonoBehaviour
     {
         if (_placingCard == null) return;
         _placing = false;
+        _manualRotated = false;
         DOTween.Kill(_placingCard.transform);
         ClearSlotHighlights();
 
@@ -390,15 +401,19 @@ public class BoardManager : MonoBehaviour
         Card slotCard = board[slot.x, slot.y];
         if (slotCard == null) return;
 
-        // gán data từ _placingCard vào ô slotCard
-        slotCard.SetData(_placingCard.CardInforSO, CardLocation.OnBoard);
-        slotCard.SetLocation(CardLocation.OnBoard);
+
+
+
         // Optional: hiệu ứng chuyển động
         Sequence seq = DOTween.Sequence();
         seq.Append(_placingCard.transform.DOMove(slotCard.transform.position + Vector3.up * 0.2f, 0.08f));
         seq.Append(_placingCard.transform.DOMove(slotCard.transform.position, 0.08f));
         seq.OnComplete(() =>
         {
+            // gán data từ _placingCard vào ô slotCard
+            slotCard.PlaceCard(_placingCard.CardInforSO, CardLocation.OnBoard, _manualRotated);
+            slotCard.SetLocation(CardLocation.OnBoard);
+
             // destroy physical placing card (để tránh duplicate)
             Destroy(_placingCard.gameObject);
             // xoá highlight
@@ -407,6 +422,7 @@ public class BoardManager : MonoBehaviour
             _originalHolder = null;
             _validSlots.Clear();
             _hoverSlot = null;
+            _manualRotated = false;
         });
     }
 
@@ -418,6 +434,7 @@ public class BoardManager : MonoBehaviour
         {
             _placingCard.Rotate();
             // recalc valid slots with new orientation
+            _manualRotated = !_manualRotated;
             ClearSlotHighlights();
             _validSlots = GetValidSlotsForCard(_placingCard);
             HighlightSlots(_validSlots, true);
@@ -457,40 +474,21 @@ public class BoardManager : MonoBehaviour
                 if (!_hoverSlot.HasValue || _hoverSlot.Value != best.Value)
                 {
                     // update rotation to best fit (auto)
-                    Quaternion bestRot = GetBestRotationForCard(_placingCard, best.Value);
-                    _placingCard.transform.DORotateQuaternion(bestRot, 0.06f).SetEase(Ease.OutQuad);
+                    // Quaternion bestRot = GetBestRotationForCard(_placingCard, best.Value);
+                    // // bestRot.z = 0f;
+                    // Debug.Log("BestRot: " + bestRot);
+                    // _placingCard.transform.DORotateQuaternion(bestRot, 0.06f).SetEase(Ease.OutQuad);
+                    Vector3 angle = GetBestVector3RotationForCard(_placingCard, best.Value);
+                    Debug.Log("angle: " + angle);
+                    angle.z = 0f;
+                    Debug.Log("angle: " + angle);
+                    _placingCard.transform.DOLocalRotate(angle, 0.06f).SetEase(Ease.OutQuad);
                     _hoverSlot = best.Value;
                 }
 
                 // move card visually to this slot position (slightly above)
-                Vector3 targetPos = GetWorldPositionForSlot(best.Value) + Vector3.up * 0.2f;
+                Vector3 targetPos = GetWorldPositionForSlot(best.Value) + Vector3.up * _placingOffset;
                 _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
-            }
-            else
-            {
-                // không gần slot -> follow mouse a bit above board
-                _hoverSlot = null;
-
-                // Giới hạn phạm vi di chuyển trong vùng board
-                float minX = transform.position.x;
-                float maxX = transform.position.x + (cols - 1) * cardSize.x;
-                float minZ = transform.position.z;
-                float maxZ = transform.position.z + (rows - 1) * cardSize.y;
-
-                Vector3 followPos = new Vector3(
-                    Mathf.Clamp(mouseWorld.x, minX, maxX),
-                    transform.position.y + 0.5f,
-                    Mathf.Clamp(mouseWorld.z, minZ, maxZ)
-                );
-                float temp = 0.01f;
-                // Nếu chuột vượt hẳn ra ngoài → không di chuyển nữa
-                if (mouseWorld.x < minX - temp || mouseWorld.x > maxX + temp ||
-                    mouseWorld.z < minZ - temp || mouseWorld.z > maxZ + temp)
-                {
-                    return; // card đứng yên
-                }
-
-                _placingCard.transform.DOMove(followPos, 0.04f).SetEase(Ease.OutQuad);
             }
         }
 
@@ -527,37 +525,64 @@ public class BoardManager : MonoBehaviour
         if (card == null || card.Connections == null) return card.transform.rotation;
         // lưu trạng thái ban đầu
         bool[] orig = (bool[])card.Connections.Clone();
-        Quaternion baseRot = Quaternion.Euler(90f, 0f, card.transform.localRotation.eulerAngles.z);
 
-        for (int i = 0; i < 4; i++)
+
+        // 0° (normal)
+        if (CanPlaceCardAtWithConnections(slot, RotateConnectionsSimulate(orig, false)))
         {
-            bool[] sim = RotateConnectionsSimulate(orig, i);
-            if (CanPlaceCardAtWithConnections(slot, sim))
-            {
-                // tính quaternion theo i lần rotate 90 deg (xem Card.Rotate hiện áp dụng Y 180 để flip, nhưng ở đây ta xoay 90 trên trục Y thực tế của model)
-                Quaternion rot = Quaternion.Euler(90f, i * 90f, card.transform.localRotation.eulerAngles.z);
-                return rot;
-            }
+            _manualRotated = false;
+            return Quaternion.Euler(90f, 0f, 0f);
+        }
+
+        // 180° (flipped)
+        if (CanPlaceCardAtWithConnections(slot, RotateConnectionsSimulate(orig, true)))
+        {
+            _manualRotated = true;
+            return Quaternion.Euler(90f, 180f, 0f);
         }
         // nếu không có rotation nào match -> trả rotation hiện tại
         return card.transform.rotation;
     }
+    public Vector3 GetBestVector3RotationForCard(Card card, Vector2Int slot)
+    {
+        if (card == null || card.Connections == null) return card.transform.rotation.eulerAngles;
+        // lưu trạng thái ban đầu
+        bool[] orig = (bool[])card.Connections.Clone();
+
+
+        // 0° (normal)
+        if (CanPlaceCardAtWithConnections(slot, RotateConnectionsSimulate(orig, false)))
+        {
+            _manualRotated = false;
+            return new Vector3(90f, 0f, 0f);
+        }
+
+        // 180° (flipped)
+        if (CanPlaceCardAtWithConnections(slot, RotateConnectionsSimulate(orig, true)))
+        {
+            _manualRotated = true;
+            return new Vector3(90f, 180f, 0f);
+        }
+        // nếu không có rotation nào match -> trả rotation hiện tại
+        return card.transform.rotation.eulerAngles;
+    }
 
     // helper: rotate connections simulate by step 1 => lên xuống quay vòng (N,E,S,W)
-    private bool[] RotateConnectionsSimulate(bool[] con, int step)
+    private bool[] RotateConnectionsSimulate(bool[] con, bool flipped)
     {
         if (con == null || con.Length < 4) return con;
-        bool[] newCon = (bool[])con.Clone();
-        for (int i = 0; i < step; i++)
-        {
-            bool[] tmp = new bool[4];
-            tmp[0] = newCon[2];
-            tmp[1] = newCon[3];
-            tmp[2] = newCon[0];
-            tmp[3] = newCon[1];
-            newCon = tmp;
-        }
-        return newCon;
+        // bool[] newCon = (bool[])con.Clone();
+        if (flipped == false)
+            return con;
+
+        bool[] flippedCon = new bool[4];
+        flippedCon[0] = con[2];
+        flippedCon[1] = con[3];
+        flippedCon[2] = con[0];
+        flippedCon[3] = con[1];
+
+
+        return flippedCon;
     }
 
     private void HighlightSlots(List<Vector2Int> slots, bool highlight)

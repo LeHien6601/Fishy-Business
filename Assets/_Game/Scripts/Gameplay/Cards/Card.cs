@@ -4,6 +4,7 @@ using DG.Tweening;
 using Unity.Collections;
 using System;
 using UnityEngine.Events;
+using NUnit.Framework;
 
 [SelectionBase]
 public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
@@ -56,6 +57,22 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
         CardType = cardInforSO.CardType;
         PathCardType = cardInforSO.PathCardType;
         Connections = (bool[])cardInforSO.Connections.Clone();
+    }
+    public void PlaceCard(CardInforSO cardInforSO, CardLocation cardLocation, bool isFlip)
+    {
+        _cardInforSO = cardInforSO;
+        // BoardManagerRef = boardManager;
+        if (cardInforSO == null) return;
+
+        if (_meshRenderer != null)
+            _meshRenderer.material = cardInforSO.material;
+
+        Location = cardLocation;
+        CardType = cardInforSO.CardType;
+        PathCardType = cardInforSO.PathCardType;
+        Connections = (bool[])cardInforSO.Connections.Clone();
+        _isFlipped = isFlip;
+        transform.localRotation = Quaternion.Euler(90f, _isFlipped ? 180f : 0f, _initRotation.z);
     }
     public void SetHolder(CardHolder cardHolder)
     {

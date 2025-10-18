@@ -32,6 +32,7 @@ public class RoundTable : NetworkBehaviour
 
     private void InitSeats()
     {
+        _gameplaying = false;
         for (int i = 0; i < _seats.Count; i++)
         {
             float angle = i * Mathf.PI * 2 / _seats.Count;
