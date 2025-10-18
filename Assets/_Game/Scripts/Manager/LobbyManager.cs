@@ -7,7 +7,6 @@ using Unity.Services.Lobbies.Models;
 using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
-using Unity.Netcode;
 
 public class LobbyManager : SingletonMono<LobbyManager>
 {
@@ -163,7 +162,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
         catch (LobbyServiceException e)
         {
             Debug.LogException(e);
-        }
+            throw;
+        }  
     }
 
     public async Task UpdatePlayerDataAsync(string playerName, int iconId)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -11,13 +12,24 @@ public class GameManager : SingletonMonoNet<GameManager>
     public string PlayerName { get; private set; }
     public int PlayerIconID { get; private set; }
     [SerializeField] private NetworkObject _playerPrefab;
-
     private List<ulong> _spawnedPlayerIds = new();
+
+    public event Action<UpdatedPlayerInfoEventArgs> OnUpdatedPlayerInfo;
+    public struct UpdatedPlayerInfoEventArgs
+    {
+        public string PlayerName;
+        public int PlayerIconID;
+    }
 
     public void Start()
     {
         PlayerName = Utils.GetRandomPlayerName();
-        PlayerIconID = Random.Range(0, 20); // Assuming there are 20 player icons
+        PlayerIconID = UnityEngine.Random.Range(0, 20); 
+        OnUpdatedPlayerInfo?.Invoke(new UpdatedPlayerInfoEventArgs
+        {
+            PlayerName = PlayerName,
+            PlayerIconID = PlayerIconID
+        });
         Debug.Log($"Player Name: {PlayerName}, Icon ID: {PlayerIconID}");
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }

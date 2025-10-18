@@ -75,7 +75,7 @@ public class UIAnimation : MonoBehaviour
         _canvasGroup = GetComponent<CanvasGroup>();
     }
     [ContextMenu("Play Animation")]
-    public async void PlayAnimation()
+    public async Task PlayAnimation()
     {
 #if UNITY_EDITOR
         if (!Application.isPlaying)
