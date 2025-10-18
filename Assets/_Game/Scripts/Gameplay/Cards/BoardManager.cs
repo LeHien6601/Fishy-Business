@@ -103,6 +103,7 @@ public class BoardManager : MonoBehaviour
 
             card.SetData(tempList[i], this, CardLocation.Deck);
             card.SetLocation(CardLocation.Deck);
+            card.OnClickCard += OnClickCard;
             // card.SetMaterial();
 
             deckObjects.Add(card);
@@ -220,6 +221,23 @@ public class BoardManager : MonoBehaviour
     }
 
     #region Handle PlayGame
+
+    private void OnClickCard(Card card, CardHolder cardHolder)
+    {
+        if (card.Location == CardLocation.PlayerHand)
+        {
+            Debug.Log($"🃏 Card clicked: {card.CardInforSO.name}");
+            // TODO: implement use card, play to board, discard, etc.
+            if (cardHolder != null)
+            {
+                Card removed = cardHolder.UseCard(card);
+                if (removed != null)
+                {
+                    StartPlacing(removed, cardHolder);
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// Kiểm tra tất cả các vị trí có thể đặt path card
@@ -490,6 +508,7 @@ public class BoardManager : MonoBehaviour
             if (_hoverSlot.HasValue && _validSlots.Contains(_hoverSlot.Value))
             {
                 PlaceCardToSlot(_hoverSlot.Value);
+                _placing = false;
                 return;
             }
             else

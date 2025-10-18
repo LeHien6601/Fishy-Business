@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
 using Unity.Collections;
+using System;
 
 [SelectionBase]
 public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
@@ -27,7 +28,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         }
     }
 
-    [HideInInspector] public BoardManager BoardManagerRef;
+    public event Action<Card, CardHolder> OnClickCard;
     private bool _isFlipped = false;
     private Quaternion _initRotation;
     private int _indexInHolder = -1;
@@ -41,7 +42,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     public void SetData(CardInforSO cardInforSO, BoardManager boardManager, CardLocation cardLocation)
     {
         _cardInforSO = cardInforSO;
-        BoardManagerRef = boardManager;
+        // BoardManagerRef = boardManager;
         if (cardInforSO == null) return;
 
         if (_meshRenderer != null)
@@ -174,20 +175,21 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     #region Handle Click Card
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (Location == CardLocation.PlayerHand)
-        {
-            Debug.Log($"🃏 Card clicked: {CardInforSO.name}");
-            // TODO: implement use card, play to board, discard, etc.
-            if (Holder != null && BoardManagerRef != null)
-            {
-                // Remove from holder and start placing
-                Card removed = Holder.UseCard(this);
-                if (removed != null)
-                {
-                    BoardManagerRef.StartPlacing(removed, Holder);
-                }
-            }
-        }
+        // if (Location == CardLocation.PlayerHand)
+        // {
+        //     Debug.Log($"🃏 Card clicked: {CardInforSO.name}");
+        //     // TODO: implement use card, play to board, discard, etc.
+        //     if (Holder != null && BoardManagerRef != null)
+        //     {
+        //         // Remove from holder and start placing
+        //         Card removed = Holder.UseCard(this);
+        //         if (removed != null)
+        //         {
+        //             BoardManagerRef.StartPlacing(removed, Holder);
+        //         }
+        //     }
+        // }
+        OnClickCard?.Invoke(this, Holder);
     }
     public void ResetRotate()
     {
