@@ -28,3 +28,6 @@ MonoBehaviour:
   - State: 5
     View: {fileID: 9052830829739115278, guid: df856596f754dfe48828a2d12e35a340, type: 3}
     SortingOrder: 2
+  - State: 6
+    View: {fileID: 6240974990313755145, guid: 233b82f291cd2e449ab4294095a947a6, type: 3}
+    SortingOrder: 3

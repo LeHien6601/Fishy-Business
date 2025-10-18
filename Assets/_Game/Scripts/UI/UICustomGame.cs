@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UICustomGame : UIView
 {
+    #region Properties 
     [Header("References")]
     [SerializeField] private Button _backBtn;
     [SerializeField] private Button _createBtn;
@@ -16,6 +18,7 @@ public class UICustomGame : UIView
     private string _selectedLobbyCode = "";
     private string _selectedRelayJoinCode = "";
     private List<UILobbyItem> _lobbyItems = new();
+    #endregion
     private void Awake()
     {
         _backBtn.onClick.AddListener(Back);
@@ -45,6 +48,9 @@ public class UICustomGame : UIView
             UIManager.Instance.HideUI(EUIState.Footer);
         }
     }
+
+    
+    #region Lobby List Handling
     private IEnumerator RefreshLobbyList()
     {
         while (true)
@@ -53,7 +59,6 @@ public class UICustomGame : UIView
             yield return Utils.GetWaitForSeconds(10f);
         }
     }
-    #region Lobby List Handling
     private void HandleChangeLobbyList(LobbyManager.UpdatedLoobyListEventArgs args)
     {
         // Update lobby list UI
@@ -111,6 +116,7 @@ public class UICustomGame : UIView
     }
     #endregion
 
+    #region Behaviors
     private void Back()
     {
         UIManager.Instance.ShowUI(EUIState.MainMenu);
@@ -118,23 +124,28 @@ public class UICustomGame : UIView
     }
     private async void Create()
     {
-        await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
         UIManager.Instance.HideUI(EUIState.CustomGame, true);
+        UIManager.Instance.ShowUI(EUIState.Loading);
+        await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
         GameManager.Instance.StartGame();
+        await System.Threading.Tasks.Task.Delay(500);
+        UIManager.Instance.HideUI(EUIState.Loading);
     }
 
     private async void Join()
     {
         if (!string.IsNullOrEmpty(_selectedLobbyCode))
         {
-            await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
             UIManager.Instance.HideUI(EUIState.CustomGame, true);
+            UIManager.Instance.ShowUI(EUIState.Loading);
+            await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
+            await Task.Delay(1000);
+            UIManager.Instance.HideUI(EUIState.Loading);
         }
         else
         {
             Debug.LogWarning("No lobby selected to join.");
         }
     }
-    
-
+    #endregion
 }

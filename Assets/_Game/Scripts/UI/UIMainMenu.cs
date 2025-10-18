@@ -45,6 +45,14 @@ public class UIMainMenu : UIView
             {
                 UIManager.Instance.HideUI(EUIState.MainMenu);
                 UIManager.Instance.HideUI(EUIState.Footer);
+                await Task.Delay(500);
+                UIManager.Instance.ShowUI(EUIState.Loading);
+                while (!task.IsCompleted)
+                {
+                    await Task.Yield();
+                }
+                await Task.Delay(500);
+                UIManager.Instance.HideUI(EUIState.Loading);
             }
         }
         catch (System.Exception ex)

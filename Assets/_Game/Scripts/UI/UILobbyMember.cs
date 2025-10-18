@@ -44,6 +44,9 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
         _avaImg.sprite = (ava != null) ? ava : _avaImg.sprite;
         _id = id;
 
+        _dataRect.gameObject.SetActive(true);
+        _kickRect.gameObject.SetActive(false);
+        
         _emptyTMP.gameObject.SetActive(false);
         _nameTMP.gameObject.SetActive(true);
         _avaImg.gameObject.SetActive(true);
@@ -52,6 +55,8 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
     }
     public void ResetMemberData()
     {
+        _dataRect.gameObject.SetActive(true);
+        _kickRect.gameObject.SetActive(false);
         _emptyTMP.gameObject.SetActive(true);
         _nameTMP.gameObject.SetActive(false);
         _avaImg.gameObject.SetActive(false);
