@@ -35,6 +35,7 @@ public class PlayerController : NetworkBehaviour
 
         _inputReader.Move += HandleMove;
         _inputReader.Attack += HandleAttack;
+        _inputReader.Interact += HandleInteract;
 
         _targetTransformChannel.RaiseEvent(transform);
     }
@@ -51,7 +52,7 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleMove(Vector2 arg0)
     {
-        if (_currentState == _attackState)
+        if (_currentState == _attackState || _currentState == _sitState)
             return;
         MoveDirection = new Vector3(arg0.x, 0, arg0.y).normalized;
         Debug.Log("Move");
@@ -72,6 +73,12 @@ public class PlayerController : NetworkBehaviour
             return;
         }
         ToState(_attackState);
+    }
+
+    private void HandleInteract()
+    {
+        if (_currentState == _sitState)
+            ToState(_idleState);
     }
 
     void Update()
