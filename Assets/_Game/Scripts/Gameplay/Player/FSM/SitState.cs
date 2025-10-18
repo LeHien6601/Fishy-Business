@@ -26,6 +26,7 @@ public class SitState : IState
         _animator.Play(_animHash);
         _animator.transform.SetPositionAndRotation(_seat.SitPosition(), _seat.SitRotation());
         _host.transform.SetParent(_seat.transform);
+        CameraController.SwitchCamMode(CameraMode.FirstPerson);
     }
 
     public virtual void OnExit()
@@ -34,6 +35,7 @@ public class SitState : IState
         _host.Agent.enabled = true;
         _host.CanInteract = true;
         _host.transform.SetParent(null);
+        CameraController.SwitchCamMode(CameraMode.ThirdPerson);
     }
 
     public virtual void OnTick()
