@@ -3967,76 +3967,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1420860187302064821, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: Lens.FieldOfView
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 2882891417276121640, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: Offset.y
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2882891417276121640, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: Offset.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2.632
-      objectReference: {fileID: 0}
-    - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.9980676
-      objectReference: {fileID: 0}
-    - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.062137444
-      objectReference: {fileID: 0}
-    - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -3.810088e-11
-      objectReference: {fileID: 0}
-    - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 2.3978335e-12
-      objectReference: {fileID: 0}
-    - target: {fileID: 4225404668927665131, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: FollowOffset.x
-      value: 4.82
-      objectReference: {fileID: 0}
+      propertyPath: Target.TrackingTarget
+      value: 
+      objectReference: {fileID: 456976976}
     - target: {fileID: 4883532899618468544, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_Name
       value: Camera
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545577006575079135, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: field of view
-      value: 60.000004
-      objectReference: {fileID: 0}
-    - target: {fileID: 8027836494066444864, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: TiltAxis.Value
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 8027836494066444864, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: TiltAxis.Center
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 8027836494066444864, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: TiltAxis.Range.y
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 8311203904143389755, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.9396927
-      objectReference: {fileID: 0}
-    - target: {fileID: 8311203904143389755, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.34202015
-      objectReference: {fileID: 0}
-    - target: {fileID: 8311203904143389755, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8311203904143389755, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

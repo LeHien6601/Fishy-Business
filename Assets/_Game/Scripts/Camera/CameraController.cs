@@ -39,7 +39,7 @@ public class CameraController : MonoBehaviour
                 pan.PanAxis.Value = 0;
                 pan.TiltAxis.Value = 0;
             }
-            _1stPersonCamera.transform.rotation = _1stPersonCamera.Follow.rotation;
+            // _1stPersonCamera.transform.rotation = _1stPersonCamera.Follow.rotation;
             _cinemachineInputAxisController.enabled = false;
             Cursor.lockState = CursorLockMode.None;
         }
