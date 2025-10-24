@@ -297,7 +297,9 @@ MonoBehaviour:
   _3rdPersonCamera: {fileID: 1913107470011895820}
   _1stPersonCamera: {fileID: 1420860187302064821}
   _cinemachineInputAxisController: {fileID: 8057290443681473576}
+  _headBoneOffset: {x: 0.17364818, y: 0, z: 0, w: 0.9848077}
   _targetTransformChannel: {fileID: 11400000, guid: 64e9b6e076ceb5440aba58b59e857a59, type: 2}
+  _headBoneTransformChannel: {fileID: 11400000, guid: 119e9f4c9e301394e90222fe52814f53, type: 2}
 --- !u!1 &5787224056174319044
 GameObject:
   m_ObjectHideFlags: 0
@@ -433,7 +435,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5896501764263839633}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.062137444, y: -3.810088e-11, z: 2.3978335e-12, w: 0.9980676}
+  m_LocalRotation: {x: 0.062137444, y: -3.8099274e-11, z: 2.3719748e-12, w: 0.9980676}
   m_LocalPosition: {x: -10.525, y: 6.278, z: 2.632}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
