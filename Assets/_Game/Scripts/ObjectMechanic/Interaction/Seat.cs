@@ -109,6 +109,7 @@ public class Seat : NetworkBehaviour, IInteractable
     }
 
     public Vector3 SitPosition() => transform.position + transform.TransformDirection(_sitOffset);
+    public Vector3 SitPosition(Vector3 seatPos, Quaternion seatRot) => seatPos + seatRot * _sitOffset;
     public Quaternion SitRotation() => transform.rotation * Quaternion.LookRotation(_sitDirection);
     public bool IsOccupied() => _occupyingClientId.Value != ulong.MaxValue;
     public ulong GetOccupyingClientId() => _occupyingClientId.Value;

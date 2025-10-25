@@ -124,7 +124,7 @@ public class RoundTable : NetworkBehaviour
             if (seat.GetOccupant())
             {
                 Transform occupantTf = seat.GetOccupant().transform;
-                Tween occupantTween = occupantTf.DOMove(targetPos, duration)
+                Tween occupantTween = occupantTf.DOMove(seat.SitPosition(targetPos, targetRot), duration)
                                        .SetEase(easeType);
                 Tween occupantRotTween = occupantTf.DOLocalRotateQuaternion(targetRot, duration)
                                        .SetEase(easeType);
@@ -157,3 +157,12 @@ public class RoundTable : NetworkBehaviour
     [ContextMenu("Reset")]
     public void Reset() => InitSeats();
 }
+
+// public enum BoardGameState
+// {
+//     WaitingForPlayers,
+//     DealingCards,
+//     PlayerTurn,
+//     RoundEnd,
+//     GameEnd
+// }
