@@ -10,6 +10,7 @@ using Unity.Services.Core;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using HHDCore;
 
 public class LobbyManager : SingletonMono<LobbyManager>
 {

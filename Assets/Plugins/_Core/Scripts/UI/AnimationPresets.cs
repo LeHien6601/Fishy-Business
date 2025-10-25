@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Unity.VisualScripting;
+using HHDCore;
 
 [System.Serializable]
 public class AnimationPreset

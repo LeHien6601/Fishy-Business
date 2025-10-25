@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
+using HHDCore;
 using Unity.Netcode;
-using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.XR;
 
 public class GameManager : SingletonMonoNet<GameManager>
 {

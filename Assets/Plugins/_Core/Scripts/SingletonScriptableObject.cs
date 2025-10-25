@@ -1,23 +1,26 @@
 using UnityEngine;
 
-public abstract class SingletonScriptableObject<T> : ScriptableObject where T : ScriptableObject
+namespace HHDCore
 {
-    private static T _instance;
-
-    public static T Instance
+    public class SingletonScriptableObject<T> : ScriptableObject where T : ScriptableObject
     {
-        get
+        private static T _instance;
+
+        public static T Instance
         {
-            if (_instance == null)
+            get
             {
-                string typeName = typeof(T).Name;
-                _instance = Resources.Load<T>(typeName);
                 if (_instance == null)
                 {
-                    Debug.LogError($"{typeName} asset not found in Resources!");
+                    string typeName = typeof(T).Name;
+                    _instance = Resources.Load<T>(typeName);
+                    if (_instance == null)
+                    {
+                        Debug.LogError($"{typeName} asset not found in Resources!");
+                    }
                 }
+                return _instance;
             }
-            return _instance;
         }
     }
 }

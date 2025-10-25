@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HHDCore;
 using UnityEngine;
 
-public class UIManager : SingletonMonoNet<UIManager>
+public class UIManager : SingletonMono<UIManager>
 {
     private List<UIViewState> _uiViewPrefabs = new();
     private List<UIViewState> _uiViewStates = new();

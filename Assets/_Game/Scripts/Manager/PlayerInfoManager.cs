@@ -1,3 +1,4 @@
+using HHDCore;
 using UnityEngine;
 
 public class PlayerInfoManager : SingletonMono<PlayerInfoManager>
