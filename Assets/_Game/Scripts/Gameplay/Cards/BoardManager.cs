@@ -77,6 +77,10 @@ public class BoardManager : NetworkBehaviour
         {
             HandleBombSelectionInput();
         }
+        else if (_checkGoldSelecting)
+        {
+            HandleCheckGoldSelectionInput();
+        }
     }
 
     #region Multiplayer
@@ -237,13 +241,7 @@ public class BoardManager : NetworkBehaviour
                 Card card = Instantiate(cardPrefab, transform);
                 card.transform.localPosition = pos;
                 Quaternion rotate = cardPrefab.transform.localRotation;
-                Quaternion goalRotate = rotate;
-                if (goalRotate.x == 0)
-                    goalRotate.x = 180f;
-                else if (goalRotate.x == 90)
-                    goalRotate.x = -90f;
-                else if (goalRotate.x == -90)
-                    goalRotate.x = 90f;
+                Quaternion goalRotate = Quaternion.Euler(rotate.eulerAngles.x + 180f, rotate.eulerAngles.y, rotate.eulerAngles.z);
                 card.transform.localRotation = rotate;
                 card.name = $"Card_{r}_{c}";
                 Vector2Int temp = new Vector2Int(r, c);
@@ -253,7 +251,6 @@ public class BoardManager : NetworkBehaviour
                 }
                 else if (goalPos.Contains(temp))
                 {
-                    card.transform.localRotation = goalRotate;
                     if (goalIndex == randomGoal)
                     {
                         card.SetData(_goalTreasureCardInfor, CardLocation.Hidden);
@@ -263,6 +260,7 @@ public class BoardManager : NetworkBehaviour
                         card.SetData(_goalEmtyCardInfor, CardLocation.Hidden);
                     }
                     goalIndex++;
+                    card.transform.localRotation = goalRotate;
                 }
                 else
                 {
@@ -327,11 +325,164 @@ public class BoardManager : NetworkBehaviour
                 }
                 else if (card.ActionCardType == ActionCardType.CheckGold)
                 {
-
+                    if (cardHolder != null)
+                    {
+                        Card removed = cardHolder.UseCard(card); // remove from hand
+                        if (removed != null)
+                        {
+                            StartCheckGoldSelection(removed, cardHolder);
+                        }
+                    }
                 }
             }
         }
     }
+    #region Handle CheckGold
+
+    private bool _checkGoldSelecting = false;
+    private Card _checkGoldCard = null;
+    private CardHolder _checkGoldOriginalHolder = null;
+    private List<Vector2Int> _checkGoldTargets = new();
+
+    private void StartCheckGoldSelection(Card checkCard, CardHolder originalHolder)
+    {
+        if (checkCard == null) return;
+
+        // huỷ các trạng thái khác nếu có
+        if (_placingCard != null)
+            CancelCardUsing(true, _placingCard, _originalHolder);
+
+        ClearCheckGoldSelection();
+
+        _checkGoldCard = checkCard;
+        _checkGoldOriginalHolder = originalHolder;
+        _checkGoldSelecting = true;
+
+        // chỉ có thể chọn vào các goal
+        _checkGoldTargets.Clear();
+        foreach (var pos in goalPos)
+        {
+            _checkGoldTargets.Add(pos);
+        }
+
+        HighlightCheckGoldTargets(true);
+    }
+
+    private void HandleCheckGoldSelectionInput()
+    {
+        if (!IsOwner) return;
+
+        // ESC -> cancel
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CancelCheckGoldSelection(true);
+            return;
+        }
+
+        // Right click -> cancel
+        if (Input.GetMouseButtonDown(1))
+        {
+            CancelCheckGoldSelection(true);
+            return;
+        }
+
+        // Left click -> check
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+            {
+                Card clickedCard = hit.collider.GetComponentInParent<Card>();
+                if (clickedCard != null)
+                {
+                    Vector2Int? found = null;
+                    for (int r = 0; r < rows; r++)
+                    {
+                        for (int c = 0; c < cols; c++)
+                        {
+                            if (board[r, c] == clickedCard)
+                            {
+                                found = new Vector2Int(r, c);
+                                break;
+                            }
+                        }
+                        if (found.HasValue) break;
+                    }
+
+                    if (found.HasValue && _checkGoldTargets.Contains(found.Value))
+                    {
+                        // đây là 1 goal
+                        if (clickedCard.CardInforSO == _goalTreasureCardInfor)
+                        {
+                            Debug.Log("💰 REAL GOLD FOUND!");
+                        }
+                        else
+                        {
+                            Debug.Log("🚫 FAKE GOAL!");
+                        }
+
+                        // dùng xong thì destroy lá CheckGold
+                        if (_checkGoldCard != null)
+                            Destroy(_checkGoldCard.gameObject);
+
+                        ClearCheckGoldSelection();
+                        return;
+                    }
+                    else
+                    {
+                        Debug.Log("⚠️ Chỉ có thể click vào các goal!");
+                    }
+                }
+            }
+        }
+    }
+
+    private void HighlightCheckGoldTargets(bool highlight)
+    {
+        foreach (var pos in _checkGoldTargets)
+        {
+            if (IsInside(pos) && board[pos.x, pos.y] != null)
+            {
+                board[pos.x, pos.y].SetHighlight(highlight);
+            }
+        }
+    }
+
+    private void ClearCheckGoldSelection()
+    {
+        if (_checkGoldTargets != null && _checkGoldTargets.Count > 0)
+            HighlightCheckGoldTargets(false);
+
+        _checkGoldTargets.Clear();
+        _checkGoldSelecting = false;
+        _checkGoldCard = null;
+        _checkGoldOriginalHolder = null;
+    }
+
+    private void CancelCheckGoldSelection(bool returnToHand)
+    {
+        if (_checkGoldCard == null)
+        {
+            ClearCheckGoldSelection();
+            return;
+        }
+
+        HighlightCheckGoldTargets(false);
+
+        if (returnToHand && _checkGoldOriginalHolder != null)
+        {
+            CancelCardUsing(true, _checkGoldCard, _checkGoldOriginalHolder);
+        }
+        else
+        {
+            Destroy(_checkGoldCard.gameObject);
+        }
+
+        ClearCheckGoldSelection();
+    }
+
+    #endregion
+
     #region Handle Bomb
     private void StartBombSelection(Card bombCard, CardHolder originalHolder)
     {
@@ -340,7 +491,7 @@ public class BoardManager : NetworkBehaviour
         // Cancel any placing state first
         if (_placingCard != null)
         {
-            CancelPlacing(true);
+            CancelCardUsing(true, _placingCard, _originalHolder);
         }
 
         // Clear any previous bomb state
@@ -483,20 +634,21 @@ public class BoardManager : NetworkBehaviour
         if (returnToHand && _bombOriginalHolder != null)
         {
             // trả lá bomb về tay
-            Card card = _bombActionCard;
-            Transform origHolderTransform = _bombOriginalHolder.transform;
-            card.transform.SetParent(origHolderTransform, false);
-            card.transform.SetAsLastSibling();
-            card.ResetRotate();
-            card.transform.DORotateQuaternion(card.transform.localRotation, 0.1f);
+            // Card card = _bombActionCard;
+            // Transform origHolderTransform = _bombOriginalHolder.transform;
+            // card.transform.SetParent(origHolderTransform, false);
+            // card.transform.SetAsLastSibling();
+            // card.ResetRotate();
+            // card.transform.DORotateQuaternion(card.transform.localRotation, 0.1f);
 
-            Vector3 targetPos = _bombOriginalHolder.transform.position;
-            card.transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad)
-                .OnComplete(() =>
-                {
-                    card.SetLocation(CardLocation.PlayerHand);
-                    _bombOriginalHolder.AddCard(card);
-                });
+            // Vector3 targetPos = _bombOriginalHolder.transform.position;
+            // card.transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad)
+            //     .OnComplete(() =>
+            //     {
+            //         card.SetLocation(CardLocation.PlayerHand);
+            //         _bombOriginalHolder.AddCard(card);
+            //     });
+            CancelCardUsing(true, _bombActionCard, _bombOriginalHolder);
         }
         else
         {
@@ -535,6 +687,7 @@ public class BoardManager : NetworkBehaviour
 
     #endregion
 
+    #region Handle PathCard
     /// <summary>
     /// Kiểm tra tất cả các vị trí có thể đặt path card
     /// </summary>
@@ -590,7 +743,7 @@ public class BoardManager : NetworkBehaviour
         if (_placingCard != null)
         {
             // đang có bài đang đặt -> hủy trước
-            CancelPlacing(true);
+            CancelCardUsing(true, _placingCard, _originalHolder);
         }
         _placingCard = card;
         _originalHolder = originalHolder;
@@ -635,7 +788,7 @@ public class BoardManager : NetworkBehaviour
         if (_validSlots.Count == 0)
         {
             Debug.LogWarning($"⚠️ Card '{_placingCard.CardInforSO.name}' cannot be placed on board at any position!");
-            CancelPlacing(true);
+            CancelCardUsing(true, _placingCard, _originalHolder);
             return;
         }
 
@@ -651,53 +804,54 @@ public class BoardManager : NetworkBehaviour
     }
 
     // Cancel placing: nếu cancelled = true -> trả bài về tay (origin holder)
-    public void CancelPlacing(bool returnToHand)
+    public void CancelCardUsing(bool returnToHand, Card cardUsing, CardHolder cardHolder)
     {
-        if (_placingCard == null) return;
+        if (cardUsing == null) return;
         _placing = false;
         _manualRotated = false;
-        DOTween.Kill(_placingCard.transform);
+
+        DOTween.Kill(cardUsing.transform);
         ClearSlotHighlights();
 
-        if (returnToHand && _originalHolder != null)
+        if (returnToHand && cardHolder != null)
         {
             // capture local reference
-            Card card = _placingCard;
-            Transform origHolderTransform = _originalHolder.transform;
+            Card card = cardUsing;
+            Transform origHolderTransform = cardHolder.transform;
 
             card.transform.SetParent(origHolderTransform, false);
             card.transform.SetAsLastSibling();
             card.ResetRotate();
             card.transform.DORotateQuaternion(_placingOriginalLocalRot, 0.1f);
 
-            Vector3 targetPos = _originalHolder.transform.position;
+            Vector3 targetPos = cardHolder.transform.position;
             card.transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad)
                 .OnComplete(() =>
                 {
                     Debug.Log("Complete Return 1");
                     card.SetLocation(CardLocation.PlayerHand);
                     Debug.Log("Complete Return 2");
-                    _originalHolder.AddCard(card);
+                    cardHolder.AddCard(card);
                     Debug.Log("Complete Return 3");
 
                     // now it's safe to clear fields
-                    if (_placingCard == card) _placingCard = null;
-                    _originalHolder = null;
+                    if (cardUsing == card) cardUsing = null;
+                    cardHolder = null;
                 });
         }
         else
         {
-            if (_originalHolder == null)
+            if (cardHolder == null)
             {
                 Debug.Log("Destroy card: Holder null");
             }
-            Destroy(_placingCard.gameObject);
-            _placingCard = null;
-            _originalHolder = null;
+            Destroy(cardUsing.gameObject);
+            cardUsing = null;
+            cardHolder = null;
         }
 
-        // IMPORTANT: don't null _placingCard here if you rely on the callback using it.
-        // _placingCard = null;  <-- remove this line (we moved nulling into OnComplete)
+        // IMPORTANT: don't null cardUsing here if you rely on the callback using it.
+        // cardUsing = null;  <-- remove this line (we moved nulling into OnComplete)
         _validSlots.Clear();
         _hoverSlot = null;
     }
@@ -808,7 +962,7 @@ public class BoardManager : NetworkBehaviour
     {
         Debug.Log("Return card!");
         _placing = false;
-        CancelPlacing(true);
+        CancelCardUsing(true, _placingCard, _originalHolder);
     }
     // [Rpc(SendTo.ClientsAndHost)]
     private void OnClickLeftMouseRpc()
@@ -855,6 +1009,7 @@ public class BoardManager : NetworkBehaviour
         }
 
     }
+    #endregion
 
 
 
