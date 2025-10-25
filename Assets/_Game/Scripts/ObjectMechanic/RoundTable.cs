@@ -2,18 +2,23 @@ using System.Collections.Generic;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class RoundTable : NetworkBehaviour
 {
     [SerializeField] private Seat _seatPrefab;
     [SerializeField] private CardHolder _cardHolderPrefab;
     [SerializeField] private float _radius = 2.5f;
-    private int _currentCapacity = 8;
+    private readonly int _currentCapacity = 8;
 
-    [SerializeField] private List<Seat> _seats;
     [SerializeField] private BoardManager _boardManager;
+    [SerializeField] private List<Seat> _seats; // only server knows this list
+    private readonly List<NetworkObjectReference> _netSeats = new(); // all clients know this list
+    public NetworkList<ulong> PlayerOrders = new(); // server writes, all read
     private bool _gameplaying;
-
+    public event UnityAction OnBoardGameStarted;
+    public event UnityAction OnTurnEnded;
+    public event UnityAction OnBoardGameEnded;
     public override void OnNetworkSpawn()
     {
         if (!IsHost)
@@ -41,6 +46,7 @@ public class RoundTable : NetworkBehaviour
             Quaternion seatRotation = Quaternion.LookRotation(-seatPosition.normalized, Vector3.up);
             _seats[i].transform.SetLocalPositionAndRotation(transform.position + seatPosition, seatRotation);
             _seats[i].gameObject.SetActive(true);
+            _netSeats.Add(new NetworkObjectReference(_seats[i].NetworkObject));
         }
     }
     void Update()
@@ -49,54 +55,45 @@ public class RoundTable : NetworkBehaviour
         {
             if (_gameplaying == false)
             {
-                ArrangeSeats();
+                StartBoardGameServerRpc();
                 _gameplaying = true;
             }
         }
     }
 
-    /*
-    private void ArrangeSeats()
+    /// <summary>
+    /// one player calls this and starts game across all clients
+    /// </summary>
+    [ServerRpc(RequireOwnership = false)]
+    private void StartBoardGameServerRpc()
     {
-        int _currentCapacity = _seats.FindAll(seat => seat.IsOccupied()).Count;
-        for (int i = 0; i < _seats.Count; i++)
+        PlayerOrders.Clear();
+        int occupiedCount = 0;
+        foreach (var seat in _seats)
         {
-            if (!_seats[i].IsOccupied())
+            if (seat.IsOccupied())
             {
-                _seats[i].gameObject.SetActive(false);
-                continue;
+                PlayerOrders.Add(seat.GetOccupyingClientId());
+                occupiedCount++;
             }
-            float angle = i * Mathf.PI * 2 / _currentCapacity;
-            Vector3 seatPosition = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (_radius - 0.5f);
-            Quaternion seatRotation = Quaternion.LookRotation(-seatPosition.normalized, Vector3.up);
-            _seats[i].transform.SetLocalPositionAndRotation(transform.position + seatPosition, seatRotation);
-            _seats[i].gameObject.SetActive(true);
-
-            var holder = Instantiate(_cardHolderPrefab, _seats[i].transform);
-            holder.transform.localPosition = _cardHolderPrefab.transform.localPosition;
-            holder.transform.localRotation = _cardHolderPrefab.transform.localRotation;
-            _boardManager.GetCardHolder(holder);
         }
-        _boardManager.StartGame();
+        ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
     }
-    */
-
 
     // @TODO: ease the animation
     [ContextMenu("ArrangeSeats")]
-    private void ArrangeSeats()
+    [ClientRpc]
+    private void ArrangeSeatsClientRpc(NetworkObjectReference[] seatRefs, int occupiedCount)
     {
         // 1. Count occupied seats
-        int occupiedCount = _seats.FindAll(s => s.IsOccupied()).Count;
-
-        // 2. We'll store the tween sequences for each seat so we can wait for all of them
         List<Tween> tweens = new List<Tween>();
 
-        for (int i = 0; i < _seats.Count; i++)
+        for (int i = 0; i < seatRefs.Length; i++)
         {
-            if (!_seats[i].IsOccupied())
+            Seat seat = seatRefs[i].TryGet(out NetworkObject netObj) ? netObj.GetComponent<Seat>() : null;
+            if (!seat || !seat.IsOccupied())
             {
-                _seats[i].gameObject.SetActive(false);
+                seat.gameObject.SetActive(false);
                 continue;
             }
 
@@ -106,10 +103,7 @@ public class RoundTable : NetworkBehaviour
             Quaternion targetRot = Quaternion.LookRotation(-targetPos.normalized, Vector3.up);
             targetPos += transform.position;                  // world-world space
 
-            Transform seatTf = _seats[i].transform;
-
-            // hide while we prepare the holder (optional – you can keep it visible)
-            _seats[i].gameObject.SetActive(true);
+            Transform seatTf = seat.transform;
 
             // ----- instantiate the card holder *before* moving (so it follows the seat) -----
             var holder = Instantiate(_cardHolderPrefab, seatTf);
@@ -123,10 +117,18 @@ public class RoundTable : NetworkBehaviour
             // 1) Position tween
             Tween posTween = seatTf.DOMove(targetPos, duration)
                                    .SetEase(easeType);
-
             // 2) Rotation tween (runs in parallel)
             Tween rotTween = seatTf.DOLocalRotateQuaternion(targetRot, duration)
                                    .SetEase(easeType);
+
+            if (seat.GetOccupant())
+            {
+                Transform occupantTf = seat.GetOccupant().transform;
+                Tween occupantTween = occupantTf.DOMove(targetPos, duration)
+                                       .SetEase(easeType);
+                Tween occupantRotTween = occupantTf.DOLocalRotateQuaternion(targetRot, duration)
+                                       .SetEase(easeType);
+            }
 
             // Combine them into a single Sequence so we can track completion
             Sequence seatSeq = DOTween.Sequence();

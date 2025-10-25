@@ -6,6 +6,7 @@ public class Seat : NetworkBehaviour, IInteractable
 {
     [SerializeField] private Vector3 _sitOffset;
     [SerializeField] private Vector3 _sitDirection = new(0, 0, -1);
+    private PlayerController _occupant;
 
     private NetworkVariable<ulong> _occupyingClientId = new NetworkVariable<ulong>(
         ulong.MaxValue, // Indicates no client (empty seat)
@@ -29,6 +30,7 @@ public class Seat : NetworkBehaviour, IInteractable
         {
             await Task.Yield();
             actor.Sit(this);
+            _occupant = actor;
         }
     }
 
@@ -50,12 +52,11 @@ public class Seat : NetworkBehaviour, IInteractable
     [ServerRpc(RequireOwnership = false)]
     private void RequestOccupySeatServerRpc(ulong clientId)
     {
-        if (!IsServer) return;
-
         // Check if seat is already occupied
         if (_occupyingClientId.Value != ulong.MaxValue)
         {
             Debug.LogWarning($"Seat already occupied by client {_occupyingClientId.Value}.");
+            _occupant = null;
             return;
         }
 
@@ -74,8 +75,6 @@ public class Seat : NetworkBehaviour, IInteractable
     [ServerRpc(RequireOwnership = false)]
     private void RequestExitSeatServerRpc(ulong clientId)
     {
-        if (!IsServer) return;
-
         // Check if client is occupying this seat
         if (_occupyingClientId.Value != clientId)
         {
@@ -85,6 +84,7 @@ public class Seat : NetworkBehaviour, IInteractable
 
         // Free seat
         _occupyingClientId.Value = ulong.MaxValue;
+        _occupant = null;
         OnExitClientRpc(clientId);
     }
 
@@ -112,4 +112,5 @@ public class Seat : NetworkBehaviour, IInteractable
     public Quaternion SitRotation() => transform.rotation * Quaternion.LookRotation(_sitDirection);
     public bool IsOccupied() => _occupyingClientId.Value != ulong.MaxValue;
     public ulong GetOccupyingClientId() => _occupyingClientId.Value;
+    public PlayerController GetOccupant() => _occupant;
 }
