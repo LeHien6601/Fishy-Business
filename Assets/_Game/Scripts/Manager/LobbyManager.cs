@@ -84,7 +84,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             var createOptions = new CreateLobbyOptions
             {
                 IsPrivate = false,
-                Player = GetPlayerData(GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID),
+                Player = GetPlayerData(PlayerInfoManager.Instance.PlayerName, PlayerInfoManager.Instance.PlayerIconId),
                 Data = new Dictionary<string, DataObject>
                 {
                     {Constant.KEY_HOST_ID, new DataObject(DataObject.VisibilityOptions.Member, AuthenticationService.Instance.PlayerId)},

@@ -97,7 +97,8 @@ public enum EUIState
     LobbyInfo,
     LobbyGameplay,
     Footer,
-    Loading
+    Loading,
+    EndGame
 }
 [Serializable]
 public struct UIViewState

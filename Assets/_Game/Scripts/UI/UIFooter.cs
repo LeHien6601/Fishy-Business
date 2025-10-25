@@ -7,7 +7,7 @@ public class UIFooter : UIView
     [SerializeField] private TextMeshProUGUI _playerNameTMP;
     void OnEnable()
     {
-        _playerNameTMP.text = GameManager.Instance.PlayerName;
+        _playerNameTMP.text = PlayerInfoManager.Instance.PlayerName;
         GameManager.Instance.OnUpdatedPlayerInfo += HandleUpdatedPlayerInfo;
     }
     void OnDisable()
