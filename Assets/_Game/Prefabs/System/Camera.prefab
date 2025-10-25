@@ -697,8 +697,8 @@ MonoBehaviour:
     Wrap: 0
     Recentering:
       Enabled: 1
-      Wait: 1
-      Time: 5
+      Wait: 5
+      Time: 2
     Restrictions: 0
   TiltAxis:
     Value: 40
@@ -707,8 +707,8 @@ MonoBehaviour:
     Wrap: 0
     Recentering:
       Enabled: 1
-      Wait: 1
-      Time: 5
+      Wait: 5
+      Time: 2
     Restrictions: 0
 --- !u!114 &2882891417276121640
 MonoBehaviour:
