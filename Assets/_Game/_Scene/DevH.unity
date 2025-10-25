@@ -13497,11 +13497,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d5d4c511fd13a7428226f5a305fc0a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   rows: 5
   cols: 9
   cardSize: {x: 0.22, y: 0.33}
   cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   _startCardInfor: {fileID: 11400000, guid: 601d66acb6488e14e85384f966bfeb59, type: 2}
+  _goalEmtyCardInfor: {fileID: 0}
+  _goalTreasureCardInfor: {fileID: 0}
   deckPosition: {fileID: 215879598}
   playerHand: []
   availableCards:

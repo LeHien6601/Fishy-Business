@@ -297,7 +297,8 @@ MonoBehaviour:
   _3rdPersonCamera: {fileID: 1913107470011895820}
   _1stPersonCamera: {fileID: 1420860187302064821}
   _cinemachineInputAxisController: {fileID: 8057290443681473576}
-  _headBoneOffset: {x: 0.17364818, y: 0, z: 0, w: 0.9848077}
+  _headBoneOffset: {x: -0.17364818, y: 0, z: 0, w: 0.9848077}
+  _yAxisMultiplier: 1.5
   _targetTransformChannel: {fileID: 11400000, guid: 64e9b6e076ceb5440aba58b59e857a59, type: 2}
   _headBoneTransformChannel: {fileID: 11400000, guid: 119e9f4c9e301394e90222fe52814f53, type: 2}
 --- !u!1 &5787224056174319044
@@ -697,17 +698,17 @@ MonoBehaviour:
     Recentering:
       Enabled: 1
       Wait: 1
-      Time: 2
+      Time: 5
     Restrictions: 0
   TiltAxis:
     Value: 40
     Center: 40
-    Range: {x: -10, y: 45}
+    Range: {x: 0, y: 45}
     Wrap: 0
     Recentering:
       Enabled: 1
       Wait: 1
-      Time: 2
+      Time: 5
     Restrictions: 0
 --- !u!114 &2882891417276121640
 MonoBehaviour:
