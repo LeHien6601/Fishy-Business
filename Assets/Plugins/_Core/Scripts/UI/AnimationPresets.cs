@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Unity.VisualScripting;
 
 [System.Serializable]
 public class AnimationPreset
@@ -38,10 +39,12 @@ public class AnimationPreset
     public Ease FadeEaseType;
     public float FadeStartValue;
     public float FadeEndValue;
+
 }
 
 [CreateAssetMenu(fileName = "AnimationPresets", menuName = "Animation/AnimationPresets")]
-public class AnimationPresets : ScriptableObject
+public class AnimationPresets : SingletonScriptableObject<AnimationPresets>
 {
     public List<AnimationPreset> Presets = new();
+    public List<AnimationPreset> ButtonPresets = new();
 }

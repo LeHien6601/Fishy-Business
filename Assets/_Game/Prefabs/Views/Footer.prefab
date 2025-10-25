@@ -461,6 +461,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _showAnimation: {fileID: 7390585863752139108}
   _hideAnimation: {fileID: 3053076047140975748}
+  _playerNameTMP: {fileID: 4718975389033923486}
 --- !u!225 &7008078767074391027
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -490,7 +491,7 @@ MonoBehaviour:
   MoveDuration: 0.8
   MoveDelay: 0
   MoveEaseType: 27
-  MoveStartValue: {x: -1, y: 0}
+  MoveStartValue: {x: 0, y: -0.2}
   MoveEndValue: {x: 0, y: 0}
   RotateEnabled: 0
   RotateDuration: 1
@@ -528,7 +529,7 @@ MonoBehaviour:
   MoveDelay: 0
   MoveEaseType: 26
   MoveStartValue: {x: 0, y: 0}
-  MoveEndValue: {x: -1, y: 0}
+  MoveEndValue: {x: 0, y: -0.2}
   RotateEnabled: 0
   RotateDuration: 1
   RotateDelay: 0
@@ -816,8 +817,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -100}
+  m_SizeDelta: {x: 0, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &916853730012892169
 CanvasRenderer:
@@ -891,8 +892,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -100}
+  m_SizeDelta: {x: 0, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5265877137672471617
 CanvasRenderer:

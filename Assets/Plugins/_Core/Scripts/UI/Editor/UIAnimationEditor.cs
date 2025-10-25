@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -34,7 +36,7 @@ private void OnEnable()
         }
     }
 
-    public override void OnInspectorGUI()
+    public override async void OnInspectorGUI()
     {
         serializedObject.Update();
 
@@ -42,16 +44,18 @@ private void OnEnable()
 
         // Preset Management Section
         EditorGUILayout.LabelField("Preset Management", EditorStyles.boldLabel);
-
-        string[] presetNames = presetsAsset.Presets.Select(p => p.Name).ToArray();
+        List<AnimationPreset> presets = serializedObject.FindProperty("Type").enumValueIndex == (int)UIAnimationType.Button
+            ? presetsAsset.ButtonPresets
+            : presetsAsset.Presets;
+        string[] presetNames = presets.Select(p => p.Name).ToArray();
         selectedPresetIndex = EditorGUILayout.Popup("Select Preset", selectedPresetIndex, presetNames.Length > 0 ? presetNames : new string[] { "No Presets Available" });
 
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Apply Preset") && selectedPresetIndex >= 0 && selectedPresetIndex < presetsAsset.Presets.Count)
+        if (GUILayout.Button("Apply Preset") && selectedPresetIndex >= 0 && selectedPresetIndex < presets.Count)
         {
             ApplyPreset();
         }
-        if (GUILayout.Button("Delete Preset") && selectedPresetIndex >= 0 && selectedPresetIndex < presetsAsset.Presets.Count)
+        if (GUILayout.Button("Delete Preset") && selectedPresetIndex >= 0 && selectedPresetIndex < presets.Count)
         {
             DeletePreset();
         }
@@ -117,13 +121,16 @@ private void OnEnable()
         EditorGUILayout.Space(10f);
         if (GUILayout.Button("Play Animation", GUILayout.Height(30f)))
         {
-            ((UIAnimation)target).PlayAnimation();
+            await ((UIAnimation)target).PlayAnimation();
         }
     }
 
     private void ApplyPreset()
     {
-        AnimationPreset preset = presetsAsset.Presets[selectedPresetIndex];
+        List<AnimationPreset> presets = serializedObject.FindProperty("Type").enumValueIndex == (int)UIAnimationType.Button
+            ? presetsAsset.ButtonPresets
+            : presetsAsset.Presets;
+        AnimationPreset preset = presets[selectedPresetIndex];
 
         // Rotate
         serializedObject.FindProperty("RotateEnabled").boolValue = preset.RotateEnabled;
@@ -162,12 +169,15 @@ private void OnEnable()
 
     private void CreatePreset(UIAnimation targetAnim)
     {
+        List<AnimationPreset> presets = serializedObject.FindProperty("Type").enumValueIndex == (int)UIAnimationType.Button
+            ? presetsAsset.ButtonPresets
+            : presetsAsset.Presets;
         if (string.IsNullOrEmpty(newPresetName))
         {
             Debug.LogWarning("Preset name cannot be empty.");
             return;
         }
-        if (presetsAsset.Presets.Any(p => p.Name == newPresetName))
+        if (presets.Any(p => p.Name == newPresetName))
         {
             Debug.LogWarning("Preset name already exists.");
             return;
@@ -210,16 +220,19 @@ private void OnEnable()
             FadeEndValue = targetAnim.FadeEndValue
         };
 
-        presetsAsset.Presets.Add(newPreset);
+        presets.Add(newPreset);
         EditorUtility.SetDirty(presetsAsset);
         AssetDatabase.SaveAssets();
         newPresetName = "";
-        selectedPresetIndex = presetsAsset.Presets.Count - 1;
+        selectedPresetIndex = presets.Count - 1;
     }
 
     private void DeletePreset()
     {
-        presetsAsset.Presets.RemoveAt(selectedPresetIndex);
+        List<AnimationPreset> presets = serializedObject.FindProperty("Type").enumValueIndex == (int)UIAnimationType.Button
+            ? presetsAsset.ButtonPresets
+            : presetsAsset.Presets;
+        presets.RemoveAt(selectedPresetIndex);
         EditorUtility.SetDirty(presetsAsset);
         AssetDatabase.SaveAssets();
         selectedPresetIndex = -1;

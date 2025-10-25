@@ -8,9 +8,12 @@ using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 public class LobbyManager : SingletonMono<LobbyManager>
 {
+    #region Properties
     public string RelayJoinCode { get; private set; }
     public Lobby currentLobby { get; private set; }
     public bool isHost { get; private set; }
@@ -21,6 +24,11 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public event Action<UpdateCurrentLobbyEventArgs> OnUpdatedCurrentLobby;
     public event Action<UpdatedLoobyListEventArgs> OnUpdatedLobbyList;
 
+    private Coroutine _heartbeatCoroutine;
+    private Coroutine _pollLobbyCoroutine;
+    #endregion
+
+    #region Event Args
     public struct KickedFromLobbyEventArgs
     {
         public Lobby Lobby;
@@ -33,9 +41,9 @@ public class LobbyManager : SingletonMono<LobbyManager>
     {
         public List<Lobby> LobbyList;
     }
-    private Coroutine _heartbeatCoroutine;
-    private Coroutine _pollLobbyCoroutine;
+    #endregion
 
+    #region Cycle
     private async void Start()
     {
         try
@@ -53,16 +61,21 @@ public class LobbyManager : SingletonMono<LobbyManager>
             Debug.LogException(e);
         }
     }
-
+    private void OnEnable()
+    {
+        OnKickedFromLobby += HandleKickedFromLobby;
+    }
     private void OnDisable()
     {
         if (currentLobby != null && isHost && _heartbeatCoroutine != null)
         {
             StopCoroutine(_heartbeatCoroutine);
         }
+        OnKickedFromLobby -= HandleKickedFromLobby;
     }
+    #endregion
 
-
+    #region Lobby Operations
     public async Task CreateLobbyAsync(string lobbyName)
     {
         try
@@ -163,6 +176,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
         catch (LobbyServiceException e)
         {
             Debug.LogException(e);
+            throw;
         }
     }
 
@@ -223,6 +237,23 @@ public class LobbyManager : SingletonMono<LobbyManager>
         }
     }
 
+    public async void KickPlayerAsync(string playerId)
+    {
+        try
+        {
+            if (!isHost)
+            {
+                Debug.LogWarning("Only the host can kick players.");
+                return;
+            }
+            await LobbyService.Instance.RemovePlayerAsync(currentLobby.Id, playerId);
+            Debug.Log($"Kicked player: {playerId}");
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogException(e);
+        }
+    }
     private Player GetPlayerData(string playerName, int iconId)
     {
         return new Player
@@ -234,6 +265,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             }
         };
     }
+
 
     private IEnumerator HeartbeatLobby(string lobbyId)
     {
@@ -297,4 +329,18 @@ public class LobbyManager : SingletonMono<LobbyManager>
             Debug.LogException(e);
         }
     }
+    #endregion
+
+    #region Event Handlers
+    private void HandleKickedFromLobby(KickedFromLobbyEventArgs args)
+    {
+        GameManager.Instance.DespawnPlayerRpc(NetworkManager.Singleton.LocalClientId);
+        NetworkManager.Singleton.Shutdown();
+        NetworkManager.Singleton.SceneManager.OnLoadComplete += GameManager.Instance.HandleLoadComplete;
+        SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        GameManager.Instance.HandleLoadComplete(NetworkManager.Singleton.LocalClientId, "Lobby", LoadSceneMode.Single);
+        EventSystem.current.SetSelectedGameObject(null);
+        UIManager.Instance.ShowUI(EUIState.MainMenu);
+    }
+    #endregion
 }

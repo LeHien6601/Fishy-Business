@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -8,9 +9,14 @@ using UnityEngine.XR;
 public class GameManager : SingletonMonoNet<GameManager>
 {
     [SerializeField] private NetworkObject _playerPrefab;
-
     private List<ulong> _spawnedPlayerIds = new();
 
+    public event Action<UpdatedPlayerInfoEventArgs> OnUpdatedPlayerInfo;
+    public struct UpdatedPlayerInfoEventArgs
+    {
+        public string PlayerName;
+        public int PlayerIconID;
+    }
     public void Start()
     {
         PlayerInfoManager.Instance.GenerateRandomPlayerInfo();
