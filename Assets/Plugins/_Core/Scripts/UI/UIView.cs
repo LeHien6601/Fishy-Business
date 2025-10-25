@@ -51,7 +51,10 @@ public class UIView : MonoBehaviour
         }
         _isShowing = false;
         _hasDoneHideAnimation = false;
-        if (_hideAnimation) await _hideAnimation.PlayAnimation();
+        if (_hideAnimation)
+        {
+            await _hideAnimation.PlayAnimation();
+        }
         gameObject.SetActive(false);
         _hasDoneHideAnimation = true;
     }

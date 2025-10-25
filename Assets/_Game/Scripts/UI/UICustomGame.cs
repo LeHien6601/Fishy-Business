@@ -138,7 +138,7 @@ public class UICustomGame : UIView
         {
             UIManager.Instance.HideUI(EUIState.CustomGame, true);
             UIManager.Instance.ShowUI(EUIState.Loading);
-            await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
+            await LobbyManager.Instance.JoinLobbyByCodeAsync(_selectedLobbyCode, PlayerInfoManager.Instance.PlayerName, PlayerInfoManager.Instance.PlayerIconId);
             await Task.Delay(2500);
             UIManager.Instance.HideUI(EUIState.Loading);
         }

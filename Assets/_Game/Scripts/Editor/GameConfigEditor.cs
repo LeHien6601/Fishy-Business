@@ -7,7 +7,7 @@ public class GameConfigEditor : EditorWindow
     private GameConfig config;
     private SerializedObject serializedConfig;
     private int currentTab = 0;
-    private string[] tabNames = { "UIView" }; // Customize tabs here
+    private string[] tabNames = { "UIView", "PlayerIcons" }; // Customize tabs here
 
     [MenuItem("MyGame/Config Editor")] // This adds the menu item under a new "MyGame" tab in the menu bar
     public static void OpenWindow()
@@ -49,6 +49,9 @@ public class GameConfigEditor : EditorWindow
         {
             case 0: // UIView tab
                 DrawUIViewsTable();
+                break;
+            case 1: // Player Icons tab
+                DrawProperty("playerIcons");
                 break;
         }
         EditorGUILayout.EndVertical();

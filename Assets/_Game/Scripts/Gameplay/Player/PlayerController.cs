@@ -7,7 +7,10 @@ public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private Interactor _interactor;
     [SerializeField] private InputReaderSO _inputReader;
+    [SerializeField] private Transform _headBone;
+    [SerializeField] private TransformEventChannelSO _headBoneTransformChannel;
     [SerializeField] private TransformEventChannelSO _targetTransformChannel;
+
     [SerializeField] private float _moveSpeed = 5f;
     public NavMeshAgent Agent;
     public Vector3 MoveDirection { get; private set; }
@@ -38,6 +41,7 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Interact += HandleInteract;
 
         _targetTransformChannel.RaiseEvent(transform);
+        _headBoneTransformChannel.RaiseEvent(_headBone);
     }
 
     public override void OnNetworkDespawn()

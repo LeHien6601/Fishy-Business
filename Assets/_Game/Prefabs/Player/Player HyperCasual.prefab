@@ -9781,8 +9781,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2612088225
-  InScenePlacedSourceGlobalObjectIdHash: 77273778
+  GlobalObjectIdHash: 3045774505
+  InScenePlacedSourceGlobalObjectIdHash: 2612088225
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -9870,6 +9870,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _interactor: {fileID: 2539667051819867958}
   _inputReader: {fileID: 11400000, guid: 7543db976c2277c4392ef15374043ce0, type: 2}
+  _headBone: {fileID: 4720831517628033285}
+  _headBoneTransformChannel: {fileID: 11400000, guid: 119e9f4c9e301394e90222fe52814f53, type: 2}
   _targetTransformChannel: {fileID: 11400000, guid: 64e9b6e076ceb5440aba58b59e857a59, type: 2}
   _moveSpeed: 5
   Agent: {fileID: 1004971538994156037}

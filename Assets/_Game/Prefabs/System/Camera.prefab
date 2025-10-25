@@ -297,7 +297,9 @@ MonoBehaviour:
   _3rdPersonCamera: {fileID: 1913107470011895820}
   _1stPersonCamera: {fileID: 1420860187302064821}
   _cinemachineInputAxisController: {fileID: 8057290443681473576}
+  _headBoneOffset: {x: 0.17364818, y: 0, z: 0, w: 0.9848077}
   _targetTransformChannel: {fileID: 11400000, guid: 64e9b6e076ceb5440aba58b59e857a59, type: 2}
+  _headBoneTransformChannel: {fileID: 11400000, guid: 119e9f4c9e301394e90222fe52814f53, type: 2}
 --- !u!1 &5787224056174319044
 GameObject:
   m_ObjectHideFlags: 0
@@ -433,7 +435,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5896501764263839633}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.062137444, y: -3.810088e-11, z: 2.3978335e-12, w: 0.9980676}
+  m_LocalRotation: {x: 0.062137444, y: -3.8099274e-11, z: 2.3719748e-12, w: 0.9980676}
   m_LocalPosition: {x: -10.525, y: 6.278, z: 2.632}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -595,7 +597,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8311203904143389755
 Transform:
   m_ObjectHideFlags: 0
@@ -604,8 +606,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7966566271491405297}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15304594, y: 0.6903456, z: -0.15304594, w: 0.6903456}
-  m_LocalPosition: {x: -10.525, y: 4.278, z: 6.632}
+  m_LocalRotation: {x: 0.34202015, y: 0, z: 0, w: 0.9396927}
+  m_LocalPosition: {x: -8.5, y: 4, z: 6.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -635,7 +637,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 40
+    FieldOfView: 25
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -698,9 +700,9 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   TiltAxis:
-    Value: 25
-    Center: 25
-    Range: {x: -10, y: 30}
+    Value: 40
+    Center: 40
+    Range: {x: -10, y: 45}
     Wrap: 0
     Recentering:
       Enabled: 1
@@ -719,8 +721,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Offset: {x: 0, y: 2, z: 0}
-  ApplyAfter: 1
+  Offset: {x: 0, y: 2, z: -4}
+  ApplyAfter: 0
   PreserveComposition: 0
 --- !u!114 &8057290443681473576
 MonoBehaviour:

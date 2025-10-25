@@ -3,60 +3,63 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class SingletonMonoNet<T> : NetworkBehaviour where T : NetworkBehaviour
+namespace HHDCore
 {
-    // private static instance
-    static T m_ins;
-
-    // public static instance used to refer to Singleton (e.g. MyClass.Instance)
-    public static T Instance
+    public class SingletonMonoNet<T> : NetworkBehaviour where T : NetworkBehaviour
     {
-        get
-        {
-            // if no instance is found, find the first GameObject of type T
-            if (m_ins == null)
-            {
-                m_ins = FindFirstObjectByType<T>();
+        // private static instance
+        static T m_ins;
 
-                // if no instance exists in the Scene, create a new GameObject and add the Component T 
+        // public static instance used to refer to Singleton (e.g. MyClass.Instance)
+        public static T Instance
+        {
+            get
+            {
+                // if no instance is found, find the first GameObject of type T
                 if (m_ins == null)
                 {
-                    GameObject singleton = new GameObject(typeof(T).Name);
-                    m_ins = singleton.AddComponent<T>();
+                    m_ins = FindFirstObjectByType<T>();
+
+                    // if no instance exists in the Scene, create a new GameObject and add the Component T 
+                    if (m_ins == null)
+                    {
+                        GameObject singleton = new GameObject(typeof(T).Name);
+                        m_ins = singleton.AddComponent<T>();
+                    }
                 }
+                // return the singleton instance
+                return m_ins;
             }
-            // return the singleton instance
-            return m_ins;
         }
-    }
 
-    public virtual void Awake()
-    {
-        MakeSingleton(true);
-    }
-
-    public void MakeSingleton(bool destroyOnload)
-    {
-        if (m_ins == null)
+        public virtual void Awake()
         {
-            m_ins = this as T;
-            if (destroyOnload)
+            MakeSingleton(true);
+        }
+
+        public void MakeSingleton(bool destroyOnload)
+        {
+            if (m_ins == null)
             {
-                var root = transform.root;
+                m_ins = this as T;
+                if (destroyOnload)
+                {
+                    var root = transform.root;
 
-                if (root != transform)
-                {
-                    DontDestroyOnLoad(root);
-                }
-                else
-                {
-                    DontDestroyOnLoad(this.gameObject);
+                    if (root != transform)
+                    {
+                        DontDestroyOnLoad(root);
+                    }
+                    else
+                    {
+                        DontDestroyOnLoad(this.gameObject);
+                    }
                 }
             }
-        }
-        else
-        {
-            Destroy(gameObject);
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

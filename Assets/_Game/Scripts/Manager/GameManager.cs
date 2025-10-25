@@ -1,37 +1,21 @@
 using System;
 using System.Collections.Generic;
+using HHDCore;
 using Unity.Netcode;
-using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.XR;
 
 public class GameManager : SingletonMonoNet<GameManager>
 {
-    [Header("Player Info")]
-    public string PlayerName { get; private set; }
-    public int PlayerIconID { get; private set; }
     [SerializeField] private NetworkObject _playerPrefab;
     private List<ulong> _spawnedPlayerIds = new();
 
-    public event Action<UpdatedPlayerInfoEventArgs> OnUpdatedPlayerInfo;
-    public struct UpdatedPlayerInfoEventArgs
-    {
-        public string PlayerName;
-        public int PlayerIconID;
-    }
     public void Start()
     {
-        PlayerName = Utils.GetRandomPlayerName();
-        PlayerIconID = UnityEngine.Random.Range(0, 20); 
-        OnUpdatedPlayerInfo?.Invoke(new UpdatedPlayerInfoEventArgs
-        {
-            PlayerName = PlayerName,
-            PlayerIconID = PlayerIconID
-        });
-        Debug.Log($"Player Name: {PlayerName}, Icon ID: {PlayerIconID}");
+        PlayerInfoManager.Instance.GenerateRandomPlayerInfo();
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }
+
     void OnDisable()
     {
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
@@ -39,7 +23,6 @@ public class GameManager : SingletonMonoNet<GameManager>
             NetworkManager.Singleton.SceneManager.OnLoadComplete -= HandleLoadComplete;
         }
     }
-    // Start game RPC
     public void StartGame()
     {
         if (NetworkManager.Singleton.IsHost)

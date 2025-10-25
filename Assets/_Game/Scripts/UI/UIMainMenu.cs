@@ -34,7 +34,7 @@ public class UIMainMenu : UIView
     {
         try
         {
-            Task task = LobbyManager.Instance.QuickJoinAsync(GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID);
+            Task task = LobbyManager.Instance.QuickJoinAsync(PlayerInfoManager.Instance.PlayerName, PlayerInfoManager.Instance.PlayerIconId);
             await task;
             if (task.Status == TaskStatus.Faulted)
             {

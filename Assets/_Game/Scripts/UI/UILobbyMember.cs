@@ -15,6 +15,7 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
     [SerializeField] private RectTransform _soundRect;
     [SerializeField] private RectTransform _dataRect;
     [SerializeField] private RectTransform _kickRect;
+    [SerializeField] private RectTransform _avaContainerRect;
     [SerializeField] private TextMeshProUGUI _kickTMP;
     [SerializeField] private Button _yesBTN;
     [SerializeField] private Button _noBTN;
@@ -49,7 +50,7 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
         
         _emptyTMP.gameObject.SetActive(false);
         _nameTMP.gameObject.SetActive(true);
-        _avaImg.gameObject.SetActive(true);
+        _avaContainerRect.gameObject.SetActive(true);
         _mineRect.gameObject.SetActive(_isMine);
         _soundRect.gameObject.SetActive(!_isMine);
     }
@@ -59,7 +60,7 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
         _kickRect.gameObject.SetActive(false);
         _emptyTMP.gameObject.SetActive(true);
         _nameTMP.gameObject.SetActive(false);
-        _avaImg.gameObject.SetActive(false);
+        _avaContainerRect.gameObject.SetActive(false);
         _mineRect.gameObject.SetActive(false);
         _soundRect.gameObject.SetActive(false);
     }

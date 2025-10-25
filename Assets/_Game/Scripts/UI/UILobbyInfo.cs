@@ -43,7 +43,9 @@ public class UILobbyInfo : UIView
                     _uiMembers[i].SetMemberData(
                         mineId == currentLobby.Players[i].Id,
                         currentLobby.Players[i].Data[Constant.KEY_PLAYER_NAME].Value,
-                        null,
+                        currentLobby.Players[i].Data[Constant.KEY_PLAYER_ICON_ID].Value != null ?
+                            GameConfig.Instance.GetPlayerIconById(
+                                int.Parse(currentLobby.Players[i].Data[Constant.KEY_PLAYER_ICON_ID].Value)) : null,
                         currentLobby.Players[i].Id);
                 }
                 else {

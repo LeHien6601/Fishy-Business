@@ -8,21 +8,37 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField] private CinemachineCamera _3rdPersonCamera;
     [SerializeField] private CinemachineCamera _1stPersonCamera;
-
     [SerializeField] private CinemachineInputAxisController _cinemachineInputAxisController;
-    private static event UnityAction<CameraMode> OnCameraModeSwitched;
+    public static event UnityAction<CameraMode> OnCameraModeSwitched;
+    private static CameraMode _cameraMode;
+    private Transform _headBoneTransform;
 
+    [SerializeField] private Quaternion _headBoneOffset = Quaternion.Euler(0, 0, 0);
     [Header("Listen to:")]
     [SerializeField] private TransformEventChannelSO _targetTransformChannel;
+    [SerializeField] private TransformEventChannelSO _headBoneTransformChannel;
 
     void OnEnable()
     {
         OnCameraModeSwitched += OnSwitchCamMode;
         _targetTransformChannel.OnEventRaised += TrackTarget;
+        _headBoneTransformChannel.OnEventRaised += AssignHeadBone;
+    }
+    void OnDisable()
+    {
+        _targetTransformChannel.OnEventRaised -= TrackTarget;
+        _headBoneTransformChannel.OnEventRaised -= AssignHeadBone;
+        OnCameraModeSwitched -= OnSwitchCamMode;
+    }
+
+    private void AssignHeadBone(Transform arg0)
+    {
+        _headBoneTransform = arg0;
     }
 
     private void OnSwitchCamMode(CameraMode mode)
     {
+        _cameraMode = mode;
         if (mode == CameraMode.ThirdPerson)
         {
             _1stPersonCamera.gameObject.SetActive(false);
@@ -39,25 +55,41 @@ public class CameraController : MonoBehaviour
                 pan.PanAxis.Value = 0;
                 pan.TiltAxis.Value = 0;
             }
-            _1stPersonCamera.transform.rotation = _1stPersonCamera.Follow.rotation;
+            // _1stPersonCamera.transform.rotation = _1stPersonCamera.Follow.rotation;
             _cinemachineInputAxisController.enabled = false;
             Cursor.lockState = CursorLockMode.None;
         }
-    }
-
-    private void Update()
-    {
-        if (Keyboard.current.tabKey.wasPressedThisFrame)
+        else if (mode == CameraMode.FirstPersonWithFreeLook)
         {
-            _cinemachineInputAxisController.enabled = !_cinemachineInputAxisController.enabled;
-            Cursor.lockState = _cinemachineInputAxisController.enabled ? CursorLockMode.Locked : CursorLockMode.None;
+            _3rdPersonCamera.gameObject.SetActive(false);
+            _1stPersonCamera.gameObject.SetActive(true);
+            _cinemachineInputAxisController.enabled = true;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 
-    void OnDisable()
+    private void LateUpdate()
     {
-        _targetTransformChannel.OnEventRaised -= TrackTarget;
+        if (Keyboard.current.tabKey.wasPressedThisFrame)
+        {
+            // swithc between 1st and 1stperson with free look
+            if (_cameraMode == CameraMode.FirstPerson)
+            {
+                SwitchCamMode(CameraMode.FirstPersonWithFreeLook);
+            }
+            else if (_cameraMode == CameraMode.FirstPersonWithFreeLook)
+            {
+                SwitchCamMode(CameraMode.FirstPerson);
+            }
+        }
+        // rotate the head bone:
+        if (_headBoneTransform != null && _cameraMode == CameraMode.FirstPersonWithFreeLook)
+        {
+            _headBoneTransform.rotation = _1stPersonCamera.transform.rotation * _headBoneOffset;
+        }
     }
+
+
 
     private void TrackTarget(Transform target)
     {
@@ -74,5 +106,6 @@ public class CameraController : MonoBehaviour
 public enum CameraMode
 {
     ThirdPerson,
-    FirstPerson
+    FirstPerson,
+    FirstPersonWithFreeLook
 }

@@ -612,7 +612,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d57bbae57f0a954d8613269c9c23c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &1961655917
 MonoBehaviour:
   m_ObjectHideFlags: 0

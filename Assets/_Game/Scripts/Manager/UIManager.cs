@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HHDCore;
 using UnityEngine;
 
-public class UIManager : SingletonMonoNet<UIManager>
+public class UIManager : SingletonMono<UIManager>
 {
     private List<UIViewState> _uiViewPrefabs = new();
     private List<UIViewState> _uiViewStates = new();
@@ -56,7 +57,7 @@ public class UIManager : SingletonMonoNet<UIManager>
         {
             if (viewState.State == state)
             {
-                viewState.View.SetSortingOrder(viewState.SortingOrder);
+                viewState.View.SetSortingOrder(GetSortingOrder(state));
                 if (param != null)
                 {
                     viewState.View.ShowWithParams(param);
@@ -64,7 +65,7 @@ public class UIManager : SingletonMonoNet<UIManager>
                 else
                 {
                     viewState.View.Show();
-                }                
+                }
             }
         }
     }
@@ -81,12 +82,21 @@ public class UIManager : SingletonMonoNet<UIManager>
                 else
                 {
                     viewState.View.Hide();
-                }                
+                }
             }
         }
     }
     #endregion
 
+    private int GetSortingOrder(EUIState state)
+    {
+        var viewPrefab = _uiViewPrefabs.Find(v => v.State == state);
+        if (viewPrefab.View != null)
+        {
+            return viewPrefab.SortingOrder;
+        }
+        return 0;
+    }
 }
 public enum EUIState
 {
@@ -96,7 +106,9 @@ public enum EUIState
     LobbyInfo,
     LobbyGameplay,
     Footer,
-    Loading
+    Loading,
+    PlayerInfo,
+    EndGame,
 }
 [Serializable]
 public struct UIViewState

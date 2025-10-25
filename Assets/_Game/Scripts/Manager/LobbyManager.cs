@@ -10,6 +10,7 @@ using Unity.Services.Core;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using HHDCore;
 
 public class LobbyManager : SingletonMono<LobbyManager>
 {
@@ -64,6 +65,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
     private void OnEnable()
     {
         OnKickedFromLobby += HandleKickedFromLobby;
+        PlayerInfoManager.Instance.OnChangedPlayerInfo += HandleUpdatePlayerInfo;
     }
     private void OnDisable()
     {
@@ -72,6 +74,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             StopCoroutine(_heartbeatCoroutine);
         }
         OnKickedFromLobby -= HandleKickedFromLobby;
+        PlayerInfoManager.Instance.OnChangedPlayerInfo -= HandleUpdatePlayerInfo;
     }
     #endregion
 
@@ -83,7 +86,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             var createOptions = new CreateLobbyOptions
             {
                 IsPrivate = false,
-                Player = GetPlayerData(GameManager.Instance.PlayerName, GameManager.Instance.PlayerIconID),
+                Player = GetPlayerData(PlayerInfoManager.Instance.PlayerName, PlayerInfoManager.Instance.PlayerIconId),
                 Data = new Dictionary<string, DataObject>
                 {
                     {Constant.KEY_HOST_ID, new DataObject(DataObject.VisibilityOptions.Member, AuthenticationService.Instance.PlayerId)},
@@ -156,7 +159,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
         }
     }
 
-    public async Task QuickJoinAsync(string playerName = "Player", int iconId = 0)
+    public async Task QuickJoinAsync(string playerName, int iconId)
     {
         try
         {
@@ -194,6 +197,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             };
             await LobbyService.Instance.UpdatePlayerAsync(currentLobby.Id, AuthenticationService.Instance.PlayerId, updateOptions);
             Debug.Log("Player data updated");
+            OnUpdatedCurrentLobby?.Invoke(new UpdateCurrentLobbyEventArgs() { Lobby = currentLobby });
         }
         catch (LobbyServiceException e)
         {
@@ -341,6 +345,11 @@ public class LobbyManager : SingletonMono<LobbyManager>
         GameManager.Instance.HandleLoadComplete(NetworkManager.Singleton.LocalClientId, "Lobby", LoadSceneMode.Single);
         EventSystem.current.SetSelectedGameObject(null);
         UIManager.Instance.ShowUI(EUIState.MainMenu);
+    }
+    private async void HandleUpdatePlayerInfo(PlayerInfoManager.ChangedPlayerInfoEventArgs args)
+    {
+        if (currentLobby == null) return;
+        await UpdatePlayerDataAsync(args.NewPlayerName, args.NewPlayerIconId);
     }
     #endregion
 }
