@@ -27,6 +27,7 @@ public class UILobbyInfo : UIView
         _lobbyNameInput.interactable = false;
         _saveNameBtn.gameObject.SetActive(false);
         _noteTMP.gameObject.SetActive(false);
+        _editNameBtn.gameObject.SetActive(LobbyManager.Instance.isHost);
         UpdateUI();
         LobbyManager.Instance.OnUpdatedCurrentLobby += HandleUpdateLobby;
         _backButton.onClick.AddListener(HandleClickBack);
