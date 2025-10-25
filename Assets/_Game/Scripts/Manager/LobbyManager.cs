@@ -111,7 +111,25 @@ public class LobbyManager : SingletonMono<LobbyManager>
             Debug.LogException(e);
         }
     }
-
+    public async Task<bool> UpdateLobbyNameAsync(string newName)
+    {
+        try
+        {
+            var updateOptions = new UpdateLobbyOptions
+            {
+                Name = newName
+            };
+            currentLobby = await LobbyService.Instance.UpdateLobbyAsync(currentLobby.Id, updateOptions);
+            Debug.Log("Lobby name updated");
+            OnUpdatedCurrentLobby?.Invoke(new UpdateCurrentLobbyEventArgs() { Lobby = currentLobby });
+            return true;
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogException(e);
+            return false;
+        }
+    }
     public async Task<List<Lobby>> QueryLobbiesAsync()
     {
         try
