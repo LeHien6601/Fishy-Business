@@ -10,15 +10,10 @@ public class GameManager : SingletonMonoNet<GameManager>
     [SerializeField] private NetworkObject _playerPrefab;
     private List<ulong> _spawnedPlayerIds = new();
 
-    public event Action<UpdatedPlayerInfoEventArgs> OnUpdatedPlayerInfo;
-    public struct UpdatedPlayerInfoEventArgs
-    {
-        public string PlayerName;
-        public int PlayerIconID;
-    }
     public void Start()
     {
         PlayerInfoManager.Instance.GenerateRandomPlayerInfo();
+        SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }
 
     void OnDisable()
@@ -28,7 +23,6 @@ public class GameManager : SingletonMonoNet<GameManager>
             NetworkManager.Singleton.SceneManager.OnLoadComplete -= HandleLoadComplete;
         }
     }
-
     public void StartGame()
     {
         if (NetworkManager.Singleton.IsHost)

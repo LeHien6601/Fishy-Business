@@ -57,7 +57,7 @@ public class UIManager : SingletonMono<UIManager>
         {
             if (viewState.State == state)
             {
-                viewState.View.SetSortingOrder(viewState.SortingOrder);
+                viewState.View.SetSortingOrder(GetSortingOrder(state));
                 if (param != null)
                 {
                     viewState.View.ShowWithParams(param);
@@ -65,7 +65,7 @@ public class UIManager : SingletonMono<UIManager>
                 else
                 {
                     viewState.View.Show();
-                }                
+                }
             }
         }
     }
@@ -82,12 +82,21 @@ public class UIManager : SingletonMono<UIManager>
                 else
                 {
                     viewState.View.Hide();
-                }                
+                }
             }
         }
     }
     #endregion
 
+    private int GetSortingOrder(EUIState state)
+    {
+        var viewPrefab = _uiViewPrefabs.Find(v => v.State == state);
+        if (viewPrefab.View != null)
+        {
+            return viewPrefab.SortingOrder;
+        }
+        return 0;
+    }
 }
 public enum EUIState
 {
@@ -98,7 +107,8 @@ public enum EUIState
     LobbyGameplay,
     Footer,
     Loading,
-    EndGame
+    PlayerInfo,
+    EndGame,
 }
 [Serializable]
 public struct UIViewState

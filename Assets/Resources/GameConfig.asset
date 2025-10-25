@@ -30,6 +30,9 @@ MonoBehaviour:
     SortingOrder: 2
   - State: 6
     View: {fileID: 6240974990313755145, guid: 233b82f291cd2e449ab4294095a947a6, type: 3}
+    SortingOrder: 4
+  - State: 7
+    View: {fileID: 5435338139581658603, guid: 7a1ebec2e5bbcf64e814a320d4b7cb05, type: 3}
     SortingOrder: 3
   playerIcons:
   - {fileID: -197385056, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}

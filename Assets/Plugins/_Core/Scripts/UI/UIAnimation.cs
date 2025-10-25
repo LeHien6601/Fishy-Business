@@ -117,13 +117,13 @@ public class UIAnimation : MonoBehaviour
         if (ScaleEnabled) AnimateScale();
         if (FadeEnabled) AnimateFade();
         else _canvasGroup.alpha = 1;
-
+        await Task.Delay((int)(1000 * GetOverallDuration()));
 #if UNITY_EDITOR
         if (Application.isPlaying)
         {
             return;
         }
-        await Task.Delay((int)(1000 * (0.5f + GetOverallDuration())));
+        await Task.Delay(500);
         _rectTransform.sizeDelta = Vector2.zero;
         _canvasGroup.alpha = 1;
         _rectTransform.localScale = Vector2.one;
