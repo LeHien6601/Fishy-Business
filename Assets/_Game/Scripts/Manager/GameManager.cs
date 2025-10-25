@@ -7,29 +7,15 @@ using UnityEngine.XR;
 
 public class GameManager : SingletonMonoNet<GameManager>
 {
-    [Header("Player Info")]
-    public string PlayerName { get; private set; }
-    public int PlayerIconID { get; private set; }
     [SerializeField] private NetworkObject _playerPrefab;
 
     private List<ulong> _spawnedPlayerIds = new();
 
     public void Start()
     {
-        PlayerName = Utils.GetRandomPlayerName();
-        PlayerIconID = Random.Range(0, 20); // Assuming there are 20 player icons
-        Debug.Log($"Player Name: {PlayerName}, Icon ID: {PlayerIconID}");
-        SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        PlayerInfoManager.Instance.GenerateRandomPlayerInfo();
     }
 
-    void OnEnable()
-    {
-        // while (NetworkManager.Singleton == null || NetworkManager.Singleton.SceneManager == null)
-        // {
-        //     await System.Threading.Tasks.Task.Yield();
-        // }
-        // NetworkManager.Singleton.SceneManager.OnLoadComplete += HandleLoadComplete;
-    }
     void OnDisable()
     {
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
@@ -37,7 +23,7 @@ public class GameManager : SingletonMonoNet<GameManager>
             NetworkManager.Singleton.SceneManager.OnLoadComplete -= HandleLoadComplete;
         }
     }
-    // Start game RPC
+
     public void StartGame()
     {
         if (NetworkManager.Singleton.IsHost)

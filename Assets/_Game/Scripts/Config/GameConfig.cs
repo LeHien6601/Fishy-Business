@@ -25,4 +25,22 @@ public class GameConfig : ScriptableObject
 
     [Header("UI View Settings")]
     public List<UIViewState> uiViewPrefabs = new();
+
+    [Header("Player Icon Settings")]
+    public List<Sprite> playerIcons = new();
+
+    #region Getters
+    public Sprite GetPlayerIconById(int iconId)
+    {
+        if (iconId >= 0 && iconId < playerIcons.Count)
+        {
+            return playerIcons[iconId];
+        }
+        else
+        {
+            Debug.LogWarning($"Player icon ID {iconId} is out of range. Returning default icon.");
+            return playerIcons.Count > 0 ? playerIcons[0] : null;
+        }
+    }
+    #endregion
 }

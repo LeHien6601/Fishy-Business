@@ -28,3 +28,16 @@ MonoBehaviour:
   - State: 5
     View: {fileID: 9052830829739115278, guid: df856596f754dfe48828a2d12e35a340, type: 3}
     SortingOrder: 2
+  playerIcons:
+  - {fileID: -197385056, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: -1626465430, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: -1616377823, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: 580665255, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: 1941509953, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: -1002852841, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: 2052018390, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: -1089902190, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: 1920619271, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: -303042909, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: 1140658246, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  - {fileID: -465588323, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
