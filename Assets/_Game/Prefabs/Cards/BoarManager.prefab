@@ -1,0 +1,152 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &872715082014436178
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7943895708229038200}
+  m_Layer: 0
+  m_Name: DeckPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7943895708229038200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872715082014436178}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.947, y: -0, z: -0.611}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 785571307423907353}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5379812657929866983
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 785571307423907353}
+  - component: {fileID: -1417777958635791920}
+  - component: {fileID: 2981485906663331359}
+  m_Layer: 0
+  m_Name: BoarManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &785571307423907353
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379812657929866983}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.783, y: 0, z: -0.588}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7943895708229038200}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-1417777958635791920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379812657929866983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2743026034
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &2981485906663331359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379812657929866983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d5d4c511fd13a7428226f5a305fc0a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  rows: 5
+  cols: 9
+  cardSize: {x: 0.22, y: 0.33}
+  cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
+  _startCardInfor: {fileID: 11400000, guid: bad33e57cae5deb41966d44838d004a6, type: 2}
+  _goalEmtyCardInfor: {fileID: 11400000, guid: 144a442eda16b554ba861d2b9eb7ba21, type: 2}
+  _goalTreasureCardInfor: {fileID: 11400000, guid: 0608e1bf42b33464089de133dd0812a2, type: 2}
+  deckPosition: {fileID: 7943895708229038200}
+  playerHand: []
+  availableCards:
+  - {fileID: 11400000, guid: 144e91c3ac762a243a441a3e68fae4fb, type: 2}
+  - {fileID: 11400000, guid: 3e590cbbd65d20542b3c3ac952c2aca5, type: 2}
+  - {fileID: 11400000, guid: 32526fa2f18f7114fa259dac2d12cbff, type: 2}
+  - {fileID: 11400000, guid: cb3d2720520dd4d459bbb4af8bd92a5c, type: 2}
+  - {fileID: 11400000, guid: 17348d1f63096834ca9f4db71e71ac01, type: 2}
+  - {fileID: 11400000, guid: 92a891166f3d30f41945662b46fe271f, type: 2}
+  - {fileID: 11400000, guid: bd2601ac4661b3944b6149405e58a166, type: 2}
+  - {fileID: 11400000, guid: 97882b05721147a41b18c88028903acc, type: 2}
+  - {fileID: 11400000, guid: 2e069d4202b070d4588d9e547540ed84, type: 2}
+  - {fileID: 11400000, guid: 89667859cc658924e87f288bca903421, type: 2}
+  - {fileID: 11400000, guid: 601d66acb6488e14e85384f966bfeb59, type: 2}
+  - {fileID: 11400000, guid: 754d155d15aa22a4ca8ad0e87d72edeb, type: 2}
+  - {fileID: 11400000, guid: e1fa36c53e3c26342bc9835cbb2663d8, type: 2}
+  - {fileID: 11400000, guid: 7168c450f1bdaf049907b3a7a4ce7673, type: 2}
+  - {fileID: 11400000, guid: 8aee2cba3e176d64a9f0f3b795668335, type: 2}
+  - {fileID: 11400000, guid: 78a258944d165994494ee1939ef79de2, type: 2}
+  - {fileID: 11400000, guid: 4e837c2cbf06a564786fe5f030ec1889, type: 2}
+  - {fileID: 11400000, guid: 013fff7e3e6ce4e438255e98b98f1578, type: 2}
+  - {fileID: 11400000, guid: d6d156e061566cb4e9fc0955475560e4, type: 2}
+  - {fileID: 11400000, guid: b93b94ee5a01c3140a8f4fc395b56970, type: 2}
+  - {fileID: 11400000, guid: dbe1e2894822a3b40b2a05b33d3515fc, type: 2}
+  - {fileID: 11400000, guid: 407d08ea5aa34df4d8bd108d3cb75ec4, type: 2}
+  - {fileID: 11400000, guid: 402a7649eeb83ec46b2a584407a3b79e, type: 2}
+  - {fileID: 11400000, guid: e1be05ea9dd05ac41b579dc7407365f4, type: 2}
+  - {fileID: 11400000, guid: d64bd8e86eba28042a2fbb5f5ae30e13, type: 2}
+  - {fileID: 11400000, guid: 8a221c0db9ca74b448e75b3ee7a70ee7, type: 2}
+  copiesPerCard: 4
+  cardStackOffset: 0.002
+  startPos: {x: 2, y: 0}
+  goalPos:
+  - {x: 0, y: 8}
+  - {x: 2, y: 8}
+  - {x: 4, y: 8}
+  _originalHolder: {fileID: 0}
+  _placingOriginalLocalRot: {x: 0, y: 0, z: 0, w: 0}
+  _playerTurnId: 0
+  _isDev: 0

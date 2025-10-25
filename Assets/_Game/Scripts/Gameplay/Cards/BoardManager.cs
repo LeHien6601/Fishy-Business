@@ -1,10 +1,12 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
-using DG.Tweening;
-using Unity.Services.Lobbies.Models;
+using System.Collections.Generic;
 
-public class BoardManager : MonoBehaviour
+using DG.Tweening;
+using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+public class BoardManager : NetworkBehaviour
 {
     [Header("Board Settings")]
     [SerializeField] private int rows = 5;
@@ -12,6 +14,8 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private Vector2 cardSize = new Vector2(2, 3);  // X = width, Y = height
     [SerializeField] private Card cardPrefab;
     [SerializeField] private CardInforSO _startCardInfor;
+    [SerializeField] private CardInforSO _goalEmtyCardInfor;
+    [SerializeField] private CardInforSO _goalTreasureCardInfor;
 
     [Header("Deal Cards")]
     [SerializeField] private Transform deckPosition;
@@ -43,8 +47,12 @@ public class BoardManager : MonoBehaviour
     private bool _placing = false;
     private float _placingOffset = 0.05f;
     public int _playerTurnId;
-
     private bool _manualRotated = false; // check rotate of placing card
+                                         // Bomb selecting state
+    private bool _bombSelecting = false;
+    private Card _bombActionCard = null;
+    private CardHolder _bombOriginalHolder = null;
+    private List<Vector2Int> _bombTargets = new();
 
     [SerializeField] private bool _isDev;
     void Start()
@@ -65,16 +73,62 @@ public class BoardManager : MonoBehaviour
         {
             HandlePlacingInput();
         }
+        else if (_bombSelecting)
+        {
+            HandleBombSelectionInput();
+        }
     }
+
+    #region Multiplayer
+    private List<int> sharedDeckIds = new();
+    public void InitializeFromDeck(int[] sharedDeckArray)
+    {
+        sharedDeckIds = new List<int>(sharedDeckArray);
+    }
+
+    // public override void OnNetworkSpawn()
+    // {
+    //     GameplayManager.Instance.RegisterBoard(OwnerClientId, this);
+
+    //     if (IsOwner)
+    //     {
+    //         // Xoay hướng board theo player
+    //         transform.rotation = Quaternion.Euler(0, 180f * (int)(OwnerClientId % 2), 0);
+    //     }
+    // }
+    // Khi nhận từ GameplayManager RPC
+    public void ApplyPlayCard(int cardId, Vector2Int slot, bool flipped)
+    {
+        var info = availableCards[cardId % availableCards.Count];
+        Card slotCard = board[slot.x, slot.y];
+        slotCard.PlaceCard(info, CardLocation.OnBoard, flipped);
+    }
+
+    #endregion
 
     #region Start game
 
     [ContextMenu("Start Game")]
+
     public void StartGame()
     {
         GenerateBoard();
         InitializeDeck();   // Create card deck
+        // BuildDeckFromShared();
         StartCoroutine(DealCardsCoroutine());   // Deal Cards
+    }
+
+    private void BuildDeckFromShared()
+    {
+        deckObjects.Clear();
+        foreach (int cardId in sharedDeckIds)
+        {
+            var info = availableCards[cardId % availableCards.Count];
+            var card = Instantiate(cardPrefab, deckPosition);
+            card.SetData(info, CardLocation.Deck);
+            card.OnClickCard += OnClickCardRpc;
+            deckObjects.Add(card);
+        }
     }
 
     public void InitializeDeck()
@@ -110,7 +164,7 @@ public class BoardManager : MonoBehaviour
 
             card.SetData(tempList[i], CardLocation.Deck);
             card.SetLocation(CardLocation.Deck);
-            card.OnClickCard += OnClickCard;
+            card.OnClickCard += OnClickCardRpc;
 
 
             deckObjects.Add(card);
@@ -122,7 +176,7 @@ public class BoardManager : MonoBehaviour
     private IEnumerator DealCardsCoroutine()
     {
         float dealDelay = 0.05f;
-        int cardsPerPlayer = 5;
+        int cardsPerPlayer = 10;
 
         for (int i = 0; i < cardsPerPlayer; i++)
         {
@@ -173,8 +227,8 @@ public class BoardManager : MonoBehaviour
     void GenerateBoard()
     {
         board = new Card[rows, cols];
-        Vector3 origin = transform.position;
-
+        int randomGoal = Random.Range(0, 3);
+        int goalIndex = 0;
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < cols; c++)
@@ -182,7 +236,15 @@ public class BoardManager : MonoBehaviour
                 Vector3 pos = new Vector3(c * cardSize.x, 0f, r * cardSize.y);
                 Card card = Instantiate(cardPrefab, transform);
                 card.transform.localPosition = pos;
-                card.transform.localRotation = cardPrefab.transform.localRotation;
+                Quaternion rotate = cardPrefab.transform.localRotation;
+                Quaternion goalRotate = rotate;
+                if (goalRotate.x == 0)
+                    goalRotate.x = 180f;
+                else if (goalRotate.x == 90)
+                    goalRotate.x = -90f;
+                else if (goalRotate.x == -90)
+                    goalRotate.x = 90f;
+                card.transform.localRotation = rotate;
                 card.name = $"Card_{r}_{c}";
                 Vector2Int temp = new Vector2Int(r, c);
                 if (temp == startPos)
@@ -191,7 +253,16 @@ public class BoardManager : MonoBehaviour
                 }
                 else if (goalPos.Contains(temp))
                 {
-                    card.SetData(_startCardInfor, CardLocation.Hidden);
+                    card.transform.localRotation = goalRotate;
+                    if (goalIndex == randomGoal)
+                    {
+                        card.SetData(_goalTreasureCardInfor, CardLocation.Hidden);
+                    }
+                    else
+                    {
+                        card.SetData(_goalEmtyCardInfor, CardLocation.Hidden);
+                    }
+                    goalIndex++;
                 }
                 else
                 {
@@ -216,22 +287,253 @@ public class BoardManager : MonoBehaviour
 
     #region Handle PlayGame
 
-    private void OnClickCard(Card card, CardHolder cardHolder)
+    // [Rpc(SendTo.ClientsAndHost)]
+    private void OnClickCardRpc(Card card, CardHolder cardHolder)
     {
         if (card.Location == CardLocation.PlayerHand)
         {
-            Debug.Log($"🃏 Card clicked: {card.CardInforSO.name}");
-            // TODO: implement use card, play to board, discard, etc.
-            if (cardHolder != null)
+            if (card.CardType == CardType.Path)
             {
-                Card removed = cardHolder.UseCard(card);
-                if (removed != null)
+                Debug.Log($"🃏 Card clicked: {card.CardInforSO.name}");
+                if (cardHolder != null)
                 {
-                    StartPlacing(removed, cardHolder);
+                    Card removed = cardHolder.UseCard(card);
+                    if (removed != null)
+                    {
+                        StartPlacing(removed, cardHolder);
+                    }
+                }
+            }
+            else if (card.CardType == CardType.Action)
+            {
+                if (card.ActionCardType == ActionCardType.BrokenTool)
+                {
+
+                }
+                else if (card.ActionCardType == ActionCardType.FixTool)
+                {
+
+                }
+                else if (card.ActionCardType == ActionCardType.Bomb)
+                {
+                    if (cardHolder != null)
+                    {
+                        Card removed = cardHolder.UseCard(card); // remove from hand
+                        if (removed != null)
+                        {
+                            StartBombSelection(removed, cardHolder);
+                        }
+                    }
+                }
+                else if (card.ActionCardType == ActionCardType.CheckGold)
+                {
+
                 }
             }
         }
     }
+    #region Handle Bomb
+    private void StartBombSelection(Card bombCard, CardHolder originalHolder)
+    {
+        if (bombCard == null) return;
+
+        // Cancel any placing state first
+        if (_placingCard != null)
+        {
+            CancelPlacing(true);
+        }
+
+        // Clear any previous bomb state
+        ClearBombSelection();
+
+        _bombActionCard = bombCard;
+        _bombOriginalHolder = originalHolder;
+        _bombSelecting = true;
+
+        // Build list of targets: Path cards that are OnBoard, exclude start and goal slots
+        _bombTargets.Clear();
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                Vector2Int pos = new Vector2Int(r, c);
+                // skip start and goal positions
+                if (pos == startPos) continue;
+                if (goalPos.Contains(pos)) continue;
+
+                Card boardCard = board[r, c];
+                if (boardCard == null) continue;
+                if (boardCard.CardType != CardType.Path) continue;
+                if (boardCard.Location != CardLocation.OnBoard) continue;
+
+                _bombTargets.Add(pos);
+            }
+        }
+
+        if (_bombTargets.Count == 0)
+        {
+            Debug.Log("⚠️ Không có path card nào để phá bằng Bomb.");
+            // trả lại bomb về tay
+            CancelBombSelection(true);
+            return;
+        }
+
+        // highlight targets
+        HighlightBombTargets(true);
+
+        // (tương tự StartPlacing) bật chế độ input
+        // chúng ta sẽ xử lý input trong Update -> HandleBombSelectionInput
+    }
+    private void HandleBombSelectionInput()
+    {
+        if (!IsOwner) return; // chỉ owner thao tác
+
+        // ESC -> cancel
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CancelBombSelection(true); // trả bomb về tay
+            return;
+        }
+
+        // Right click -> cancel selection and return bomb
+        if (Input.GetMouseButtonDown(1))
+        {
+            CancelBombSelection(true);
+            return;
+        }
+
+        // Left click -> chọn target (raycast)
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+            {
+                Card clickedCard = hit.collider.GetComponentInParent<Card>();
+                if (clickedCard != null)
+                {
+                    // tìm vị trí của card trên board
+                    Vector2Int? found = null;
+                    for (int r = 0; r < rows; r++)
+                    {
+                        for (int c = 0; c < cols; c++)
+                        {
+                            if (board[r, c] == clickedCard)
+                            {
+                                found = new Vector2Int(r, c);
+                                break;
+                            }
+                        }
+                        if (found.HasValue) break;
+                    }
+
+                    if (found.HasValue && _bombTargets.Contains(found.Value))
+                    {
+                        // Hợp lệ -> phá card
+                        DestroyPathCardAt(found.Value);
+                        // Bomb card đã dùng -> bỏ đi (destroy object)
+                        if (_bombActionCard != null)
+                            Destroy(_bombActionCard.gameObject);
+
+                        // clear selection
+                        ClearBombSelection();
+                        return;
+                    }
+                    else
+                    {
+                        Debug.Log("⚠️ Ô được click không hợp lệ để phá (không nằm trong target).");
+                    }
+                }
+            }
+        }
+    }
+    private void HighlightBombTargets(bool highlight)
+    {
+        foreach (var pos in _bombTargets)
+        {
+            if (IsInside(pos) && board[pos.x, pos.y] != null)
+            {
+                board[pos.x, pos.y].SetHighlight(highlight);
+            }
+        }
+    }
+
+    private void ClearBombSelection()
+    {
+        if (_bombTargets != null && _bombTargets.Count > 0)
+        {
+            HighlightBombTargets(false);
+        }
+        _bombTargets.Clear();
+        _bombSelecting = false;
+        _bombActionCard = null;
+        _bombOriginalHolder = null;
+    }
+
+    private void CancelBombSelection(bool returnToHand)
+    {
+        if (_bombActionCard == null)
+        {
+            ClearBombSelection();
+            return;
+        }
+
+        // remove highlights
+        HighlightBombTargets(false);
+
+        if (returnToHand && _bombOriginalHolder != null)
+        {
+            // trả lá bomb về tay
+            Card card = _bombActionCard;
+            Transform origHolderTransform = _bombOriginalHolder.transform;
+            card.transform.SetParent(origHolderTransform, false);
+            card.transform.SetAsLastSibling();
+            card.ResetRotate();
+            card.transform.DORotateQuaternion(card.transform.localRotation, 0.1f);
+
+            Vector3 targetPos = _bombOriginalHolder.transform.position;
+            card.transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad)
+                .OnComplete(() =>
+                {
+                    card.SetLocation(CardLocation.PlayerHand);
+                    _bombOriginalHolder.AddCard(card);
+                });
+        }
+        else
+        {
+            // bỏ lá down
+            if (_bombActionCard != null)
+                Destroy(_bombActionCard.gameObject);
+        }
+
+        ClearBombSelection();
+    }
+
+    /// <summary>
+    /// Thực hiện hành động hủy 1 path card tại vị trí (gọi Refresh trên ô đó).
+    /// Bạn có thể thêm animation ở đây nếu muốn.
+    /// </summary>
+    private void DestroyPathCardAt(Vector2Int slot)
+    {
+        if (!IsInside(slot)) return;
+        Card c = board[slot.x, slot.y];
+        if (c == null) return;
+        Vector3 originScale = c.transform.localScale;
+        Vector3 originPos = c.transform.position;
+        // animation nhỏ: nâng lên rồi biến mất (tuỳ bạn có DOTween)
+        Sequence seq = DOTween.Sequence();
+        seq.Append(c.transform.DOMove(c.transform.position + Vector3.up * 0.4f, 0.08f));
+        seq.Append(c.transform.DOScale(0f, 0.12f));
+        c.transform.DOMove(originPos, 0.08f);
+        seq.OnComplete(() =>
+        {
+            // Reset physical object -> giữ ô vật lý (board[slot] vẫn tồn tại) nhưng làm refresh
+            c.Refresh();
+            c.transform.localScale = originScale;
+            c.transform.position = GetWorldPositionForSlot(slot);
+        });
+    }
+
+    #endregion
 
     /// <summary>
     /// Kiểm tra tất cả các vị trí có thể đặt path card
@@ -438,44 +740,11 @@ public class BoardManager : MonoBehaviour
 
     private void HandlePlacingInput()
     {
-
+        if (!IsOwner) return;
         // Right click -> rotate visually & connections
-        // if (Input.GetMouseButtonDown(1))
-        // {
-        //     // recalc valid slots with new orientation
-        //     _manualRotated = !_manualRotated;
-        //     _placingCard.Rotate(_manualRotated);
-        //     ClearSlotHighlights();
-        //     _validSlots = GetValidSlotsForCard(_placingCard);
-        //     HighlightSlots(_validSlots, true);
-        //     return;
-        // }
         if (Input.GetMouseButtonDown(1))
         {
-            // Lưu orientation cũ
-            bool prevRotated = _manualRotated;
-
-            // Xoay sang orientation mới
-            _manualRotated = !_manualRotated;
-            _placingCard.Rotate(_manualRotated);
-
-            // Recalc valid slots với orientation mới
-            List<Vector2Int> newValid = GetValidSlotsForCard(_placingCard);
-
-            // Nếu không đặt được ở đâu cả => revert lại orientation cũ
-            if (newValid.Count == 0)
-            {
-                Debug.Log("⚠️ Không thể đặt được ở bất kỳ đâu sau khi xoay — revert rotation!");
-                _manualRotated = prevRotated;
-                _placingCard.Rotate(_manualRotated); // xoay lại
-            }
-            else
-            {
-                // Nếu ok thì cập nhật highlight
-                ClearSlotHighlights();
-                _validSlots = newValid;
-                HighlightSlots(_validSlots, true);
-            }
+            OnClickRightMouseRpc();
             return;
         }
 
@@ -483,12 +752,21 @@ public class BoardManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             // restore original orientation if we mutated it and then return
-            Debug.Log("Return card!");
-            _placing = false;
-            CancelPlacing(true);
+            OnClickCancelCardRpc();
             return;
         }
         // Move placing card to nearest valid slot under mouse
+        MovePlacingCardRpc();
+
+        // Left click -> place if hover valid
+        if (Input.GetMouseButtonDown(0))
+        {
+            OnClickLeftMouseRpc();
+        }
+    }
+    [Rpc(SendTo.ClientsAndHost)]
+    private void MovePlacingCardRpc()
+    {
         Vector3 mouseWorld = GetMouseWorldPointOnBoard();
         if (mouseWorld != Vector3.zero)
         {
@@ -512,10 +790,6 @@ public class BoardManager : MonoBehaviour
                 if (!_hoverSlot.HasValue || _hoverSlot.Value != best.Value)
                 {
                     // update rotation to best fit (auto)
-                    // Quaternion bestRot = GetBestRotationForCard(_placingCard, best.Value);
-                    // // bestRot.z = 0f;
-                    // Debug.Log("BestRot: " + bestRot);
-                    // _placingCard.transform.DORotateQuaternion(bestRot, 0.06f).SetEase(Ease.OutQuad);
                     Vector3 angle = GetBestVector3RotationForCard(_placingCard, best.Value);
                     _placingCard.transform.DOLocalRotate(angle, 0.06f).SetEase(Ease.OutQuad);
                     // _manualRotated = IsCardFlipped();
@@ -528,24 +802,61 @@ public class BoardManager : MonoBehaviour
                 _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
             }
         }
-
-        // Left click -> place if hover valid
-        if (Input.GetMouseButtonDown(0))
+    }
+    // [Rpc(SendTo.ClientsAndHost)]
+    private void OnClickCancelCardRpc()
+    {
+        Debug.Log("Return card!");
+        _placing = false;
+        CancelPlacing(true);
+    }
+    // [Rpc(SendTo.ClientsAndHost)]
+    private void OnClickLeftMouseRpc()
+    {
+        if (_hoverSlot.HasValue && _validSlots.Contains(_hoverSlot.Value))
         {
-            if (_hoverSlot.HasValue && _validSlots.Contains(_hoverSlot.Value))
-            {
-                PlaceCardToSlot(_hoverSlot.Value);
-                _placing = false;
-                return;
-            }
-            else
-            {
-                // click ngoài vùng hợp lệ -> không làm gì cả
-                Debug.Log("⚠️ Click ngoài vùng đặt hợp lệ, bỏ qua.");
-            }
+            PlaceCardToSlot(_hoverSlot.Value);
+            _placing = false;
+            return;
+        }
+        else
+        {
+            // click ngoài vùng hợp lệ -> không làm gì cả
+            Debug.Log("⚠️ Click ngoài vùng đặt hợp lệ, bỏ qua.");
         }
 
     }
+    // [Rpc(SendTo.ClientsAndHost)]
+    private void OnClickRightMouseRpc()
+    {
+        // Lưu orientation cũ
+        bool prevRotated = _manualRotated;
+
+        // Xoay sang orientation mới
+        _manualRotated = !_manualRotated;
+        _placingCard.Rotate(_manualRotated);
+
+        // Recalc valid slots với orientation mới
+        List<Vector2Int> newValid = GetValidSlotsForCard(_placingCard);
+
+        // Nếu không đặt được ở đâu cả => revert lại orientation cũ
+        if (newValid.Count == 0)
+        {
+            Debug.Log("⚠️ Không thể đặt được ở bất kỳ đâu sau khi xoay — revert rotation!");
+            _manualRotated = prevRotated;
+            _placingCard.Rotate(_manualRotated); // xoay lại
+        }
+        else
+        {
+            // Nếu ok thì cập nhật highlight
+            ClearSlotHighlights();
+            _validSlots = newValid;
+            HighlightSlots(_validSlots, true);
+        }
+
+    }
+
+
 
     // compute world position for slot center
     public Vector3 GetWorldPositionForSlot(Vector2Int slot)
@@ -713,7 +1024,7 @@ public class BoardManager : MonoBehaviour
             if (!IsInside(neighbor)) continue;
 
             Card neighborCard = board[neighbor.x, neighbor.y];
-            if (neighborCard == null || neighborCard.CardType != CardType.Path)
+            if (neighborCard == null || neighborCard.CardType != CardType.Path || neighborCard.Location != CardLocation.OnBoard)
                 continue;
 
             int opposite = (d + 2) % 4;

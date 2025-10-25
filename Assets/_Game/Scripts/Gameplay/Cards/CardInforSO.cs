@@ -7,6 +7,8 @@ public class CardInforSO : ScriptableObject
     public bool[] Connections;
     public CardType CardType;
     public PathCardType PathCardType;
+    public ActionCardType ActionCardType;
+    public ToolType ToolType;
 }
 
 public enum CardType { None, Path, Action, Goal }
@@ -15,6 +17,25 @@ public enum PathCardType
     None,
     PathCard,
     DeadEnd,
+}
+public enum ActionCardType
+{
+    None,
+    BrokenTool,
+    FixTool,
+    Bomb,
+    CheckGold,
+}
+public enum ToolType
+{
+    None,
+    Cart,
+    Hat,
+    Shovel,
+    CartHat,
+    CartShovel,
+    HatShovel,
+
 }
 public enum Direction
 {

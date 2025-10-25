@@ -17,6 +17,8 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
 
     [ReadOnly] public CardType CardType;
     [ReadOnly] public PathCardType PathCardType;
+    [ReadOnly] public ActionCardType ActionCardType;
+    [ReadOnly] public ToolType ToolType;
     [ReadOnly] public bool[] Connections;
     public CardInforSO CardInforSO => _cardInforSO;
 
@@ -56,6 +58,8 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
         Location = cardLocation;
         CardType = cardInforSO.CardType;
         PathCardType = cardInforSO.PathCardType;
+        ActionCardType = cardInforSO.ActionCardType;
+        ToolType = cardInforSO.ToolType;
         Connections = (bool[])cardInforSO.Connections.Clone();
     }
     public void PlaceCard(CardInforSO cardInforSO, CardLocation cardLocation, bool isFlip)
