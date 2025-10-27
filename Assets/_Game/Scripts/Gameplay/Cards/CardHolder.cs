@@ -17,7 +17,7 @@ public class CardHolder : MonoBehaviour
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
 
-    public bool IsTurn = true;
+    public bool IsTurn = false;
 
     private Card _hoveringCard; // hovering 1 card at a time
 

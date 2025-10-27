@@ -285,6 +285,5 @@ public class Card : MonoBehaviour
         Connections = (bool[])_cardInforSO.Connections.Clone();
     }
 
-
     #endregion
 }

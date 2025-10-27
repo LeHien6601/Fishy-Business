@@ -129,7 +129,12 @@ public class NetworkBoardManager : NetworkBehaviour
         _masterDeck.Clear();
         for (int i = 0; i < _cardDatabase.Size(); i++)
         {
-            _masterDeck.Add(new CardData { CardID = i });
+            // some cards have multiple copies, we still treat them with the same ID
+            int amount = _cardDatabase.GetCopiesOfCard(i);
+            for (int j = 0; j < amount; j++)
+            {
+                _masterDeck.Add(new CardData { CardID = i });
+            }
         }
 
         // Shuffle the deck
