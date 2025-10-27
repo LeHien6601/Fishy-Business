@@ -16,12 +16,12 @@ public class BoardCore : MonoBehaviour
     private Card[,] _board;
     public readonly List<Vector2Int> ValidSlots = new();
 
-    private void Start()
-    {
-        GenerateBoard();
-    }
+    // private void Start()
+    // {
+    //     GenerateBoard();
+    // }
 
-    void GenerateBoard()
+    public void GenerateBoard()
     {
         _board = new Card[_rows, _cols];
         int randomGoal = UnityEngine.Random.Range(0, 3);
@@ -68,14 +68,14 @@ public class BoardCore : MonoBehaviour
     {
         if (!IsInsideBoard(slot)) return;
         _board[slot.x, slot.y] = card;
-        card.transform.SetPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
+        card.transform.SetLocalPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
         card.Location = CardLocation.OnBoard;
     }
 
     public void HoverCardAt(Card card, Vector2Int slot)
     {
         if (!IsInsideBoard(slot)) return;
-        card.transform.SetPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
+        card.transform.SetLocalPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
     }
 
     public List<Vector2Int> GetValidSlotsForCard(Card card)
@@ -89,14 +89,14 @@ public class BoardCore : MonoBehaviour
                 if (_board[r, c] == null || _board[r, c].CardType != CardType.None)
                     continue;
 
-                if (CanPlaceCardAt(card, new Vector2Int(r, c)))
+                if (IsValidSlot(card, new Vector2Int(r, c)))
                     ValidSlots.Add(new Vector2Int(r, c));
             }
         }
         return ValidSlots;
     }
 
-    private bool CanPlaceCardAt(Card card, Vector2Int cardSlot)
+    public bool IsValidSlot(Card card, Vector2Int cardSlot)
     {
         // --- điều kiện hợp lệ ---
         // 1. Phải có ít nhất 1 ô kề nối được
@@ -123,7 +123,33 @@ public class BoardCore : MonoBehaviour
         return connected;
     }
 
-    private Vector2Int GetNeighbor(Vector2Int pos, Direction dir)
+    public bool IsPlacableWithCurrentRotation(Card card, Vector2Int cardSlot)
+    {
+        // --- điều kiện hợp lệ ---
+        // 1. Phải có ít nhất 1 ô kề nối được
+        // 2. Các hướng khác không được conflict (đường phải khớp nhau)
+        if (card == null) return false;
+        bool connected = false;
+        for (int d = 0; d < 4; d++)
+        {
+            Vector2Int neighbor = GetNeighbor(cardSlot, (Direction)d);
+            if (!IsInsideBoard(neighbor)) continue;
+
+            Card neighborCard = _board[neighbor.x, neighbor.y];
+            if (neighborCard == null || neighborCard.CardType != CardType.Path || neighborCard.Location == CardLocation.Hidden)
+                continue;
+
+            int opposite = (d + 2) % 4;
+
+            bool match = card.Connections[d] && neighborCard.Connections[opposite];
+            if (match) connected = true;
+            else if (card.Connections[d] != neighborCard.Connections[opposite])
+                return false;
+        }
+        return connected;
+    }
+
+    public Vector2Int GetNeighbor(Vector2Int pos, Direction dir)
     {
         return dir switch
         {
@@ -143,5 +169,5 @@ public class BoardCore : MonoBehaviour
         return c.transform.position;
     }
 
-    bool IsInsideBoard(Vector2Int pos) => pos.x >= 0 && pos.x < _rows && pos.y >= 0 && pos.y < _cols;
+    public bool IsInsideBoard(Vector2Int pos) => pos.x >= 0 && pos.x < _rows && pos.y >= 0 && pos.y < _cols;
 }

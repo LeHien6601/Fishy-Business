@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
 using Unity.VisualScripting;
@@ -21,6 +22,8 @@ public class NetworkBoardManager : NetworkBehaviour
 
     [SerializeField] private BoardCore _boardCore;
     private Plane _boardPlane; // for mouse raycast onto board
+    private Card _placingCard = null; // local card being placed
+    private float _placingOffset = 0.05f;
     private Vector2Int? _hoveringSlot = null;
     private float _snapDistance = 1.5f;
 
@@ -32,13 +35,14 @@ public class NetworkBoardManager : NetworkBehaviour
 
 
     #region  Setup logic
-    public void StartGameLogic(NetworkList<ulong> playerOrders)
+    public async void StartGameLogic(NetworkList<ulong> playerOrders)
     {
         if (!IsServer) return;
 
         // Perform server-only setup
         _playerOrders = playerOrders;
         InitializeAndShuffleDeck();
+        await Task.Delay(1000); // wait for a moment to ensure all clients are ready
         StartGameClientRpc();
         DealCards(playerOrders);
     }
@@ -47,7 +51,8 @@ public class NetworkBoardManager : NetworkBehaviour
     private void StartGameClientRpc()
     {
         // spawn board, facing towards local player
-
+        _boardCore.GenerateBoard();
+        transform.rotation = Quaternion.Euler(0f, Camera.main.transform.eulerAngles.y, 0f);
         // spawn deck,
         _freshCards.Clear();
         for (int i = 0; i < _cardDatabase.Size(); i++)
@@ -155,15 +160,21 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #region  Boardgame logic
     // @TODO:
-
-    private void PlayCard(Card arg0)
+    private void Update()
     {
-        PlayCardServerRpc(arg0.CardData, NetworkManager.Singleton.LocalClientId);
-        arg0.Holder.RemoveCard(arg0);
-        var validSlots = _boardCore.GetValidSlotsForCard(arg0);
+        if (_placingCard != null)
+            MovePlacingCard();
+    }
+    private void PlayCard(Card card)
+    {
+        PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
+        _placingCard = card;
+        card.Holder.RemoveCard(card);
+        card.transform.SetParent(_boardCore.transform);
+        var validSlots = _boardCore.GetValidSlotsForCard(card);
         if (validSlots.Count > 0)
         {
-            _boardCore.HoverCardAt(arg0, validSlots[0]);
+            _boardCore.HoverCardAt(card, validSlots[0]);
         }
     }
 
@@ -187,6 +198,8 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         CardHolder cardHolder = _map[senderId];
         Card card = cardHolder.RemoveRandomCard();
+        _placingCard = card;
+        card.transform.SetParent(_boardCore.transform);
         card.SetData(_cardDatabase.GetCardInforSO(arg0), CardLocation.OnBoard);
         var validSlots = _boardCore.GetValidSlotsForCard(card);
         if (validSlots.Count > 0)
@@ -201,36 +214,47 @@ public class NetworkBoardManager : NetworkBehaviour
         if (mouseWorld == Vector3.zero)
             return;
 
-        float bestDist = float.MaxValue;
-        Vector2Int? best = null;
-        foreach (var s in _boardCore.ValidSlots)
+        float sqrDistance = float.MaxValue;
+        Vector2Int? bestSlot = null;
+        foreach (var slot in _boardCore.ValidSlots)
         {
-            Vector3 wp = _boardCore.GetWorldPositionForSlot(s);
-            float d = Vector3.Distance(mouseWorld, wp);
-            if (d < bestDist)
+            Vector3 wp = _boardCore.GetWorldPositionForSlot(slot);
+            float sqrD = Vector3.SqrMagnitude(mouseWorld - wp);
+            if (sqrD < sqrDistance)
             {
-                bestDist = d;
-                best = s;
+                sqrDistance = sqrD;
+                bestSlot = slot;
             }
         }
-        if (best.HasValue && bestDist <= _snapDistance)
+        if (bestSlot.HasValue && sqrDistance <= _snapDistance)
         {
             // hover this slot
-            if (!_hoveringSlot.HasValue || _hoveringSlot.Value != best.Value)
+            if (!_hoveringSlot.HasValue || _hoveringSlot.Value != bestSlot.Value)
             {
-                // update rotation to best fit (auto)
-                // Vector3 angle = GetBestVector3RotationForCard(_placingCard, best.Value);
-                // _placingCard.transform.DOLocalRotate(angle, 0.06f).SetEase(Ease.OutQuad);
-                // _manualRotated = IsCardFlipped();
-                // _placingCard.SetConnectionByRotate(_manualRotated);
-                _hoveringSlot = best.Value;
-            }
+                _hoveringSlot = bestSlot.Value;
+                MovePlacingCardServerRpc(bestSlot.Value);
 
-            // move card visually to this slot position (slightly above)
-            // Vector3 targetPos = GetWorldPositionForSlot(best.Value) + Vector3.up * _placingOffset;
-            // _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
+            }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void MovePlacingCardServerRpc(Vector2Int slot)
+    {
+        MovePlacingCardClientRpc(slot);
+    }
+
+    [ClientRpc]
+    private void MovePlacingCardClientRpc(Vector2Int slot)
+    {
+        if (!_boardCore.IsPlacableWithCurrentRotation(_placingCard, slot))
+        {
+            _placingCard.Rotate();
         }
 
+        // move card visually to this slot position (slightly above)
+        Vector3 targetPos = _boardCore.GetWorldPositionForSlot(slot) + Vector3.up * _placingOffset;
+        _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
     }
     private Vector3 GetMouseWorldPointOnBoard()
     {
