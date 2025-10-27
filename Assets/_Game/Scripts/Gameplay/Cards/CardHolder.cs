@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class CardHolder : MonoBehaviour
 {
+    public bool IsMine = false;
     [Header("Card Layout Settings")]
     public static int MaxHandSize = 7;
     public static float ArcAngle = 30f;

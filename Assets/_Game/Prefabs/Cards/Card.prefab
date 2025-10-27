@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6de718fc5b103564cbdb31a22fb983ad, type: 2}
+  - {fileID: 2100000, guid: 6d1cef761d8116547a388ad324fc5937, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -224,6 +224,8 @@ MonoBehaviour:
   Location: 0
   CardType: 0
   PathCardType: 0
+  ActionCardType: 0
+  ToolType: 0
   Connections: 
   _holder: {fileID: 0}
 --- !u!65 &8148190997577735675

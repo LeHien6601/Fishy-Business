@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
@@ -11,7 +13,10 @@ public class RoundTable : NetworkBehaviour
     [SerializeField] private float _radius = 2.5f;
     private readonly int _currentCapacity = 8;
 
-    [SerializeField] private BoardManager _boardManager;
+    [SerializeField] private NetworkBoardManager _boardManager; // local version, each has 1. 
+    private readonly NetworkVariable<NetworkObjectReference> _boardManagerRef =
+    new(new NetworkObjectReference(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server); // network version
+
     [SerializeField] private List<Seat> _seats; // only server knows this list
     private readonly List<NetworkObjectReference> _netSeats = new(); // all clients know this list
     public NetworkList<ulong> PlayerOrders = new(); // server writes, all read
@@ -21,20 +26,21 @@ public class RoundTable : NetworkBehaviour
     public event UnityAction OnBoardGameEnded;
     public override void OnNetworkSpawn()
     {
-        if (!IsHost)
+        if (IsHost || IsServer)
         {
-            return;
+            // only server knows the boardManager at start
+            _boardManagerRef.Value = new NetworkObjectReference(_boardManager.NetworkObject);
+            Debug.Log("Server set BoardManager reference.");
+            for (int i = 0; i < _currentCapacity; i++)
+            {
+                var seat = Instantiate(_seatPrefab);
+                seat.GetComponent<NetworkObject>().Spawn(true);
+                seat.name = $"Seat {i + 1}";
+                _seats.Add(seat);
+            }
+            InitSeats();
         }
-        for (int i = 0; i < _currentCapacity; i++)
-        {
-            var seat = Instantiate(_seatPrefab);
-            seat.GetComponent<NetworkObject>().Spawn(true);
-            seat.name = $"Seat {i + 1}";
-            _seats.Add(seat);
-        }
-        InitSeats();
     }
-
 
     private void InitSeats()
     {
@@ -49,17 +55,6 @@ public class RoundTable : NetworkBehaviour
             _netSeats.Add(new NetworkObjectReference(_seats[i].NetworkObject));
         }
     }
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            if (_gameplaying == false)
-            {
-                StartBoardGameServerRpc();
-                _gameplaying = true;
-            }
-        }
-    }
 
     /// <summary>
     /// one player calls this and starts game across all clients
@@ -67,6 +62,11 @@ public class RoundTable : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void StartBoardGameServerRpc()
     {
+        if (_boardManager == null)
+        {
+            Debug.LogError("Server BoardManager reference is missing!");
+            return;
+        }
         PlayerOrders.Clear();
         int occupiedCount = 0;
         foreach (var seat in _seats)
@@ -77,17 +77,21 @@ public class RoundTable : NetworkBehaviour
                 occupiedCount++;
             }
         }
+        _boardManager.Reset();
         ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
+        _boardManager.StartGameLogic(PlayerOrders);
     }
 
-    // @TODO: ease the animation
+    /// <summary>
+    /// handle seat arrangement animation on all clients locally
+    /// spawn local cardHolders for each occupied seat
+    /// </summary>
+    /// <param name="seatRefs"></param>
+    /// <param name="occupiedCount"></param>
     [ContextMenu("ArrangeSeats")]
     [ClientRpc]
     private void ArrangeSeatsClientRpc(NetworkObjectReference[] seatRefs, int occupiedCount)
     {
-        // 1. Count occupied seats
-        List<Tween> tweens = new List<Tween>();
-
         for (int i = 0; i < seatRefs.Length; i++)
         {
             Seat seat = seatRefs[i].TryGet(out NetworkObject netObj) ? netObj.GetComponent<Seat>() : null;
@@ -97,7 +101,7 @@ public class RoundTable : NetworkBehaviour
                 continue;
             }
 
-            // ----- calculate target position / rotation (exactly like your original code) -----
+            // ----- calculate target position / rotation -----
             float angle = i * Mathf.PI * 2f / occupiedCount;
             Vector3 targetPos = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (_radius - 0.5f);
             Quaternion targetRot = Quaternion.LookRotation(-targetPos.normalized, Vector3.up);
@@ -108,7 +112,11 @@ public class RoundTable : NetworkBehaviour
             // ----- instantiate the card holder *before* moving (so it follows the seat) -----
             var holder = Instantiate(_cardHolderPrefab, seatTf);
             holder.transform.SetLocalPositionAndRotation(_cardHolderPrefab.transform.localPosition, _cardHolderPrefab.transform.localRotation);
-            _boardManager.GetCardHolder(holder);
+            _boardManager.RegisterCardHolder(holder);
+            if (seat.GetOccupyingClientId() == NetworkManager.Singleton.LocalClientId)
+            {
+                holder.IsMine = true;
+            }
 
             // ----- DOTween animation -----
             float duration = 0.8f;
@@ -124,38 +132,33 @@ public class RoundTable : NetworkBehaviour
             if (seat.GetOccupant())
             {
                 Transform occupantTf = seat.GetOccupant().transform;
-                Tween occupantTween = occupantTf.DOMove(seat.SitPosition(targetPos, targetRot), duration)
+                Tween occupantPosTween = occupantTf.DOMove(seat.SitPosition(targetPos, targetRot), duration)
                                        .SetEase(easeType);
                 Tween occupantRotTween = occupantTf.DOLocalRotateQuaternion(targetRot, duration)
                                        .SetEase(easeType);
             }
-
-            // Combine them into a single Sequence so we can track completion
-            Sequence seatSeq = DOTween.Sequence();
-            seatSeq.Append(posTween);
-            seatSeq.Join(rotTween);   // runs at the same time as position
-
-            tweens.Add(seatSeq);
-        }
-
-        // ----- When *all* seats have finished moving, start the game -----
-        if (tweens.Count > 0)
-        {
-            // Create a dummy tween that completes when every seat tween is done
-            Sequence allDone = DOTween.Sequence();
-            foreach (var t in tweens) allDone.Join(t);
-
-            allDone.OnComplete(() => _boardManager.StartGame());
-        }
-        else
-        {
-            // No occupied seats → start immediately
-            _boardManager.StartGame();
         }
     }
 
     [ContextMenu("Reset")]
     public void Reset() => InitSeats();
+
+
+
+
+#if UNITY_EDITOR
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L)) //fast testing
+        {
+            if (_gameplaying == false)
+            {
+                StartBoardGameServerRpc();
+                _gameplaying = true;
+            }
+        }
+    }
+#endif
 }
 
 // public enum BoardGameState
