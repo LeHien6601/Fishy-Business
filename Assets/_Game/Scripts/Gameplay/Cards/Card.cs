@@ -95,6 +95,18 @@ public class Card : MonoBehaviour
         PathCardType = cardInforSO.PathCardType;
         Rotate(isFlip);
     }
+    public void PlaceCard(CardInforSO cardInforSO)
+    {
+        _cardInforSO = cardInforSO;
+        if (cardInforSO == null) return;
+
+        if (_meshRenderer != null)
+            _meshRenderer.material = cardInforSO.material;
+
+        Location = CardLocation.OnBoard;
+        CardType = cardInforSO.CardType;
+        PathCardType = cardInforSO.PathCardType;
+    }
     public void SetHolder(CardHolder cardHolder)
     {
         Holder = cardHolder;
@@ -188,13 +200,10 @@ public class Card : MonoBehaviour
     #endregion
 
     #region Handle Hover
-  
+
     public void OnMouseEnter()
     {
-        if (Holder == null || !Holder.IsTurn)
-        {
-            return;
-        }
+        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
 
         if (Location == CardLocation.PlayerHand)
         {
@@ -212,11 +221,7 @@ public class Card : MonoBehaviour
     }
     void OnMouseExit()
     {
-        if (Holder == null || !Holder.IsTurn)
-        {
-            Debug.Log("Holder or not turn");
-            return;
-        }
+        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
 
         if (Location == CardLocation.PlayerHand)
         {
@@ -266,10 +271,10 @@ public class Card : MonoBehaviour
     #endregion
 
     #region Handle Click Card
-      void OnMouseDown()
+    void OnMouseDown()
     {
-        if (!_holder || !_holder.IsTurn)
-            return;
+        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
+
         OnClickCard?.Invoke(this, Holder);
         OnPlayCard?.Invoke(this);
     }

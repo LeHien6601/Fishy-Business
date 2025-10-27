@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class BoardCore : MonoBehaviour
@@ -15,6 +16,9 @@ public class BoardCore : MonoBehaviour
     [SerializeField] private List<Vector2Int> _goalPos; // x row, y col)
     private Card[,] _board;
     public readonly List<Vector2Int> ValidSlots = new();
+
+    private readonly float _fromHandToBoardDuration = 0.3f;
+    private readonly float _placeToSlotDuration = 0.2f;
 
     // private void Start()
     // {
@@ -64,18 +68,29 @@ public class BoardCore : MonoBehaviour
         }
     }
 
-    public void PlaceCardAt(Card card, Vector2Int slot)
+    public void PlaceCardAt(Card card, Vector2Int slot, Action onComplete = null)
     {
-        if (!IsInsideBoard(slot)) return;
-        _board[slot.x, slot.y] = card;
-        card.transform.SetLocalPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
-        card.Location = CardLocation.OnBoard;
+        if (card == null || !IsInsideBoard(slot) || !ValidSlots.Contains(slot)) return;
+
+        Card placeHolder = _board[slot.x, slot.y];
+        card.transform.DOMove(placeHolder.transform.position, _placeToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            Destroy(placeHolder.gameObject);
+            _board[slot.x, slot.y] = card;
+            onComplete?.Invoke();
+        });
     }
 
-    public void HoverCardAt(Card card, Vector2Int slot)
+    public void DropCardOntoBoard(Card card, Vector2Int slot, Action onComplete = null)
     {
-        if (!IsInsideBoard(slot)) return;
-        card.transform.SetLocalPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
+        if (card == null || !IsInsideBoard(slot) || !ValidSlots.Contains(slot)) return;
+
+        // card.transform.SetLocalPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
+        card.transform.DOLocalRotate(new Vector3(90f, 0f, 0f), _fromHandToBoardDuration).SetEase(Ease.OutCubic);
+        card.transform.DOMove(GetWorldPositionForSlot(slot) + new Vector3(0f, 0.05f, 0f), _fromHandToBoardDuration).SetEase(Ease.OutCubic).OnComplete(() =>
+        {
+            onComplete?.Invoke();
+        });
     }
 
     public List<Vector2Int> GetValidSlotsForCard(Card card)
@@ -144,6 +159,32 @@ public class BoardCore : MonoBehaviour
             bool match = card.Connections[d] && neighborCard.Connections[opposite];
             if (match) connected = true;
             else if (card.Connections[d] != neighborCard.Connections[opposite])
+                return false;
+        }
+        return connected;
+    }
+
+    public bool IsPlacableWithOppositeRotation(Card card, Vector2Int cardSlot)
+    {
+        // --- điều kiện hợp lệ ---
+        // 1. Phải có ít nhất 1 ô kề nối được
+        // 2. Các hướng khác không được conflict (đường phải khớp nhau)
+        if (card == null) return false;
+        bool connected = false;
+        for (int d = 0; d < 4; d++)
+        {
+            Vector2Int neighbor = GetNeighbor(cardSlot, (Direction)d);
+            if (!IsInsideBoard(neighbor)) continue;
+
+            Card neighborCard = _board[neighbor.x, neighbor.y];
+            if (neighborCard == null || neighborCard.CardType != CardType.Path || neighborCard.Location == CardLocation.Hidden)
+                continue;
+
+            int opposite = (d + 2) % 4;
+
+            bool match = card.Connections[opposite] && neighborCard.Connections[opposite];
+            if (match) connected = true;
+            else if (card.Connections[opposite] != neighborCard.Connections[opposite])
                 return false;
         }
         return connected;
