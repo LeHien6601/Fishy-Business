@@ -10,6 +10,7 @@ using NUnit.Framework;
 public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [SerializeField] private CardInforSO _cardInforSO;
+    public CardData CardData { get; private set; }
     [SerializeField] private MeshRenderer _meshRenderer;
 
     [Header("Card State")]
@@ -33,6 +34,7 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
     }
 
     public event UnityAction<Card, CardHolder> OnClickCard;
+    public event UnityAction<Card> OnPlayCard;
     public event UnityAction<Card, CardHolder> OnDiscardCard;
 
     private bool _isFlipped = false;
@@ -49,6 +51,23 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
     {
         _cardInforSO = cardInforSO;
         // BoardManagerRef = boardManager;
+        if (cardInforSO == null) return;
+
+        if (_meshRenderer != null)
+            _meshRenderer.material = cardInforSO.material;
+
+        _isFlipped = false;
+        Location = cardLocation;
+        CardType = cardInforSO.CardType;
+        PathCardType = cardInforSO.PathCardType;
+        ActionCardType = cardInforSO.ActionCardType;
+        ToolType = cardInforSO.ToolType;
+        Connections = (bool[])cardInforSO.Connections.Clone();
+    }
+    public void SetData(CardData cardData, CardInforSO cardInforSO, CardLocation cardLocation)
+    {
+        CardData = cardData;
+        _cardInforSO = cardInforSO;
         if (cardInforSO == null) return;
 
         if (_meshRenderer != null)
@@ -322,6 +341,7 @@ public class Card : MonoBehaviour //, IPointerEnterHandler, IPointerExitHandler,
         if (!_holder || !_holder.IsTurn)
             return;
         OnClickCard?.Invoke(this, Holder);
+        OnPlayCard?.Invoke(this);
     }
     public void ResetRotate()
     {

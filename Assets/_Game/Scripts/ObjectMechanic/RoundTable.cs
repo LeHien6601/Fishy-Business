@@ -112,7 +112,7 @@ public class RoundTable : NetworkBehaviour
             // ----- instantiate the card holder *before* moving (so it follows the seat) -----
             var holder = Instantiate(_cardHolderPrefab, seatTf);
             holder.transform.SetLocalPositionAndRotation(_cardHolderPrefab.transform.localPosition, _cardHolderPrefab.transform.localRotation);
-            _boardManager.RegisterCardHolder(holder);
+            _boardManager.RegisterCardHolder(seat.GetOccupyingClientId(), holder);
             if (seat.GetOccupyingClientId() == NetworkManager.Singleton.LocalClientId)
             {
                 holder.IsMine = true;

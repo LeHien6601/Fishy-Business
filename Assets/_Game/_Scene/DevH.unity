@@ -3559,6 +3559,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1036670618}
+  - {fileID: 932861782}
   m_Father: {fileID: 70552258}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &345916956
@@ -3578,6 +3579,7 @@ MonoBehaviour:
   _cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   _deckPlace: {fileID: 1036670618}
   _deckStackSpace: 0.002
+  _boardCore: {fileID: 932861783}
 --- !u!1 &361192710
 GameObject:
   m_ObjectHideFlags: 0
@@ -8697,6 +8699,60 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ea530da649fce4b43aa7d4f7567dc42b, type: 3}
   m_PrefabInstance: {fileID: 918215114}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &932861781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 932861782}
+  - component: {fileID: 932861783}
+  m_Layer: 0
+  m_Name: BoardCore
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &932861782
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 932861781}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0.8, y: 0, z: -0.89}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 345916955}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!114 &932861783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 932861781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b08ee0d5f0b00248b362281e2cf619f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardSize: {x: 0.22, y: 0.33}
+  cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
+  _startCardSO: {fileID: 11400000, guid: bad33e57cae5deb41966d44838d004a6, type: 2}
+  _goalTreasureCardSO: {fileID: 11400000, guid: 144a442eda16b554ba861d2b9eb7ba21, type: 2}
+  _goalEmtyCardSO: {fileID: 11400000, guid: 0608e1bf42b33464089de133dd0812a2, type: 2}
+  _startPos: {x: 2, y: 0}
+  _goalPos:
+  - {x: 0, y: 8}
+  - {x: 2, y: 8}
+  - {x: 4, y: 8}
 --- !u!1 &934040432
 GameObject:
   m_ObjectHideFlags: 0
@@ -9530,7 +9586,7 @@ Transform:
   m_GameObject: {fileID: 1036670617}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.72, y: -0, z: -0.86}
+  m_LocalPosition: {x: -0.96, y: 0, z: -0.53}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

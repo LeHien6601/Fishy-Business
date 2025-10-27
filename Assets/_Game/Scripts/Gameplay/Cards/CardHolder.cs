@@ -70,6 +70,13 @@ public class CardHolder : MonoBehaviour
         return RemoveCard(handCards[cardIndex]);
     }
 
+    public Card RemoveRandomCard()
+    {
+        if (handCards.Count == 0) return null;
+        int randomIndex = Random.Range(0, handCards.Count);
+        return RemoveCard(handCards[randomIndex]);
+    }
+
     /// <summary>
     /// Invoke when click left mouse on Card
     /// </summary>
