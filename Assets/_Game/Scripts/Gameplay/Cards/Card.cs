@@ -115,7 +115,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         PathCardType = PathCardType.None;
         Connections = null;
         _isFlipped = false;
-        transform.localRotation = _initRotation;
+        // transform.localRotation = _initRotation;
     }
 
     public void Rotate()

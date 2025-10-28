@@ -186,6 +186,27 @@ public class BoardCore : MonoBehaviour
         return connected;
     }
 
+    public Card GetPathCard(Vector2Int slot)
+    {
+        if (IsInsideBoard(slot))
+        {
+            return _board[slot.x, slot.y];
+        }
+        return null;
+    }
+
+    public void BombThisPath(Vector2Int slot)
+    {
+        if (!IsInsideBoard(slot))
+        {
+            return;
+        }
+        OnBoardPaths.Remove(slot);
+        Card card = _board[slot.x, slot.y];
+        card.Refresh();
+        card.SetMaterial(_highlightMaterial);
+        card.gameObject.SetActive(false);
+    }
     public Vector2Int GetNeighbor(Vector2Int pos, Direction dir)
     {
         return dir switch
