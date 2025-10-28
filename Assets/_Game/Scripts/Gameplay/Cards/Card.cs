@@ -7,7 +7,7 @@ using UnityEngine.Events;
 using NUnit.Framework;
 
 [SelectionBase]
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private CardInforSO _cardInforSO;
     public CardData CardData { get; private set; }
@@ -37,11 +37,10 @@ public class Card : MonoBehaviour
     public event UnityAction<Card> OnPlayCard = delegate { };
     public event UnityAction<Card> OnHoverCard = delegate { };
     public event UnityAction<Card> OnExitHoverCard = delegate { };
-    public event UnityAction<Card, CardHolder> OnDiscardCard;
+    public event UnityAction<Card> OnDiscardCard = delegate { };
 
     private bool _isFlipped = false;
     private Quaternion _initRotation;
-    private int _indexInHolder = -1;
 
     void Awake()
     {
@@ -179,50 +178,6 @@ public class Card : MonoBehaviour
     }
     #endregion
 
-    #region Handle Hover
-
-    public void OnMouseEnter()
-    {
-        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
-
-        if (Location == CardLocation.PlayerHand)
-        {
-            if (Holder == null) return;
-
-            OnHoverCard.Invoke(this);
-            Holder.SelectCard(this);
-            // _indexInHolder = Holder.GetCardIndex(this);
-            // if (_indexInHolder >= 0)
-            //     Holder.SelectCard(_indexInHolder);
-        }
-        else if (Location == CardLocation.OnBoard)
-        {
-
-        }
-    }
-    void OnMouseExit()
-    {
-        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
-
-        if (Location == CardLocation.PlayerHand)
-        {
-            OnExitHoverCard.Invoke(this);
-            if (Holder == null) return;
-            Holder.UnSelectCard(this);
-            // if (_indexInHolder >= 0)
-            // {
-            //     Holder.UnSelectCard(_indexInHolder);
-            //     _indexInHolder = -1;
-            // }
-        }
-        else if (Location == CardLocation.OnBoard)
-        {
-
-        }
-    }
-
-
-    #endregion
     #region Highlight (dùng để làm sáng ô có thể đặt)
     public void SetHighlight(bool on)
     {
@@ -247,18 +202,6 @@ public class Card : MonoBehaviour
         // }
     }
     #endregion
-    #region Handle Card on Board
-
-    #endregion
-
-    #region Handle Click Card
-    void OnMouseDown()
-    {
-        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
-
-        OnClickCard?.Invoke(this, Holder);
-        OnPlayCard?.Invoke(this);
-    }
     public void ResetRotate()
     {
         _isFlipped = false;
@@ -266,5 +209,48 @@ public class Card : MonoBehaviour
         Connections = (bool[])_cardInforSO.Connections.Clone();
     }
 
-    #endregion
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (Location == CardLocation.PlayerHand)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
+
+                OnClickCard?.Invoke(this, Holder);
+                OnPlayCard?.Invoke(this);
+                Holder.IsTurn = false;
+            }
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                OnDiscardCard.Invoke(this);
+                Holder.IsTurn = false;
+            }
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
+
+        if (Location == CardLocation.PlayerHand)
+        {
+            OnExitHoverCard.Invoke(this);
+            if (Holder == null) return;
+            Holder.UnSelectCard(this);
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
+
+        if (Location == CardLocation.PlayerHand)
+        {
+            if (Holder == null) return;
+
+            OnHoverCard.Invoke(this);
+            Holder.SelectCard(this);
+        }
+    }
 }

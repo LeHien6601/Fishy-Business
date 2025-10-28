@@ -13,6 +13,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [SerializeField] private CardDatabaseSO _cardDatabase;
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _deckPlace;
+    [SerializeField] private Transform _discardPile;
     private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
     private readonly Dictionary<ulong, CardHolder> _playerAndCardMap = new();
@@ -115,6 +116,7 @@ public class NetworkBoardManager : NetworkBehaviour
                     newCard.OnPlayCard += PlayCard;
                     newCard.OnHoverCard += HoverCardInHand;
                     newCard.OnExitHoverCard += (card) => { _boardCore.ClearValidSlots(); };
+                    newCard.OnDiscardCard += DiscardCard;
                 }
                 holder.AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
                 Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} added card {cardData.CardID} to holder.");
@@ -122,8 +124,6 @@ public class NetworkBoardManager : NetworkBehaviour
             }
         }
     }
-
-
 
     private void InitializeAndShuffleDeck()
     {
@@ -276,6 +276,46 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
 
+    // discard card to _discardPile
+    private void DiscardCard(Card card)
+    {
+        card.Holder.RemoveCard(card);
+        card.transform.SetParent(_discardPile.transform);
+        card.transform.DOLocalMove(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+        card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+        // zero because we already edit the _discardPile pos and rot
+        DiscardCardServerRpc(senderId: NetworkManager.Singleton.LocalClientId);
+
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DiscardCardServerRpc(ulong senderId)
+    {
+        DrawNewCardThenEndTurn();
+
+        List<ulong> targets = NetworkManager.Singleton.ConnectedClientsIds.ToList();
+        targets.Remove(senderId);
+        ClientRpcParams clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = targets.ToArray() // Send to all clients except sender
+            }
+        };
+        DiscardCardOtherClientRpc(senderId, clientRpcParams);
+    }
+
+    [ClientRpc]
+    private void DiscardCardOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
+    {
+        CardHolder cardHolder = _playerAndCardMap[senderId];
+        Card card = cardHolder.RemoveRandomCard();
+        card.transform.SetParent(_discardPile.transform);
+        card.transform.DOLocalMove(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+        card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+        // zero because we already edit the _discardPile pos and rot
+    }
+
     // HOVER CARD IN HAND
     private void HoverCardInHand(Card card)
     {
@@ -355,14 +395,7 @@ public class NetworkBoardManager : NetworkBehaviour
         // after confirming placement, draw a new card then end turn
         if (action == InputAction.CONFIRM)
         {
-            int id = _masterDeck.Count - _cardsInDeck.Count;
-            if (id > 0) // check before sending RPC to save bandwidth
-            {
-                DrawNewCardClientRpc(_masterDeck[_masterDeck.Count - _cardsInDeck.Count], receiver: _inTurnPlayer);
-            }
-            // wait for a short moment then end turn
-            _inTurnPlayer = _playerOrders[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _playerOrders.Count];
-            this.WaitThenExecute(_waitBetweenPlayerTurns, () => { NextTurnClientRpc(_inTurnPlayer); });
+            DrawNewCardThenEndTurn();
         }
     }
 
@@ -393,6 +426,21 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region Board functionality
+    private void DrawNewCardThenEndTurn()
+    {
+        if (!IsServer)
+            return;
+        int id = _masterDeck.Count - _cardsInDeck.Count;
+        if (id > 0) // check before sending RPC to save bandwidth
+        {
+            DrawNewCardClientRpc(_masterDeck[_masterDeck.Count - _cardsInDeck.Count], receiver: _inTurnPlayer);
+        }
+        // wait for a short moment then end turn
+        _inTurnPlayer = _playerOrders[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _playerOrders.Count];
+        this.WaitThenExecute(_waitBetweenPlayerTurns, () => { NextTurnClientRpc(_inTurnPlayer); });
+
+    }
+
     [ClientRpc]
     private void DrawNewCardClientRpc(CardData cardData, ulong receiver, ClientRpcParams clientRpcParams = default)
     {
@@ -401,6 +449,9 @@ public class NetworkBoardManager : NetworkBehaviour
             Card newCard = _cardsInDeck.Pop();
             newCard.SetData(cardData, _cardDatabase.GetCardInforSO(cardData), CardLocation.Deck);
             newCard.OnPlayCard += PlayCard;
+            newCard.OnHoverCard += HoverCardInHand;
+            newCard.OnExitHoverCard += (card) => { _boardCore.ClearValidSlots(); };
+            newCard.OnDiscardCard += DiscardCard;
             _playerAndCardMap[receiver].AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
 
             // offically end turn after drawing new card

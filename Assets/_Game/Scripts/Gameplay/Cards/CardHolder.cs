@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class CardHolder : MonoBehaviour
 {
-    public bool IsMine = false;
     [Header("Card Layout Settings")]
     public static int MaxHandSize = 7;
     public static float ArcAngle = 30f;
@@ -16,10 +15,9 @@ public class CardHolder : MonoBehaviour
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
-
-    public bool IsTurn = false;
-
     private Card _hoveringCard; // hovering 1 card at a time
+    public bool IsMine = false;
+    public bool IsTurn = false;
 
 
     /// <summary>
@@ -48,7 +46,6 @@ public class CardHolder : MonoBehaviour
         if (card == null) return null;
 
         handCards.Remove(card);
-        card.Holder = null;
         card.Location = CardLocation.Discarded; // hoặc OnBoard nếu chơi ra bàn
         UpdateCardPositions();
         return card;
@@ -109,18 +106,6 @@ public class CardHolder : MonoBehaviour
         UpdateCardPositions();
         return cards;
     }
-
-    /// <summary>
-    /// Chọn card, đẩy nó lên một chút (hiệu ứng chọn)
-    /// </summary>
-    // public void SelectCard(int index)
-    // {
-    //     if (index < 0 || index >= handCards.Count) return;
-
-    //     Transform card = handCards[index].transform;
-    //     Vector3 endPos = card.position + card.up * 0.1f;
-    //     card.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
-    // }
 
     public void SelectCard(Card card)
     {

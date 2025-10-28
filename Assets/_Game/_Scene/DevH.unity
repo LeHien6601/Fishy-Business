@@ -3559,6 +3559,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1036670618}
+  - {fileID: 655529115}
   - {fileID: 932861782}
   - {fileID: 512333266}
   m_Father: {fileID: 70552258}
@@ -3579,7 +3580,7 @@ MonoBehaviour:
   _cardDatabase: {fileID: 11400000, guid: c1e037bebcff67e4285c77bea38013f9, type: 2}
   _cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   _deckPlace: {fileID: 1036670618}
-  _deckStackSpace: 0.002
+  _discardPile: {fileID: 655529115}
   _boardCore: {fileID: 932861783}
 --- !u!1 &361192710
 GameObject:
@@ -6201,6 +6202,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Materials: []
   InitialAlpha: 0
+--- !u!1 &655529114
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 655529115}
+  m_Layer: 0
+  m_Name: DiscardPile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &655529115
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655529114}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.5, y: 0.5, z: 0.5, w: 0.5}
+  m_LocalPosition: {x: 0.448, y: -0, z: 0.9}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 345916955}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 90}
 --- !u!1001 &657575233
 PrefabInstance:
   m_ObjectHideFlags: 0
