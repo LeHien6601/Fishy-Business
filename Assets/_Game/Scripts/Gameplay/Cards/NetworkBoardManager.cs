@@ -116,7 +116,7 @@ public class NetworkBoardManager : NetworkBehaviour
                     newCard.OnPlayCard += PlayCard;
                     newCard.OnHoverCard += HoverCardInHand;
                     newCard.OnExitHoverCard += (card) => { _boardCore.ClearValidSlots(); };
-                    newCard.OnDiscardCard += DiscardCard;
+                    newCard.OnDiscardCard += DiscardCardFromHand;
                 }
                 holder.AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
                 Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} added card {cardData.CardID} to holder.");
@@ -277,19 +277,20 @@ public class NetworkBoardManager : NetworkBehaviour
 
 
     // discard card to _discardPile
-    private void DiscardCard(Card card)
+    private void DiscardCardFromHand(Card card)
     {
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_discardPile.transform);
         card.transform.DOLocalMove(Vector3.zero, 1f).SetEase(Ease.OutCubic);
         card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
         // zero because we already edit the _discardPile pos and rot
-        DiscardCardServerRpc(senderId: NetworkManager.Singleton.LocalClientId);
+        DiscardCardFromHandServerRpc(senderId: NetworkManager.Singleton.LocalClientId);
+        _boardCore.ClearValidSlots();
 
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void DiscardCardServerRpc(ulong senderId)
+    private void DiscardCardFromHandServerRpc(ulong senderId)
     {
         DrawNewCardThenEndTurn();
 
@@ -302,11 +303,11 @@ public class NetworkBoardManager : NetworkBehaviour
                 TargetClientIds = targets.ToArray() // Send to all clients except sender
             }
         };
-        DiscardCardOtherClientRpc(senderId, clientRpcParams);
+        DiscardCardFromHandOtherClientRpc(senderId, clientRpcParams);
     }
 
     [ClientRpc]
-    private void DiscardCardOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
+    private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
     {
         CardHolder cardHolder = _playerAndCardMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
@@ -416,8 +417,8 @@ public class NetworkBoardManager : NetworkBehaviour
             case InputAction.ROTATE:
                 _placingCard.Rotate();
                 break;
-            case InputAction.DISCARD:
-                // OnClickDiscardCard();
+            case InputAction.DISCARD: // this is discard from board, discard form hand see other method
+                _boardCore.ClearValidSlots(); // clear if any
                 break;
             default:
                 break;
@@ -451,7 +452,7 @@ public class NetworkBoardManager : NetworkBehaviour
             newCard.OnPlayCard += PlayCard;
             newCard.OnHoverCard += HoverCardInHand;
             newCard.OnExitHoverCard += (card) => { _boardCore.ClearValidSlots(); };
-            newCard.OnDiscardCard += DiscardCard;
+            newCard.OnDiscardCard += DiscardCardFromHand;
             _playerAndCardMap[receiver].AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
 
             // offically end turn after drawing new card
