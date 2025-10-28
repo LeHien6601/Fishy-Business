@@ -10,6 +10,7 @@ public class BoardCore : MonoBehaviour
     [SerializeField] private CardInforSO _startCardSO;
     [SerializeField] private CardInforSO _goalTreasureCardSO;
     [SerializeField] private CardInforSO _goalEmtyCardSO;
+    [SerializeField] private Material _highlightMaterial;
     private readonly int _rows = 5;
     private readonly int _cols = 9;
     [SerializeField] private Vector2Int _startPos = new Vector2Int(2, 0);
@@ -62,6 +63,8 @@ public class BoardCore : MonoBehaviour
                 else
                 {
                     card.Refresh();
+                    card.gameObject.SetActive(false);
+                    card.SetMaterial(_highlightMaterial);
                 }
                 _board[r, c] = card;
             }
@@ -86,6 +89,10 @@ public class BoardCore : MonoBehaviour
         if (card == null || !IsInsideBoard(slot) || !ValidSlots.Contains(slot)) return;
 
         // card.transform.SetLocalPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
+        if (!IsPlacableWithCurrentRotation(card, slot))
+        {
+            card.Rotate();
+        }
         card.transform.DOLocalRotate(new Vector3(90f, 0f, 0f), _fromHandToBoardDuration).SetEase(Ease.OutCubic);
         card.transform.DOMove(GetWorldPositionForSlot(slot) + new Vector3(0f, 0.05f, 0f), _fromHandToBoardDuration).SetEase(Ease.OutCubic).OnComplete(() =>
         {
@@ -101,41 +108,45 @@ public class BoardCore : MonoBehaviour
         {
             for (int c = 0; c < _cols; c++)
             {
-                if (_board[r, c] == null || _board[r, c].CardType != CardType.None)
+                Card slot = _board[r, c];
+                if (slot == null || slot.CardType != CardType.None)
                     continue;
-
-                if (IsValidSlot(card, new Vector2Int(r, c)))
-                    ValidSlots.Add(new Vector2Int(r, c));
+                Vector2Int slotPos = new(r, c);
+                if (IsValidSlot(card, slotPos))
+                {
+                    ValidSlots.Add(slotPos);
+                    slot.gameObject.SetActive(true);
+                }
+                else
+                    slot.gameObject.SetActive(false);
             }
         }
         return ValidSlots;
     }
 
+    public void ClearValidSlots()
+    {
+        foreach (var slot in ValidSlots)
+        {
+            _board[slot.x, slot.y].gameObject.SetActive(false);
+        }
+        ValidSlots.Clear();
+    }
+
+
+    // public void HighlightValidSlots()
+    // {
+    //     foreach (var slot in ValidSlots)
+    //     {
+    //         Card c = _board[slot.x, slot.y];
+    //         if (c != null)
+    //             // c.HighlightCard();
+    //     }
+    // }
+
     public bool IsValidSlot(Card card, Vector2Int cardSlot)
     {
-        // --- điều kiện hợp lệ ---
-        // 1. Phải có ít nhất 1 ô kề nối được
-        // 2. Các hướng khác không được conflict (đường phải khớp nhau)
-        if (card == null) return false;
-        bool connected = false;
-        for (int d = 0; d < 4; d++)
-        {
-            Vector2Int neighbor = GetNeighbor(cardSlot, (Direction)d);
-            if (!IsInsideBoard(neighbor)) continue;
-
-            Card neighborCard = _board[neighbor.x, neighbor.y];
-            if (neighborCard == null || neighborCard.CardType != CardType.Path || neighborCard.Location == CardLocation.Hidden)
-                continue;
-
-            int opposite = (d + 2) % 4;
-
-            bool match = card.Connections[d] && neighborCard.Connections[opposite]
-                        || card.Connections[opposite] && neighborCard.Connections[d];
-            if (match) connected = true;
-            else if (card.Connections[d] != neighborCard.Connections[opposite])
-                return false;
-        }
-        return connected;
+        return IsPlacableWithCurrentRotation(card, cardSlot) || IsPlacableWithOppositeRotation(card, cardSlot);
     }
 
     public bool IsPlacableWithCurrentRotation(Card card, Vector2Int cardSlot)
@@ -156,8 +167,8 @@ public class BoardCore : MonoBehaviour
 
             int opposite = (d + 2) % 4;
 
-            bool match = card.Connections[d] && neighborCard.Connections[opposite];
-            if (match) connected = true;
+            if (card.Connections[d] && neighborCard.Connections[opposite])
+                connected = true;
             else if (card.Connections[d] != neighborCard.Connections[opposite])
                 return false;
         }
@@ -182,8 +193,8 @@ public class BoardCore : MonoBehaviour
 
             int opposite = (d + 2) % 4;
 
-            bool match = card.Connections[opposite] && neighborCard.Connections[opposite];
-            if (match) connected = true;
+            if (card.Connections[opposite] && neighborCard.Connections[opposite])
+                connected = true;
             else if (card.Connections[opposite] != neighborCard.Connections[opposite])
                 return false;
         }

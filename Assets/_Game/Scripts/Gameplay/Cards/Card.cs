@@ -34,7 +34,9 @@ public class Card : MonoBehaviour
     }
 
     public event UnityAction<Card, CardHolder> OnClickCard;
-    public event UnityAction<Card> OnPlayCard;
+    public event UnityAction<Card> OnPlayCard = delegate { };
+    public event UnityAction<Card> OnHoverCard = delegate { };
+    public event UnityAction<Card> OnExitHoverCard = delegate { };
     public event UnityAction<Card, CardHolder> OnDiscardCard;
 
     private bool _isFlipped = false;
@@ -95,38 +97,16 @@ public class Card : MonoBehaviour
         PathCardType = cardInforSO.PathCardType;
         Rotate(isFlip);
     }
-    public void PlaceCard(CardInforSO cardInforSO)
-    {
-        _cardInforSO = cardInforSO;
-        if (cardInforSO == null) return;
 
-        if (_meshRenderer != null)
-            _meshRenderer.material = cardInforSO.material;
-
-        Location = CardLocation.OnBoard;
-        CardType = cardInforSO.CardType;
-        PathCardType = cardInforSO.PathCardType;
-    }
     public void SetHolder(CardHolder cardHolder)
     {
         Holder = cardHolder;
     }
-    [ContextMenu("Set Material")]
-    public void SetMaterial()
+
+    public void SetMaterial(Material material)
     {
-        if (_cardInforSO != null && _meshRenderer != null)
-        {
-            // Reset Flip
-            _isFlipped = false;
-            transform.localRotation = Quaternion.Euler(90f, 0f, _initRotation.z);
-
-            // Set new Material
-            _meshRenderer.material = CardInforSO.material;
-
-            CardType = CardInforSO.CardType;
-            PathCardType = CardInforSO.PathCardType;
-            Connections = (bool[])CardInforSO.Connections.Clone();
-        }
+        if (_meshRenderer != null)
+            _meshRenderer.material = material;
     }
     public void Refresh()
     {
@@ -209,6 +189,7 @@ public class Card : MonoBehaviour
         {
             if (Holder == null) return;
 
+            OnHoverCard.Invoke(this);
             Holder.SelectCard(this);
             // _indexInHolder = Holder.GetCardIndex(this);
             // if (_indexInHolder >= 0)
@@ -225,7 +206,7 @@ public class Card : MonoBehaviour
 
         if (Location == CardLocation.PlayerHand)
         {
-
+            OnExitHoverCard.Invoke(this);
             if (Holder == null) return;
             Holder.UnSelectCard(this);
             // if (_indexInHolder >= 0)

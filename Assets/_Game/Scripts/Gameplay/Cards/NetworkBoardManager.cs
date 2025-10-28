@@ -13,20 +13,21 @@ public class NetworkBoardManager : NetworkBehaviour
     [SerializeField] private CardDatabaseSO _cardDatabase;
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _deckPlace;
-    [SerializeField] private float _deckStackSpace = 0.002f;
-    private readonly Stack<Card> _freshCards = new(); // represents the deck of cards to be dealt
+    private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
-    private readonly Dictionary<ulong, CardHolder> _map = new();
+    private readonly Dictionary<ulong, CardHolder> _playerAndCardMap = new();
     private readonly List<CardData> _masterDeck = new(); // only server has the full deck data
     private NetworkList<ulong> _playerOrders = new();
     private ulong _inTurnPlayer = ulong.MaxValue;
+    private const float _waitBetweenPlayerTurns = 1f;
 
     [SerializeField] private BoardCore _boardCore;
     private Plane _boardPlane; // for mouse raycast onto board
     private Card _placingCard = null; // local card being placed
     private Vector2Int? _hoveringSlot = null;
-    private readonly float _placingOffset = 0.05f;
-    private readonly float _snapDistance = 1.5f;
+    private const float _placingOffset = 0.05f;
+    private const float _snapDistance = 1f;
+    private const float _deckStackSpace = 0.002f;
     private PlayerState _localPlayerState = PlayerState.NONE;
 
     public override void OnNetworkSpawn()
@@ -58,10 +59,10 @@ public class NetworkBoardManager : NetworkBehaviour
         _boardCore.GenerateBoard();
         transform.rotation = Quaternion.Euler(0f, Camera.main.transform.eulerAngles.y, 0f);
         // spawn deck,
-        _freshCards.Clear();
-        for (int i = 0; i < _cardDatabase.Size(); i++)
+        _cardsInDeck.Clear();
+        for (int i = 0; i < _cardDatabase.TotalCount(); i++)
         {
-            _freshCards.Push(Instantiate(_cardPrefab, _deckPlace.position + _deckStackSpace * i * Vector3.up, _cardPrefab.transform.rotation, _deckPlace));
+            _cardsInDeck.Push(Instantiate(_cardPrefab, _deckPlace.position + _deckStackSpace * i * Vector3.up, _cardPrefab.transform.rotation, _deckPlace));
         }
     }
 
@@ -107,11 +108,13 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             foreach (CardHolder holder in _cardHolders)
             {
-                Card newCard = _freshCards.Pop();
+                Card newCard = _cardsInDeck.Pop();
                 if (holder.IsMine)
                 {
                     newCard.SetData(cardData, _cardDatabase.GetCardInforSO(cardData), CardLocation.Deck);
                     newCard.OnPlayCard += PlayCard;
+                    newCard.OnHoverCard += HoverCardInHand;
+                    newCard.OnExitHoverCard += (card) => { _boardCore.ClearValidSlots(); };
                 }
                 holder.AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
                 Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} added card {cardData.CardID} to holder.");
@@ -150,7 +153,7 @@ public class NetworkBoardManager : NetworkBehaviour
         if (!_cardHolders.Contains(holder))
         {
             _cardHolders.Add(holder);
-            _map[clientId] = holder;
+            _playerAndCardMap[clientId] = holder;
         }
     }
 
@@ -203,21 +206,39 @@ public class NetworkBoardManager : NetworkBehaviour
     // ------------PLAY CARD: from hand to board -------------
     private void PlayCard(Card card)
     {
-        PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
-        _placingCard = card;
-        card.Holder.RemoveCard(card);
-        card.transform.SetParent(_boardCore.transform);
-        var validSlots = _boardCore.GetValidSlotsForCard(card);
-        if (validSlots.Count > 0)
+        switch (card.CardType)
         {
-            _hoveringSlot = validSlots[0];
-            _boardCore.DropCardOntoBoard(card, _hoveringSlot.Value,
-                        onComplete: () => _localPlayerState = PlayerState.PLACING_CARD);
+            case CardType.Path:
+                // actually, validSlots are already assigned when hovering 
+                var validSlots = _boardCore.GetValidSlotsForCard(card);
+                if (validSlots.Count > 0)
+                {
+                    PlayPathCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
+                    _placingCard = card;
+                    card.Holder.RemoveCard(card);
+                    card.transform.SetParent(_boardCore.transform);
+                    _hoveringSlot = validSlots[0];
+                    _boardCore.DropCardOntoBoard(card, _hoveringSlot.Value, onComplete: () =>
+                    {
+                        _localPlayerState = PlayerState.PLACING_CARD;
+                    });
+                }
+                else
+                {
+                    Debug.Log("No valid slots to place this card.");
+                    // TODO: show some UI feedback
+                }
+                break;
+
+            case CardType.Action:
+                Debug.Log("Action card played.");
+                break;
         }
+
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void PlayCardServerRpc(CardData arg0, ulong senderId)
+    private void PlayPathCardServerRpc(CardData arg0, ulong senderId)
     {
         List<ulong> targets = NetworkManager.Singleton.ConnectedClientsIds.ToList();
         targets.Remove(senderId);
@@ -228,7 +249,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 TargetClientIds = targets.ToArray() // Send to all clients except sender
             }
         };
-        PlayCardOtherClientRpc(arg0, senderId, clientRpcParams);
+        PlayPathCardOtherClientRpc(arg0, senderId, clientRpcParams);
     }
 
     /// <summary>
@@ -239,9 +260,9 @@ public class NetworkBoardManager : NetworkBehaviour
     /// <param name="senderId"></param>
     /// <param name="clientRpcParams"></param>
     [ClientRpc]
-    private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
+    private void PlayPathCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
-        CardHolder cardHolder = _map[senderId];
+        CardHolder cardHolder = _playerAndCardMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         _placingCard = card;
         card.transform.SetParent(_boardCore.transform);
@@ -251,6 +272,19 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             _hoveringSlot = validSlots[0];
             _boardCore.DropCardOntoBoard(card, _hoveringSlot.Value);
+        }
+    }
+
+
+    // HOVER CARD IN HAND
+    private void HoverCardInHand(Card card)
+    {
+        // _boardCore.ClearValidSlots();
+        switch (card.CardType)
+        {
+            case CardType.Path:
+                _boardCore.GetValidSlotsForCard(card);
+                break;
         }
     }
 
@@ -321,16 +355,14 @@ public class NetworkBoardManager : NetworkBehaviour
         // after confirming placement, draw a new card then end turn
         if (action == InputAction.CONFIRM)
         {
-            DrawNewCardClientRpc(_masterDeck[_masterDeck.Count - _freshCards.Count], new ClientRpcParams
+            int id = _masterDeck.Count - _cardsInDeck.Count;
+            if (id > 0) // check before sending RPC to save bandwidth
             {
-                Send = new ClientRpcSendParams
-                {
-                    TargetClientIds = new ulong[] { _inTurnPlayer } // Target only this one player
-                }
-            });
+                DrawNewCardClientRpc(_masterDeck[_masterDeck.Count - _cardsInDeck.Count], receiver: _inTurnPlayer);
+            }
             // wait for a short moment then end turn
             _inTurnPlayer = _playerOrders[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _playerOrders.Count];
-            this.WaitThenExecute(0.5f, () => { NextTurnClientRpc(_inTurnPlayer); });
+            this.WaitThenExecute(_waitBetweenPlayerTurns, () => { NextTurnClientRpc(_inTurnPlayer); });
         }
     }
 
@@ -340,10 +372,13 @@ public class NetworkBoardManager : NetworkBehaviour
         switch (action)
         {
             case InputAction.CONFIRM:
-                // OnClickConfirmCard();
-                _boardCore.PlaceCardAt(_placingCard, _hoveringSlot.Value);
-                _placingCard = null;
-                _hoveringSlot = null;
+                if (_placingCard)
+                {
+                    _boardCore.PlaceCardAt(_placingCard, _hoveringSlot.Value);
+                    _boardCore.ClearValidSlots();
+                    _placingCard = null;
+                    _hoveringSlot = null;
+                }
                 break;
             case InputAction.ROTATE:
                 _placingCard.Rotate();
@@ -359,20 +394,24 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #region Board functionality
     [ClientRpc]
-    private void DrawNewCardClientRpc(CardData cardData, ClientRpcParams clientRpcParams)
+    private void DrawNewCardClientRpc(CardData cardData, ulong receiver, ClientRpcParams clientRpcParams = default)
     {
-        foreach (CardHolder holder in _cardHolders)
+        if (NetworkManager.Singleton.LocalClientId == receiver)
         {
-            if (holder.IsMine)
-            {
-                Card newCard = _freshCards.Pop();
-                newCard.SetData(cardData, _cardDatabase.GetCardInforSO(cardData), CardLocation.Deck);
-                newCard.OnPlayCard += PlayCard;
-                holder.AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
-            }
+            Card newCard = _cardsInDeck.Pop();
+            newCard.SetData(cardData, _cardDatabase.GetCardInforSO(cardData), CardLocation.Deck);
+            newCard.OnPlayCard += PlayCard;
+            _playerAndCardMap[receiver].AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
+
+            // offically end turn after drawing new card
+            _localPlayerState = PlayerState.NONE;
         }
-        // offically end turn after drawing new card
-        _localPlayerState = PlayerState.NONE;
+        else
+        {
+            // draw a dummy card to represent this action
+            Card dummyCard = _cardsInDeck.Pop();
+            _playerAndCardMap[receiver].AddCard(dummyCard);
+        }
     }
 
     [ClientRpc]
@@ -417,7 +456,7 @@ public class NetworkBoardManager : NetworkBehaviour
     public void Reset()
     {
         _cardHolders.Clear();
-        _map.Clear();
+        _playerAndCardMap.Clear();
     }
     #endregion 
 }
