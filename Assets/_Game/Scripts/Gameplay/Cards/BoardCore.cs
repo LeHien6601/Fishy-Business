@@ -5,21 +5,23 @@ using UnityEngine;
 
 public class BoardCore : MonoBehaviour
 {
-    [SerializeField] private Vector2 cardSize = new Vector2(1f, 1f);
+    [SerializeField] private Vector2 cardSize = new Vector2(2f, 3f);
     [SerializeField] private Card cardPrefab;
     [SerializeField] private CardInforSO _startCardSO;
     [SerializeField] private CardInforSO _goalTreasureCardSO;
     [SerializeField] private CardInforSO _goalEmtyCardSO;
     [SerializeField] private Material _highlightMaterial;
+    [SerializeField] private Transform _fromHandToBoardPos;
     private readonly int _rows = 5;
     private readonly int _cols = 9;
-    [SerializeField] private Vector2Int _startPos = new Vector2Int(2, 0);
-    [SerializeField] private List<Vector2Int> _goalPos; // x row, y col)
     private Card[,] _board;
-    public readonly List<Vector2Int> ValidSlots = new();
+    public readonly Vector2Int StartPos = new(2, 0);
+    public readonly List<Vector2Int> GoalPos = new() { new(0, 8), new(2, 8), new(4, 8) }; // valid slots for a map card
+    public readonly List<Vector2Int> ValidSlots = new(); // valid slots for a path card
+    public readonly List<Vector2Int> OnBoardPaths = new(); // valid slots for a bomb card
 
-    private readonly float _fromHandToBoardDuration = 0.3f;
-    private readonly float _placeToSlotDuration = 0.2f;
+    public const float FromHandToBoardDuration = 0.3f;
+    public const float PlaceToSlotDuration = 0.2f;
 
     // private void Start()
     // {
@@ -43,11 +45,11 @@ public class BoardCore : MonoBehaviour
                 card.transform.localRotation = rotate;
                 card.name = $"Card_{r}_{c}";
                 Vector2Int temp = new Vector2Int(r, c);
-                if (temp == _startPos)
+                if (temp == StartPos)
                 {
                     card.SetData(_startCardSO, CardLocation.OnBoard);
                 }
-                else if (_goalPos.Contains(temp))
+                else if (GoalPos.Contains(temp))
                 {
                     if (goalIndex == randomGoal)
                     {
@@ -71,30 +73,24 @@ public class BoardCore : MonoBehaviour
         }
     }
 
-    public void PlaceCardAt(Card card, Vector2Int slot, Action onComplete = null)
+    public void PlacePathCardAt(Card card, Vector2Int slot, Action onComplete = null)
     {
-        if (card == null || !IsInsideBoard(slot) || !ValidSlots.Contains(slot)) return;
+        if (card == null || !IsInsideBoard(slot)) return;
 
         Card placeHolder = _board[slot.x, slot.y];
-        card.transform.DOMove(placeHolder.transform.position, _placeToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        card.transform.DOMove(placeHolder.transform.position, PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
         {
             Destroy(placeHolder.gameObject);
             _board[slot.x, slot.y] = card;
+            OnBoardPaths.Add(slot);
             onComplete?.Invoke();
         });
     }
 
-    public void DropCardOntoBoard(Card card, Vector2Int slot, Action onComplete = null)
+    public void DropCardOntoBoard(Card card, Action onComplete = null)
     {
-        if (card == null || !IsInsideBoard(slot) || !ValidSlots.Contains(slot)) return;
-
-        // card.transform.SetLocalPositionAndRotation(GetWorldPositionForSlot(slot), Quaternion.Euler(90f, 0f, 0f));
-        if (!IsPlacableWithCurrentRotation(card, slot))
-        {
-            card.Rotate();
-        }
-        card.transform.DOLocalRotate(new Vector3(90f, 0f, 0f), _fromHandToBoardDuration).SetEase(Ease.OutCubic);
-        card.transform.DOMove(GetWorldPositionForSlot(slot) + new Vector3(0f, 0.05f, 0f), _fromHandToBoardDuration).SetEase(Ease.OutCubic).OnComplete(() =>
+        card.transform.DOLocalRotate(new Vector3(90f, 0f, 0f), FromHandToBoardDuration).SetEase(Ease.OutCubic);
+        card.transform.DOMove(_fromHandToBoardPos.position, FromHandToBoardDuration).SetEase(Ease.OutCubic).OnComplete(() =>
         {
             onComplete?.Invoke();
         });
@@ -132,17 +128,6 @@ public class BoardCore : MonoBehaviour
         }
         ValidSlots.Clear();
     }
-
-
-    // public void HighlightValidSlots()
-    // {
-    //     foreach (var slot in ValidSlots)
-    //     {
-    //         Card c = _board[slot.x, slot.y];
-    //         if (c != null)
-    //             // c.HighlightCard();
-    //     }
-    // }
 
     public bool IsValidSlot(Card card, Vector2Int cardSlot)
     {

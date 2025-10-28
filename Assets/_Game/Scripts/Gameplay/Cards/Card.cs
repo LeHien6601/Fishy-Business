@@ -219,12 +219,10 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
                 OnClickCard?.Invoke(this, Holder);
                 OnPlayCard?.Invoke(this);
-                Holder.IsTurn = false;
             }
             else if (eventData.button == PointerEventData.InputButton.Right)
             {
                 OnDiscardCard.Invoke(this);
-                Holder.IsTurn = false;
             }
         }
     }
