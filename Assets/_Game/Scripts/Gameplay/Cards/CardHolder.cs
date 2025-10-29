@@ -10,14 +10,19 @@ public class CardHolder : MonoBehaviour
     public static float ArcAngle = 30f;
     public static float ArcRadius = 1.8f;
     public static float AnimationDuration = 0.3f;
+    public const float AddCardDuration = 0.6f;
     public static float CardThickness = 0.01f;
     [SerializeField] private Quaternion rotationOffset = Quaternion.identity;
+    [SerializeField] private Transform _beforeFaceSlot;
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
     private Card _hoveringCard; // hovering 1 card at a time
     public bool IsMine = false;
     public bool IsTurn = false;
+    public bool Cart = true;
+    public bool Hat = true;
+    public bool Shovel = true;
 
 
     /// <summary>
@@ -33,7 +38,10 @@ public class CardHolder : MonoBehaviour
         card.Holder = this;
         card.Location = CardLocation.PlayerHand;
 
-        UpdateCardPositions();
+        card.transform.DOMove(_beforeFaceSlot.transform.position, AddCardDuration);
+        card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration);
+
+        this.WaitThenExecute(AddCardDuration, () => UpdateCardPositions());
     }
 
     /// <summary>
@@ -91,7 +99,6 @@ public class CardHolder : MonoBehaviour
     {
         return handCards.IndexOf(card);
     }
-
 
     public List<Card> RemoveCards(List<int> indexes)
     {
@@ -201,10 +208,7 @@ public class CardHolder : MonoBehaviour
         return (endPos, endRotation);
     }
 
-    public (Vector3, Quaternion) GetCardPositionAndRotationPublic(int index)
-    {
-        return GetCardPositionAndRotation(index);
-    }
-
     public bool IsEmpty() => handCards.Count == 0;
+
+    public Transform BeforeFaceSlot() => _beforeFaceSlot;
 }

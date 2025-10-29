@@ -14,9 +14,9 @@ public class NetworkBoardManager : NetworkBehaviour
     [SerializeField] private Transform _discardPile;
     private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
-    private readonly Dictionary<ulong, CardHolder> _playerAndCardMap = new();
+    private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
     private readonly List<CardData> _masterDeck = new(); // only server has the full deck data
-    private int TressureIndex = -1; // only server knows this, clients if want to know must send a rpc
+    private int _tressureIndex = -1; // only server knows this, clients if want to know must send a rpc
     private NetworkList<ulong> _playerOrders = new();
     private ulong _inTurnPlayer = ulong.MaxValue;
     private const float _waitBetweenPlayerTurns = 1f;
@@ -47,7 +47,7 @@ public class NetworkBoardManager : NetworkBehaviour
         InitializeAndShuffleDeck();
 
         // random goal tressure
-        TressureIndex = Random.Range(0, 3);
+        _tressureIndex = Random.Range(0, 3);
 
         await Task.Delay(1000); // wait for a moment to ensure all clients are ready
         StartGameClientRpc();
@@ -156,7 +156,7 @@ public class NetworkBoardManager : NetworkBehaviour
         if (!_cardHolders.Contains(holder))
         {
             _cardHolders.Add(holder);
-            _playerAndCardMap[clientId] = holder;
+            _playerAndHolderMap[clientId] = holder;
         }
     }
 
@@ -265,7 +265,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
-        CardHolder cardHolder = _playerAndCardMap[senderId];
+        CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         _placingCard = card;
         card.transform.SetParent(_boardCore.transform);
@@ -360,7 +360,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 if (Input.GetMouseButtonDown(0)) // left mouse = confirm
                 {
                     // after placing card, wait for drawing a new card, then end turn 
-                    _localPlayerState = PlayerState.DRAWING_NEW_CARD;
+                    _localPlayerState = PlayerState.NONE;
                     SendInputActionServerRpc(InputAction.CONFIRM);
                 }
                 if (Input.GetMouseButtonDown(1)) // right mouse = rotate
@@ -379,7 +379,6 @@ public class NetworkBoardManager : NetworkBehaviour
                 if (Input.GetMouseButtonDown(0)) // left mouse = confirm
                 {
                     _localPlayerState = PlayerState.NONE;
-                    //@TODO: send server rpc to destroy the hovering slot
                     BombThisPathServerRpc(_hoveringSlot.Value);
                 }
                 break;
@@ -438,9 +437,7 @@ public class NetworkBoardManager : NetworkBehaviour
             case InputAction.ROTATE:
                 _placingCard.Rotate();
                 break;
-            case InputAction.DISCARD: // this is discard from board, discard form hand see other method
-                _boardCore.ClearValidSlots(); // clear if any
-                break;
+            case InputAction.DISCARD: // not allow for now
             default:
                 break;
         }
@@ -481,7 +478,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
     {
-        CardHolder cardHolder = _playerAndCardMap[senderId];
+        CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         card.transform.SetParent(_discardPile.transform);
         card.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
@@ -501,7 +498,7 @@ public class NetworkBoardManager : NetworkBehaviour
             Debug.LogWarning("this slot is not in GoalPos list");
             return;
         }
-        CheckThisGoalClientRpc(requesterId, checkSlot, checkResult: checkSlot.x / 2 == TressureIndex);
+        CheckThisGoalClientRpc(requesterId, checkSlot, checkResult: checkSlot.x / 2 == _tressureIndex);
         this.WaitThenExecute(_seeGoalCardDuration, () => ServerDrawNewCardThenEndTurn());
     }
 
@@ -513,14 +510,11 @@ public class NetworkBoardManager : NetworkBehaviour
             Destroy(_placingCard.gameObject);
             _placingCard = null;
         });
-        if (NetworkManager.Singleton.LocalClientId == requesterId)
-        {
-            Debug.Log("Goal Check result: " + checkResult);
-        }
-        else
-        {
-            Debug.Log(requesterId + "Check goal slot " + checkSlot.x / 2);
-        }
+        CardHolder requester = _playerAndHolderMap[requesterId];
+        _boardCore.ShowThisGoalCard(checkSlot,
+                                    showTarget: requester.BeforeFaceSlot(),
+                                    isTressure: checkResult,
+                                    revealCardData: NetworkManager.Singleton.LocalClientId == requesterId);
     }
     #endregion
 
@@ -579,7 +573,7 @@ public class NetworkBoardManager : NetworkBehaviour
             newCard.OnHoverCard += HoverCardInHand;
             newCard.OnExitHoverCard += (card) => { _boardCore.ClearValidSlots(); };
             newCard.OnDiscardCard += DiscardCardFromHand;
-            _playerAndCardMap[receiver].AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
+            _playerAndHolderMap[receiver].AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
 
             // offically end turn after drawing new card
             _localPlayerState = PlayerState.NONE;
@@ -588,7 +582,7 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             // draw a dummy card to represent this action
             Card dummyCard = _cardsInDeck.Pop();
-            _playerAndCardMap[receiver].AddCard(dummyCard);
+            _playerAndHolderMap[receiver].AddCard(dummyCard);
         }
     }
 
@@ -633,7 +627,7 @@ public class NetworkBoardManager : NetworkBehaviour
     public void Reset()
     {
         _cardHolders.Clear();
-        _playerAndCardMap.Clear();
+        _playerAndHolderMap.Clear();
     }
     #endregion 
 }
@@ -641,7 +635,6 @@ public enum PlayerState
 {
     NONE,
     PLACING_CARD,
-    DRAWING_NEW_CARD,
     SELECTING_PLACE_TO_BOMB,
     USING_TOOL,
     CHECKING_GOAL,

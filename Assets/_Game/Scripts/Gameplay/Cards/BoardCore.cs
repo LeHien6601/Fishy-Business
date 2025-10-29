@@ -186,7 +186,7 @@ public class BoardCore : MonoBehaviour
         return connected;
     }
 
-    public Card GetPathCard(Vector2Int slot)
+    public Card GetOnBoardCard(Vector2Int slot)
     {
         if (IsInsideBoard(slot))
         {
@@ -197,8 +197,9 @@ public class BoardCore : MonoBehaviour
 
     public void BombThisPath(Vector2Int slot)
     {
-        if (!IsInsideBoard(slot))
+        if (!OnBoardPaths.Contains(slot))
         {
+            Debug.LogWarning("BombThisPath: expect a path card");
             return;
         }
         OnBoardPaths.Remove(slot);
@@ -207,6 +208,32 @@ public class BoardCore : MonoBehaviour
         card.SetMaterial(_highlightMaterial);
         card.gameObject.SetActive(false);
     }
+
+    public void ShowThisGoalCard(Vector2Int slot, Transform showTarget, bool isTressure, bool revealCardData)
+    {
+        if (!GoalPos.Contains(slot))
+        {
+            Debug.LogWarning("ShowThisGoalCard: expect a goal card");
+            return;
+        }
+
+        Card goalCard = _board[slot.x, slot.y];
+        if (revealCardData)
+        {
+            goalCard.SetData(isTressure ? _goalTreasureCardSO : _goalEmtyCardSO, CardLocation.Hidden); // still a goal card, stay hidden
+        }
+        Transform cardTf = goalCard.transform;
+        Vector3 originalPos = cardTf.position;
+        Quaternion originalRot = cardTf.rotation;
+
+        Sequence seeGoalCardSeq = DOTween.Sequence();
+        seeGoalCardSeq.Append(cardTf.DOMove(showTarget.position, 0.5f))
+                    .Join(cardTf.DORotateQuaternion(showTarget.rotation, 0.5f))
+                    .AppendInterval(1f)
+                    .Append(cardTf.DOMove(originalPos, 0.5f))
+                    .Join(cardTf.DORotateQuaternion(originalRot, 0.5f));
+    }
+
     public Vector2Int GetNeighbor(Vector2Int pos, Direction dir)
     {
         return dir switch

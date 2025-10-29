@@ -8898,8 +8898,8 @@ MonoBehaviour:
   cardSize: {x: 0.22, y: 0.33}
   cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   _startCardSO: {fileID: 11400000, guid: bad33e57cae5deb41966d44838d004a6, type: 2}
-  _goalTreasureCardSO: {fileID: 11400000, guid: 144a442eda16b554ba861d2b9eb7ba21, type: 2}
-  _goalEmtyCardSO: {fileID: 11400000, guid: 0608e1bf42b33464089de133dd0812a2, type: 2}
+  _goalTreasureCardSO: {fileID: 11400000, guid: 0608e1bf42b33464089de133dd0812a2, type: 2}
+  _goalEmtyCardSO: {fileID: 11400000, guid: 144a442eda16b554ba861d2b9eb7ba21, type: 2}
   _highlightMaterial: {fileID: 2100000, guid: 7bbed188dd80a8c40a170f008cdefa19, type: 2}
   _fromHandToBoardPos: {fileID: 16025081}
 --- !u!1 &934040432
