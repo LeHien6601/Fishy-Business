@@ -4,9 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class NetworkBoardManager : NetworkBehaviour
 {
@@ -39,8 +37,7 @@ public class NetworkBoardManager : NetworkBehaviour
         _boardPlane = new Plane(Vector3.up, transform.position);
     }
 
-
-    #region  Setup logic
+    #region SETUP
     public async void StartGameLogic(NetworkList<ulong> playerOrders)
     {
         if (!IsServer) return;
@@ -175,85 +172,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #endregion
 
-    // @TODO:
-    private void Update()
-    {
-        switch (_localPlayerState)
-        {
-            case PlayerState.PLACING_CARD:
-                HoverCardOnBoard(_boardCore.ValidSlots);
-                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
-
-                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
-                {
-                    // after placing card, wait for drawing a new card, then end turn 
-                    _localPlayerState = PlayerState.DRAWING_NEW_CARD;
-                    SendInputActionServerRpc(InputAction.CONFIRM);
-                }
-                if (Input.GetMouseButtonDown(1)) // right mouse = rotate
-                {
-                    // check condition in advance before sending RPC to save network traffic
-                    if (_boardCore.IsPlacableWithOppositeRotation(_placingCard, _hoveringSlot.Value))
-                    {
-                        SendInputActionServerRpc(InputAction.ROTATE);
-                    }
-                }
-                break;
-            case PlayerState.SELECTING_PLACE_TO_BOMB:
-                HoverCardOnBoard(_boardCore.OnBoardPaths);
-                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
-
-                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
-                {
-                    _localPlayerState = PlayerState.NONE;
-                    //@TODO: send server rpc to destroy the hovering slot
-                    BombThisPathServerRpc(_hoveringSlot.Value);
-                }
-                break;
-            case PlayerState.USING_TOOL:
-                break;
-            case PlayerState.CHECKING_GOAL:
-                HoverCardOnBoard(_boardCore.GoalPos);
-                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
-
-                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
-                {
-                    _localPlayerState = PlayerState.NONE;
-                    CheckThisGoalServerRpc(NetworkManager.Singleton.LocalClientId, _hoveringSlot.Value);
-                }
-                break;
-            case PlayerState.NONE:
-            default:
-                break;
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void BombThisPathServerRpc(Vector2Int slot)
-    {
-        if (!_boardCore.OnBoardPaths.Contains(slot))
-        {
-            Debug.LogWarning("this slot is not in OnBoardPaths list");
-            return;
-        }
-        BombThisPathClientRpc(slot);
-        this.WaitThenExecute(_seeGoalCardDuration, () => ServerDrawNewCardThenEndTurn());
-    }
-
-    [ClientRpc]
-    private void BombThisPathClientRpc(Vector2Int slot)
-    {
-        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
-        {
-            Destroy(_placingCard.gameObject);
-            _placingCard = null;
-        });
-        _boardCore.BombThisPath(slot);
-        // @TODO: add some visuals
-    }
-
-
-    // ------------PLAY CARD: from hand to board -------------
+    #region PLAY CARD FROM HAND TO BOARD
     private void PlayCard(Card card)
     {
         switch (card.CardType)
@@ -356,131 +275,9 @@ public class NetworkBoardManager : NetworkBehaviour
 
     }
 
-
-    // ------------- INPUT HANDLER -------------
-    public enum InputAction
-    {
-        CONFIRM, // left mouse
-        ROTATE, // right mouse
-        DISCARD, // esc
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void SendInputActionServerRpc(InputAction action)
-    {
-        SendInputActionClientRpc(action);
-
-        // after confirming placement, draw a new card then end turn
-        if (action == InputAction.CONFIRM)
-        {
-            ServerDrawNewCardThenEndTurn();
-        }
-    }
-
-    [ClientRpc]
-    private void SendInputActionClientRpc(InputAction action)
-    {
-        switch (action)
-        {
-            case InputAction.CONFIRM:
-                if (_placingCard)
-                {
-                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value);
-                    _boardCore.ClearValidSlots();
-                    _placingCard = null;
-                    _hoveringSlot = null;
-                }
-                break;
-            case InputAction.ROTATE:
-                _placingCard.Rotate();
-                break;
-            case InputAction.DISCARD: // this is discard from board, discard form hand see other method
-                _boardCore.ClearValidSlots(); // clear if any
-                break;
-            default:
-                break;
-        }
-    }
-
-
-    #region DISCARD CARD FROM HAND T0 DISCARD PILE
-    private void DiscardCardFromHand(Card card)
-    {
-        card.Holder.IsTurn = false;
-        card.Holder.RemoveCard(card);
-        card.transform.SetParent(_discardPile.transform);
-        card.transform.DOLocalMove(Vector3.zero, 1f).SetEase(Ease.OutCubic);
-        card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
-        // zero because we already edit the _discardPile pos and rot
-        DiscardCardFromHandServerRpc(senderId: NetworkManager.Singleton.LocalClientId);
-        _boardCore.ClearValidSlots();
-
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void DiscardCardFromHandServerRpc(ulong senderId)
-    {
-        ServerDrawNewCardThenEndTurn();
-
-        List<ulong> targets = NetworkManager.Singleton.ConnectedClientsIds.ToList();
-        targets.Remove(senderId);
-        ClientRpcParams clientRpcParams = new ClientRpcParams
-        {
-            Send = new ClientRpcSendParams
-            {
-                TargetClientIds = targets.ToArray() // Send to all clients except sender
-            }
-        };
-        DiscardCardFromHandOtherClientRpc(senderId, clientRpcParams);
-    }
-
-    [ClientRpc]
-    private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
-    {
-        CardHolder cardHolder = _playerAndCardMap[senderId];
-        Card card = cardHolder.RemoveRandomCard();
-        card.transform.SetParent(_discardPile.transform);
-        card.transform.DOLocalMove(Vector3.zero, 1f).SetEase(Ease.OutCubic);
-        card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
-        // zero because we already edit the _discardPile pos and rot
-    }
-
     #endregion
 
-    #region CHECK GOAL
-    [ServerRpc(RequireOwnership = false)]
-    private void CheckThisGoalServerRpc(ulong requesterId, Vector2Int checkSlot)
-    {
-        // goal row = 0 2 4, divide by 2 is 0 1 2, exactly the indexes we want
-        if (!_boardCore.GoalPos.Contains(checkSlot))
-        {
-            Debug.LogWarning("this slot is not in GoalPos list");
-            return;
-        }
-        CheckThisGoalClientRpc(requesterId, checkSlot, checkResult: checkSlot.x / 2 == TressureIndex);
-        this.WaitThenExecute(_seeGoalCardDuration, () => ServerDrawNewCardThenEndTurn());
-    }
-
-    [ClientRpc]
-    private void CheckThisGoalClientRpc(ulong requesterId, Vector2Int checkSlot, bool checkResult, ClientRpcParams clientRpcParams = default)
-    {
-        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(checkSlot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
-        {
-            Destroy(_placingCard.gameObject);
-            _placingCard = null;
-        });
-        if (NetworkManager.Singleton.LocalClientId == requesterId)
-        {
-            Debug.Log("Goal Check result: " + checkResult);
-        }
-        else
-        {
-            Debug.Log(requesterId + "Check goal slot " + checkSlot.x / 2);
-        }
-    }
-    #endregion
-
-    #region HOVER CARD IN HAND AND ON BOARD
+    #region HOVER CARD ON BOARD
     private void HoverCardInHand(Card card)
     {
         // _boardCore.ClearValidSlots();
@@ -551,7 +348,211 @@ public class NetworkBoardManager : NetworkBehaviour
     }
     #endregion
 
-    #region Server Draw New Card Then End Turn
+    #region HANDLE INPUT AFTER PLAYING A CARD TO BOARD
+    private void Update()
+    {
+        switch (_localPlayerState)
+        {
+            case PlayerState.PLACING_CARD:
+                HoverCardOnBoard(_boardCore.ValidSlots);
+                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
+
+                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
+                {
+                    // after placing card, wait for drawing a new card, then end turn 
+                    _localPlayerState = PlayerState.DRAWING_NEW_CARD;
+                    SendInputActionServerRpc(InputAction.CONFIRM);
+                }
+                if (Input.GetMouseButtonDown(1)) // right mouse = rotate
+                {
+                    // check condition in advance before sending RPC to save network traffic
+                    if (_boardCore.IsPlacableWithOppositeRotation(_placingCard, _hoveringSlot.Value))
+                    {
+                        SendInputActionServerRpc(InputAction.ROTATE);
+                    }
+                }
+                break;
+            case PlayerState.SELECTING_PLACE_TO_BOMB:
+                HoverCardOnBoard(_boardCore.OnBoardPaths);
+                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
+
+                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
+                {
+                    _localPlayerState = PlayerState.NONE;
+                    //@TODO: send server rpc to destroy the hovering slot
+                    BombThisPathServerRpc(_hoveringSlot.Value);
+                }
+                break;
+            case PlayerState.USING_TOOL:
+                break;
+            case PlayerState.CHECKING_GOAL:
+                HoverCardOnBoard(_boardCore.GoalPos);
+                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
+
+                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
+                {
+                    _localPlayerState = PlayerState.NONE;
+                    CheckThisGoalServerRpc(NetworkManager.Singleton.LocalClientId, _hoveringSlot.Value);
+                }
+                break;
+            case PlayerState.NONE:
+            default:
+                break;
+        }
+    }
+
+    // ------------- INPUT HANDLER -------------
+    public enum InputAction
+    {
+        CONFIRM, // left mouse
+        ROTATE, // right mouse
+        DISCARD, // esc
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendInputActionServerRpc(InputAction action)
+    {
+        SendInputActionClientRpc(action);
+
+        // after confirming placement, draw a new card then end turn
+        if (action == InputAction.CONFIRM)
+        {
+            ServerDrawNewCardThenEndTurn();
+        }
+    }
+
+    [ClientRpc]
+    private void SendInputActionClientRpc(InputAction action)
+    {
+        switch (action)
+        {
+            case InputAction.CONFIRM:
+                if (_placingCard)
+                {
+                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value);
+                    _boardCore.ClearValidSlots();
+                    _placingCard = null;
+                    _hoveringSlot = null;
+                }
+                break;
+            case InputAction.ROTATE:
+                _placingCard.Rotate();
+                break;
+            case InputAction.DISCARD: // this is discard from board, discard form hand see other method
+                _boardCore.ClearValidSlots(); // clear if any
+                break;
+            default:
+                break;
+        }
+    }
+    #endregion
+
+    #region DISCARD CARD FROM HAND T0 DISCARD PILE
+    private void DiscardCardFromHand(Card card)
+    {
+        card.Holder.IsTurn = false;
+        card.Holder.RemoveCard(card);
+        card.transform.SetParent(_discardPile.transform);
+        card.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
+        card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+        // zero because we already edit the _discardPile pos and rot
+        DiscardCardFromHandServerRpc(senderId: NetworkManager.Singleton.LocalClientId);
+        _boardCore.ClearValidSlots();
+
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DiscardCardFromHandServerRpc(ulong senderId)
+    {
+        ServerDrawNewCardThenEndTurn();
+
+        List<ulong> targets = NetworkManager.Singleton.ConnectedClientsIds.ToList();
+        targets.Remove(senderId);
+        ClientRpcParams clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = targets.ToArray() // Send to all clients except sender
+            }
+        };
+        DiscardCardFromHandOtherClientRpc(senderId, clientRpcParams);
+    }
+
+    [ClientRpc]
+    private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
+    {
+        CardHolder cardHolder = _playerAndCardMap[senderId];
+        Card card = cardHolder.RemoveRandomCard();
+        card.transform.SetParent(_discardPile.transform);
+        card.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
+        card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+        // zero because we already edit the _discardPile pos and rot
+    }
+
+    #endregion
+
+    #region CHECK GOAL
+    [ServerRpc(RequireOwnership = false)]
+    private void CheckThisGoalServerRpc(ulong requesterId, Vector2Int checkSlot)
+    {
+        // goal row = 0 2 4, divide by 2 is 0 1 2, exactly the indexes we want
+        if (!_boardCore.GoalPos.Contains(checkSlot))
+        {
+            Debug.LogWarning("this slot is not in GoalPos list");
+            return;
+        }
+        CheckThisGoalClientRpc(requesterId, checkSlot, checkResult: checkSlot.x / 2 == TressureIndex);
+        this.WaitThenExecute(_seeGoalCardDuration, () => ServerDrawNewCardThenEndTurn());
+    }
+
+    [ClientRpc]
+    private void CheckThisGoalClientRpc(ulong requesterId, Vector2Int checkSlot, bool checkResult, ClientRpcParams clientRpcParams = default)
+    {
+        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(checkSlot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            Destroy(_placingCard.gameObject);
+            _placingCard = null;
+        });
+        if (NetworkManager.Singleton.LocalClientId == requesterId)
+        {
+            Debug.Log("Goal Check result: " + checkResult);
+        }
+        else
+        {
+            Debug.Log(requesterId + "Check goal slot " + checkSlot.x / 2);
+        }
+    }
+    #endregion
+
+    #region BOMB A PATH ON BOARD
+
+    [ServerRpc(RequireOwnership = false)]
+    private void BombThisPathServerRpc(Vector2Int slot)
+    {
+        if (!_boardCore.OnBoardPaths.Contains(slot))
+        {
+            Debug.LogWarning("this slot is not in OnBoardPaths list");
+            return;
+        }
+        BombThisPathClientRpc(slot);
+        this.WaitThenExecute(_seeGoalCardDuration, () => ServerDrawNewCardThenEndTurn());
+    }
+
+    [ClientRpc]
+    private void BombThisPathClientRpc(Vector2Int slot)
+    {
+        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            Destroy(_placingCard.gameObject);
+            _placingCard = null;
+        });
+        _boardCore.BombThisPath(slot);
+        // @TODO: add some visuals
+    }
+
+    #endregion
+
+    #region SERVER DRAW NEW CARD THEN NEXT TURN
     private void ServerDrawNewCardThenEndTurn()
     {
         if (!IsServer)
@@ -628,7 +629,7 @@ public class NetworkBoardManager : NetworkBehaviour
     }
     #endregion
 
-    #region  Endgame step
+    #region Endgame step
     public void Reset()
     {
         _cardHolders.Clear();

@@ -13750,7 +13750,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1505557142}
-  - component: {fileID: 1505557143}
   m_Layer: 0
   m_Name: BoarManager
   m_TagString: Untagged
@@ -13774,55 +13773,6 @@ Transform:
   - {fileID: 215879598}
   m_Father: {fileID: 1121246808}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1505557143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1505557141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d5d4c511fd13a7428226f5a305fc0a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  rows: 5
-  cols: 9
-  cardSize: {x: 0.22, y: 0.33}
-  cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
-  _startCardInfor: {fileID: 11400000, guid: 601d66acb6488e14e85384f966bfeb59, type: 2}
-  _goalEmtyCardInfor: {fileID: 0}
-  _goalTreasureCardInfor: {fileID: 0}
-  deckPosition: {fileID: 215879598}
-  playerHand: []
-  availableCards:
-  - {fileID: 11400000, guid: 144e91c3ac762a243a441a3e68fae4fb, type: 2}
-  - {fileID: 11400000, guid: 3e590cbbd65d20542b3c3ac952c2aca5, type: 2}
-  - {fileID: 11400000, guid: 32526fa2f18f7114fa259dac2d12cbff, type: 2}
-  - {fileID: 11400000, guid: cb3d2720520dd4d459bbb4af8bd92a5c, type: 2}
-  - {fileID: 11400000, guid: 17348d1f63096834ca9f4db71e71ac01, type: 2}
-  - {fileID: 11400000, guid: 92a891166f3d30f41945662b46fe271f, type: 2}
-  - {fileID: 11400000, guid: bd2601ac4661b3944b6149405e58a166, type: 2}
-  - {fileID: 11400000, guid: 97882b05721147a41b18c88028903acc, type: 2}
-  - {fileID: 11400000, guid: 2e069d4202b070d4588d9e547540ed84, type: 2}
-  - {fileID: 11400000, guid: 89667859cc658924e87f288bca903421, type: 2}
-  - {fileID: 11400000, guid: 601d66acb6488e14e85384f966bfeb59, type: 2}
-  - {fileID: 11400000, guid: 754d155d15aa22a4ca8ad0e87d72edeb, type: 2}
-  - {fileID: 11400000, guid: e1fa36c53e3c26342bc9835cbb2663d8, type: 2}
-  - {fileID: 11400000, guid: 7168c450f1bdaf049907b3a7a4ce7673, type: 2}
-  - {fileID: 11400000, guid: 8aee2cba3e176d64a9f0f3b795668335, type: 2}
-  copiesPerCard: 4
-  cardStackOffset: 0.002
-  startPos: {x: 2, y: 0}
-  goalPos:
-  - {x: 0, y: 8}
-  - {x: 2, y: 8}
-  - {x: 4, y: 8}
-  _originalHolder: {fileID: 0}
-  _placingOriginalLocalRot: {x: 0, y: 0, z: 0, w: 0}
-  _playerTurnId: 0
-  _isDev: 0
 --- !u!1001 &1507971794
 PrefabInstance:
   m_ObjectHideFlags: 0
