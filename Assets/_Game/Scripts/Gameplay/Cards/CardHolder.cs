@@ -212,9 +212,20 @@ public class CardHolder : MonoBehaviour
 
     public Transform BeforeFaceSlot() => _beforeFaceSlot;
 
-    public bool IsFullTool() => Cart && Hat && Shovel;
-    public bool IsLackedATool() => !Cart || !Hat || !Shovel;
-    public bool IsLackedAllTools() => !Cart && !Hat && !Shovel;
+    public bool HasTool(ToolType toolType)
+    {
+        return toolType switch
+        {
+            ToolType.Cart => Cart,
+            ToolType.Hat => Hat,
+            ToolType.Shovel => Shovel,
+            ToolType.CartHat => Cart && Hat,
+            ToolType.CartShovel => Cart && Shovel,
+            ToolType.HatShovel => Hat && Shovel,
+            _ => false,
+        };
+    }
+    public bool HasAllTools() => Cart && Hat && Shovel;
+    public bool LacksATool() => !Cart || !Hat || !Shovel;
     public bool IsTheSelectingCard(Card card) => card == _hoveringCard;
-
 }

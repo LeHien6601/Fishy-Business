@@ -552,37 +552,35 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         else if (card.CardType == CardType.Action)
         {
-            switch (card.ActionCardType)
+            return card.ActionCardType switch
             {
-                case ActionCardType.Bomb:
-                    return CanPlayBombCard();
-                case ActionCardType.BrokenTool:
-                    return CanPlayBreakCard();
-                case ActionCardType.FixTool:
-                    return CanPlayRepairCard();
-                default:
-                    return true;
-            }
+                ActionCardType.Bomb => CanPlayBombCard(),
+                ActionCardType.BrokenTool => CanPlayBreakCard(card.ToolType),
+                ActionCardType.FixTool => CanPlayRepairCard(card.ToolType),
+                _ => true,
+            };
         }
         return true;
     }
-    public bool CanPlayPathCard(Card card) => card.Holder.IsFullTool() && _boardCore.GetValidSlotsForCard(card).Count > 0;
-    public bool CanPlayBombCard() => _boardCore.OnBoardPaths.Count > 0;
-    public bool CanPlayRepairCard()
+    private bool CanPlayPathCard(Card card) => card.Holder.HasAllTools() && _boardCore.GetValidSlotsForCard(card).Count > 0;
+    private bool CanPlayBombCard() => _boardCore.OnBoardPaths.Count > 0;
+    private bool CanPlayRepairCard(ToolType toolType)
     {
         foreach (CardHolder holder in _cardHolders)
         {
-            if (holder.IsLackedATool())
+            if (!holder.HasTool(toolType))
                 return true;
         }
         return false;
     }
-    public bool CanPlayBreakCard()
+    private bool CanPlayBreakCard(ToolType toolType)
     {
         // at least 1 player has a tool left
         foreach (CardHolder holder in _cardHolders)
         {
-            if (!holder.IsLackedAllTools())
+            if (holder.IsMine) // can not play break card on urself
+                continue;
+            if (holder.HasTool(toolType))
                 return true;
         }
         return false;

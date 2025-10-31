@@ -98,6 +98,8 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         Connections = newCon;
     }
 
+    // --- these pointer handlers downhere only send the events, delegate actual logic to BoardManager ---
+
     public void OnPointerClick(PointerEventData eventData)
     {
         if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
@@ -125,7 +127,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         if (Location == CardLocation.PlayerHand)
         {
             OnExitHoverCard.Invoke(this);
-            if (Holder == null) return;
             Holder.UnSelectCard(this);
         }
     }
@@ -136,8 +137,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
         if (Location == CardLocation.PlayerHand)
         {
-            if (CardType == CardType.Path && Holder.IsLackedATool())
-                return;
             OnHoverCard.Invoke(this);
         }
     }
