@@ -179,6 +179,7 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             case CardType.Path:
                 // actually, validSlots are already assigned when hovering in hand
+                // @TODO: condition checking are already handled when hovering in hand, consider discard condition checking here
                 var validSlots = _boardCore.GetValidSlotsForCard(card);
                 if (validSlots.Count > 0)
                 {
@@ -196,7 +197,6 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     card.Holder.IsTurn = true;  // he cant play this card, so actually its still his turn
                     Debug.Log("No valid slots to place this card.");
-                    // TODO: show some UI feedback
                 }
                 break;
 
@@ -216,7 +216,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 }
                 else if (card.ActionCardType == ActionCardType.Bomb)
                 {
-                    if (_boardCore.OnBoardPaths.Count > 0)
+                    if (CanPlayBombCard())
                     {
                         card.Holder.IsTurn = false;
                         PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
@@ -278,18 +278,6 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region HOVER CARD ON BOARD
-    private void HoverCardInHand(Card card)
-    {
-        // _boardCore.ClearValidSlots();
-        switch (card.CardType)
-        {
-            case CardType.Path:
-                _boardCore.GetValidSlotsForCard(card);
-                break;
-        }
-    }
-
-    // ------------- HOVER CARD ON BOARD ------------
     private void HoverCardOnBoard(List<Vector2Int> slots)
     {
         Vector3 mouseWorld = GetMouseWorldPointOnBoard();
@@ -383,6 +371,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 }
                 break;
             case PlayerState.USING_TOOL:
+                // @TODO: choose a target player to apply tool card
                 break;
             case PlayerState.CHECKING_GOAL:
                 HoverCardOnBoard(_boardCore.GoalPos);
@@ -400,7 +389,6 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    // ------------- INPUT HANDLER -------------
     public enum InputAction
     {
         CONFIRM, // left mouse
@@ -544,6 +532,61 @@ public class NetworkBoardManager : NetworkBehaviour
         // @TODO: add some visuals
     }
 
+    #endregion
+
+    #region CONDITION CHECKING WHEN HOVERING CARD IN HAND
+    private void HoverCardInHand(Card card)
+    {
+        if (CanPlayThisCard(card))
+            card.Holder.SelectCard(card);
+        else
+        {
+            // @TODO: red highlight the card
+        }
+    }
+    private bool CanPlayThisCard(Card card)
+    {
+        if (card.CardType == CardType.Path)
+        {
+            return CanPlayPathCard(card);
+        }
+        else if (card.CardType == CardType.Action)
+        {
+            switch (card.ActionCardType)
+            {
+                case ActionCardType.Bomb:
+                    return CanPlayBombCard();
+                case ActionCardType.BrokenTool:
+                    return CanPlayBreakCard();
+                case ActionCardType.FixTool:
+                    return CanPlayRepairCard();
+                default:
+                    return true;
+            }
+        }
+        return true;
+    }
+    public bool CanPlayPathCard(Card card) => card.Holder.IsFullTool() && _boardCore.GetValidSlotsForCard(card).Count > 0;
+    public bool CanPlayBombCard() => _boardCore.OnBoardPaths.Count > 0;
+    public bool CanPlayRepairCard()
+    {
+        foreach (CardHolder holder in _cardHolders)
+        {
+            if (holder.IsLackedATool())
+                return true;
+        }
+        return false;
+    }
+    public bool CanPlayBreakCard()
+    {
+        // at least 1 player has a tool left
+        foreach (CardHolder holder in _cardHolders)
+        {
+            if (!holder.IsLackedAllTools())
+                return true;
+        }
+        return false;
+    }
     #endregion
 
     #region SERVER DRAW NEW CARD THEN NEXT TURN

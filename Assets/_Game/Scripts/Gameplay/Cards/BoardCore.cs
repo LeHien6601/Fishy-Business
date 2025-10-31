@@ -23,11 +23,6 @@ public class BoardCore : MonoBehaviour
     public const float FromHandToBoardDuration = 0.3f;
     public const float PlaceToSlotDuration = 0.2f;
 
-    // private void Start()
-    // {
-    //     GenerateBoard();
-    // }
-
     public void GenerateBoard()
     {
         _board = new Card[_rows, _cols];
@@ -85,6 +80,12 @@ public class BoardCore : MonoBehaviour
             OnBoardPaths.Add(slot);
             onComplete?.Invoke();
         });
+    }
+
+    public bool IsConnectingToAGoal()
+    {
+        // @TODO: check if there is a path connects from start to a goal
+        return false;
     }
 
     public void DropCardOntoBoard(Card card, Action onComplete = null)

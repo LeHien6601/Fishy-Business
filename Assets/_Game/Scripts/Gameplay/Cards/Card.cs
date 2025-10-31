@@ -100,12 +100,15 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
+
         if (Location == CardLocation.PlayerHand)
         {
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                if (Holder == null || !Holder.IsMine || !Holder.IsTurn) return;
-
+                // if this card did not pass the selecting process, it can not be played
+                if (!Holder.IsTheSelectingCard(this))
+                    return;
                 OnPlayCard?.Invoke(this);
             }
             else if (eventData.button == PointerEventData.InputButton.Right)
@@ -133,10 +136,9 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
         if (Location == CardLocation.PlayerHand)
         {
-            if (Holder == null) return;
-
+            if (CardType == CardType.Path && Holder.IsLackedATool())
+                return;
             OnHoverCard.Invoke(this);
-            Holder.SelectCard(this);
         }
     }
 }

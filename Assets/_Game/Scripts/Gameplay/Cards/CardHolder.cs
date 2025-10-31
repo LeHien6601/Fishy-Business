@@ -211,4 +211,10 @@ public class CardHolder : MonoBehaviour
     public bool IsEmpty() => handCards.Count == 0;
 
     public Transform BeforeFaceSlot() => _beforeFaceSlot;
+
+    public bool IsFullTool() => Cart && Hat && Shovel;
+    public bool IsLackedATool() => !Cart || !Hat || !Shovel;
+    public bool IsLackedAllTools() => !Cart && !Hat && !Shovel;
+    public bool IsTheSelectingCard(Card card) => card == _hoveringCard;
+
 }
