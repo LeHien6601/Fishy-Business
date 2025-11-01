@@ -27,7 +27,6 @@ public class BoardCore : MonoBehaviour
     public void GenerateBoard()
     {
         _board = new Card[_rows, _cols];
-        int goalIndex = 0;
         for (int r = 0; r < _rows; r++)
         {
             for (int c = 0; c < _cols; c++)
@@ -47,7 +46,6 @@ public class BoardCore : MonoBehaviour
                 else if (GoalPos.Contains(temp))
                 {
                     card.SetData(_hiddenGoalCardSO, CardLocation.Hidden);
-                    goalIndex++;
                     card.transform.localRotation = goalRotate;
                 }
                 else
@@ -100,7 +98,6 @@ public class BoardCore : MonoBehaviour
                 if (goal.Location == CardLocation.Hidden)
                 {
                     results.Add(current);
-                    continue;
                 }
             }
             Card currentCard = _board[current.x, current.y];

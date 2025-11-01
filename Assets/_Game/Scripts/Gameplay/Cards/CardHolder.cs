@@ -36,12 +36,10 @@ public class CardHolder : MonoBehaviour
         handCards.Add(card);
         card.transform.SetParent(transform, true);
         card.Holder = this;
+        card.Location = CardLocation.PlayerHand;
 
         card.transform.DOMove(_beforeFaceSlot.transform.position, AddCardDuration);
-        card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration).OnComplete(() =>
-        {
-            card.Location = CardLocation.PlayerHand;
-        });
+        card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration);
 
         this.WaitThenExecute(AddCardDuration, () => UpdateCardPositions());
     }
@@ -223,9 +221,9 @@ public class CardHolder : MonoBehaviour
             ToolType.Cart => Cart,
             ToolType.Hat => Hat,
             ToolType.Shovel => Shovel,
-            ToolType.CartHat => Cart && Hat,
-            ToolType.CartShovel => Cart && Shovel,
-            ToolType.HatShovel => Hat && Shovel,
+            ToolType.CartHat => Cart || Hat,
+            ToolType.CartShovel => Cart || Shovel,
+            ToolType.HatShovel => Hat || Shovel,
             _ => false,
         };
     }

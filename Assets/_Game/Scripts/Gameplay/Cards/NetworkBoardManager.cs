@@ -156,6 +156,7 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!_cardHolders.Contains(holder))
         {
+            Debug.Log("resgistered client: "+ clientId);
             _cardHolders.Add(holder);
             _playerAndHolderMap[clientId] = holder;
         }
@@ -536,14 +537,14 @@ public class NetworkBoardManager : NetworkBehaviour
 
         float sqrDistance = float.MaxValue;
         ulong? closetPlayer = null;
-        foreach (var player in _playerOrders)
+        foreach (var player in _playerAndHolderMap)
         {
-            Vector3 wp = _playerAndHolderMap[player].transform.position;
+            Vector3 wp = player.Value.transform.position;
             float sqrD = Vector3.SqrMagnitude(mouseWorld - wp);
             if (sqrD < sqrDistance)
             {
                 sqrDistance = sqrD;
-                closetPlayer = player;
+                closetPlayer = player.Key;
             }
         }
         if (closetPlayer.HasValue)
