@@ -24,8 +24,9 @@ public class NetworkBoardManager : NetworkBehaviour
 
     [SerializeField] private BoardCore _boardCore;
     private Plane _boardPlane; // for mouse raycast onto board
-    private Card _placingCard = null; // local card being placed
-    private Vector2Int? _hoveringSlot = null;
+    private Card _placingCard = null; // card being placed by you or others
+    private Vector2Int? _hoveringSlot = null; // the slot on board the _placingCard is hovering on
+    private ulong? _targerPlayer = ulong.MaxValue; // the player that is targeted by a tool card (break/repair)
     private const float _placingOffset = 0.05f;
     private const float _snapDistance = 1f;
     private const float _deckStackSpace = 0.002f;
@@ -175,68 +176,30 @@ public class NetworkBoardManager : NetworkBehaviour
     #region PLAY CARD FROM HAND TO BOARD
     private void PlayCard(Card card)
     {
-        switch (card.CardType)
-        {
-            case CardType.Path:
-                // actually, validSlots are already assigned when hovering in hand
-                // @TODO: condition checking are already handled when hovering in hand, consider discard condition checking here
-                var validSlots = _boardCore.GetValidSlotsForCard(card);
-                if (validSlots.Count > 0)
-                {
-                    card.Holder.IsTurn = false;
-                    PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
-                    _placingCard = card;
-                    card.Holder.RemoveCard(card);
-                    card.transform.SetParent(_boardCore.transform);
-                    _boardCore.DropCardOntoBoard(card, onComplete: () =>
-                    {
-                        _localPlayerState = PlayerState.PLACING_CARD;
-                    });
-                }
-                else
-                {
-                    card.Holder.IsTurn = true;  // he cant play this card, so actually its still his turn
-                    Debug.Log("No valid slots to place this card.");
-                }
-                break;
+        // condition checking are already handled when hovering in hand
+        card.Holder.IsTurn = false;
+        PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
+        _placingCard = card;
+        card.Holder.RemoveCard(card);
+        card.transform.SetParent(_boardCore.transform);
+        PlayerState nextState = MatchStateWithCard(card);
+        _boardCore.DropCardOntoBoard(card, onComplete: () => { _localPlayerState = nextState; });
 
-            case CardType.Action:
-                if (card.ActionCardType == ActionCardType.CheckGold)
+        static PlayerState MatchStateWithCard(Card card)
+        {
+            if (card.CardType == CardType.Path) return PlayerState.PLACING_CARD;
+            else if (card.CardType == CardType.Action)
+            {
+                return card.ActionCardType switch
                 {
-                    card.Holder.IsTurn = false;
-                    PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
-                    _placingCard = card;
-                    card.Holder.RemoveCard(card);
-                    card.transform.SetParent(_boardCore.transform);
-                    _boardCore.DropCardOntoBoard(card, onComplete: () =>
-                    {
-                        _localPlayerState = PlayerState.CHECKING_GOAL;
-                    });
-                    Debug.Log("Action card played: CheckGoal.");
-                }
-                else if (card.ActionCardType == ActionCardType.Bomb)
-                {
-                    if (CanPlayBombCard())
-                    {
-                        card.Holder.IsTurn = false;
-                        PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
-                        _placingCard = card;
-                        card.Holder.RemoveCard(card);
-                        card.transform.SetParent(_boardCore.transform);
-                        _boardCore.DropCardOntoBoard(card, onComplete: () =>
-                        {
-                            _localPlayerState = PlayerState.SELECTING_PLACE_TO_BOMB;
-                        });
-                        Debug.Log("Action card played: Bomb.");
-                    }
-                    else
-                    {
-                        card.Holder.IsTurn = true;  // he cant play this card, so actually its still his turn
-                        Debug.Log("No valid slots to place this card.");
-                        // TODO: show some UI feedback
-                    }
-                }
-                break;
+                    ActionCardType.CheckGold => PlayerState.CHECKING_GOAL,
+                    ActionCardType.Bomb => PlayerState.SELECTING_PLACE_TO_BOMB,
+                    ActionCardType.FixTool => PlayerState.USING_TOOL,
+                    ActionCardType.BrokenTool => PlayerState.USING_TOOL,
+                    _ => PlayerState.NONE
+                };
+            }
+            return PlayerState.NONE;
         }
     }
 
@@ -371,7 +334,22 @@ public class NetworkBoardManager : NetworkBehaviour
                 }
                 break;
             case PlayerState.USING_TOOL:
-                // @TODO: choose a target player to apply tool card
+                HoverTargerPlayer();
+                if (!_targerPlayer.HasValue) return;
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    _localPlayerState = PlayerState.NONE;
+                    // @TODO: send server rpc to ...
+                    if (_placingCard.ActionCardType == ActionCardType.BrokenTool)
+                    {
+
+                    }
+                    else if (_placingCard.ActionCardType == ActionCardType.FixTool)
+                    {
+
+                    }
+                }
                 break;
             case PlayerState.CHECKING_GOAL:
                 HoverCardOnBoard(_boardCore.GoalPos);
@@ -533,6 +511,51 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
     #endregion
+
+    #region HOVER MOUSE ON BOARD TO CHOOSE TARGET PLAYER
+    private void HoverTargerPlayer()
+    {
+        Vector3 mouseWorld = GetMouseWorldPointOnBoard();
+        if (mouseWorld == Vector3.zero)
+            return;
+
+        float sqrDistance = _snapDistance;
+        ulong? closetPlayer = ulong.MaxValue;
+        foreach (var player in _playerOrders)
+        {
+            Vector3 wp = _playerAndHolderMap[player].transform.position;
+            float sqrD = Vector3.SqrMagnitude(mouseWorld - wp);
+            if (sqrD < sqrDistance)
+            {
+                sqrDistance = sqrD;
+                closetPlayer = player;
+            }
+        }
+        if (closetPlayer.HasValue)
+        {
+            // hover this slot
+            if (!_hoveringSlot.HasValue || _targerPlayer.Value != closetPlayer.Value)
+            {
+                _targerPlayer = closetPlayer.Value;
+                SwitchTargerPlayerServerRpc(_targerPlayer.Value);
+            }
+        }
+    }
+
+    [ServerRpc]
+    private void SwitchTargerPlayerServerRpc(ulong targetId)
+    {
+        SwitchTargerPlayerClientRpc(targetId);
+    }
+
+    [ClientRpc]
+    private void SwitchTargerPlayerClientRpc(ulong targetId)
+    {
+        _targerPlayer = targetId;
+        Debug.Log("targeting player " + targetId);
+    }
+    #endregion
+
 
     #region CONDITION CHECKING WHEN HOVERING CARD IN HAND
     private void HoverCardInHand(Card card)
