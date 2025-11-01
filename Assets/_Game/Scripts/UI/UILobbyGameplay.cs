@@ -68,7 +68,6 @@ public class UILobbyGameplay : UIView
         UIManager.Instance.ShowUI(EUIState.MainMenu);
         GameManager.Instance.DespawnPlayerRpc(NetworkManager.Singleton.LocalClientId);
         NetworkManager.Singleton.Shutdown();
-        NetworkManager.Singleton.SceneManager.OnLoadComplete += GameManager.Instance.HandleLoadComplete;
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         GameManager.Instance.HandleLoadComplete(NetworkManager.Singleton.LocalClientId, "Lobby", LoadSceneMode.Single);
         EventSystem.current.SetSelectedGameObject(null);

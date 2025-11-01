@@ -318,7 +318,30 @@ public class LobbyManager : SingletonMono<LobbyManager>
         if (currentLobby == null) return;
         try
         {
-            var updatedLobby = await LobbyService.Instance.GetLobbyAsync(currentLobby.Id);
+            Lobby updatedLobby;
+            try 
+            {
+                updatedLobby = await LobbyService.Instance.GetLobbyAsync(currentLobby.Id);
+            }
+            catch (LobbyServiceException e) when (e.Reason == LobbyExceptionReason.LobbyNotFound)
+            {
+                // Lobby was deleted (probably by host leaving)
+                Debug.Log("Lobby no longer exists - probably deleted by host");
+                currentLobby = null;
+                isHost = false;
+                if (_heartbeatCoroutine != null)
+                {
+                    StopCoroutine(_heartbeatCoroutine);
+                    _heartbeatCoroutine = null;
+                }
+                if (_pollLobbyCoroutine != null)
+                {
+                    StopCoroutine(_pollLobbyCoroutine);
+                    _pollLobbyCoroutine = null;
+                }
+                OnKickedFromLobby?.Invoke(new KickedFromLobbyEventArgs { Lobby = currentLobby });
+                return;
+            }
             if (updatedLobby != null)
             {
                 // Check if the player has been removed from the lobby
@@ -358,7 +381,6 @@ public class LobbyManager : SingletonMono<LobbyManager>
     {
         GameManager.Instance.DespawnPlayerRpc(NetworkManager.Singleton.LocalClientId);
         NetworkManager.Singleton.Shutdown();
-        NetworkManager.Singleton.SceneManager.OnLoadComplete += GameManager.Instance.HandleLoadComplete;
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         GameManager.Instance.HandleLoadComplete(NetworkManager.Singleton.LocalClientId, "Lobby", LoadSceneMode.Single);
         EventSystem.current.SetSelectedGameObject(null);
