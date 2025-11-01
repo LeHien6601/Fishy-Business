@@ -156,7 +156,7 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!_cardHolders.Contains(holder))
         {
-            Debug.Log("resgistered client: "+ clientId);
+            Debug.Log("resgistered client: " + clientId);
             _cardHolders.Add(holder);
             _playerAndHolderMap[clientId] = holder;
         }
@@ -335,7 +335,8 @@ public class NetworkBoardManager : NetworkBehaviour
                 }
                 break;
             case PlayerState.USING_TOOL:
-                HoverTargerPlayer();
+                // ignore you if its a break tool type
+                HoverTargerPlayer(ignoreYourself: _placingCard.ActionCardType == ActionCardType.BrokenTool);
                 if (!_targerPlayer.HasValue) return;
 
                 if (Input.GetMouseButtonDown(0))
@@ -529,7 +530,7 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region HOVER MOUSE ON BOARD TO CHOOSE TARGET PLAYER
-    private void HoverTargerPlayer()
+    private void HoverTargerPlayer(bool ignoreYourself)
     {
         Vector3 mouseWorld = GetMouseWorldPointOnBoard();
         if (mouseWorld == Vector3.zero)
@@ -539,6 +540,8 @@ public class NetworkBoardManager : NetworkBehaviour
         ulong? closetPlayer = null;
         foreach (var player in _playerAndHolderMap)
         {
+            if (player.Value.IsMine == ignoreYourself)
+                continue;
             Vector3 wp = player.Value.transform.position;
             float sqrD = Vector3.SqrMagnitude(mouseWorld - wp);
             if (sqrD < sqrDistance)
