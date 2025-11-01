@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class NetworkBoardManager : NetworkBehaviour
@@ -46,6 +47,47 @@ public class NetworkBoardManager : NetworkBehaviour
         // Perform server-only setup
         _playerOrders = playerOrders;
         InitializeAndShuffleDeck();
+
+        // Calculate count of cat and dog
+        CalculateCatDog(_playerOrders.Count, out int cat, out int dog);
+        foreach (var player in _playerOrders)
+        {
+            PlayerRole role;
+            // 0 = cat, 1 = dog
+            if (Random.Range(0, 2) == 0)
+            {
+                if (cat > 0)
+                {
+                    role = PlayerRole.Cat;
+                    cat--;
+                }
+                else
+                {
+                    role = PlayerRole.Dog;
+                    dog--;
+                }
+            }
+            else
+            {
+                if (dog > 0)
+                {
+                    role = PlayerRole.Dog;
+                    dog--;
+                }
+                else
+                {
+                    role = PlayerRole.Cat;
+                    cat--;
+                }
+            }
+            SetRoleClientRpc(role, player, new()
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new List<ulong>() { player } // Send to all clients except sender
+                }
+            });
+        }
 
         // random goal tressure
         _tressureIndex = Random.Range(0, 3);
@@ -162,6 +204,13 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    private void SetRoleClientRpc(PlayerRole arg0, ulong senderId, ClientRpcParams clientRpcParams)
+    {
+        CardHolder cardHolder = _playerAndHolderMap[senderId];
+        cardHolder.SetRole(arg0);
+    }
+
     private int CalculateCardsPerPlayer(int totalPlayers)
     {
         // comment this line for testing purpose
@@ -170,6 +219,49 @@ public class NetworkBoardManager : NetworkBehaviour
         else if (totalPlayers <= 7) return 5;
         else if (totalPlayers <= 10) return 4;
         else return -1;
+    }
+
+    private void CalculateCatDog(int totalPlayer, out int cat, out int dog)
+    {
+        switch (totalPlayer)
+        {
+            case 3:
+                cat = 1;
+                dog = 3;
+                break;
+            case 4:
+                cat = 1;
+                dog = 4;
+                break;
+            case 5:
+                cat = 2;
+                dog = 4;
+                break;
+            case 6:
+                cat = 2;
+                dog = 5;
+                break;
+            case 7:
+                cat = 3;
+                dog = 5;
+                break;
+            case 8:
+                cat = 3;
+                dog = 6;
+                break;
+            case 9:
+                cat = 3;
+                dog = 7;
+                break;
+            case 10:
+                cat = 4;
+                dog = 7;
+                break;
+            default:
+                cat = 10;
+                dog = 30;
+                break;
+        }
     }
 
     #endregion

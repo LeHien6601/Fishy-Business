@@ -23,7 +23,7 @@ public class CardHolder : MonoBehaviour
     public bool Cart = true;
     public bool Hat = true;
     public bool Shovel = true;
-
+    public PlayerRole PlayerRole;
 
     /// <summary>
     /// Thêm card đã có sẵn (được spawn từ nơi khác)
@@ -230,4 +230,17 @@ public class CardHolder : MonoBehaviour
     public bool HasAllTools() => Cart && Hat && Shovel;
     public bool LacksATool() => !Cart || !Hat || !Shovel;
     public bool IsTheSelectingCard(Card card) => card == _hoveringCard;
+
+    public void SetRole(PlayerRole playerRole)
+    {
+        PlayerRole = playerRole;
+    }
+}
+
+
+public enum PlayerRole
+{
+    Unknown,
+    Cat,
+    Dog,
 }
