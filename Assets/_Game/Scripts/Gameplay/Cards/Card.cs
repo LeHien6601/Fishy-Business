@@ -11,6 +11,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public CardInforSO CardInforSO => _cardInforSO;
     [SerializeField] private CardInforSO _cardInforSO;
     [SerializeField] private MeshRenderer _meshRenderer;
+    [SerializeField] private MeshRenderer _outliner;
     [SerializeField] private CardHolder _holder;
 
     [Header("Card State")]
@@ -98,6 +99,26 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         Connections = newCon;
     }
 
+
+    public void Highlight(bool ok)
+    {
+        if (ok)
+        {
+            // highlight yellow
+            // _outliner.gameObject.SetActive(true);
+        }
+        else
+        {
+            // highlight red
+            _outliner.gameObject.SetActive(true);
+        }
+    }
+
+    public void OffHighlight()
+    {
+        _outliner.gameObject.SetActive(false);
+    }
+
     // --- these pointer handlers downhere only send the events, delegate actual logic to BoardManager ---
 
     public void OnPointerClick(PointerEventData eventData)
@@ -118,6 +139,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
                 OnDiscardCard.Invoke(this);
             }
         }
+        OffHighlight(); // turn of if any
     }
 
     public void OnPointerExit(PointerEventData eventData)

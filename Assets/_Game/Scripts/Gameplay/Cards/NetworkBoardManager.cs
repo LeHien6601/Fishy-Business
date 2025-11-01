@@ -563,9 +563,7 @@ public class NetworkBoardManager : NetworkBehaviour
         if (CanPlayThisCard(card))
             card.Holder.SelectCard(card);
         else
-        {
-            // @TODO: red highlight the card
-        }
+            card.Highlight(false);
     }
     private bool CanPlayThisCard(Card card)
     {

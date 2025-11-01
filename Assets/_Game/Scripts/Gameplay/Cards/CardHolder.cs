@@ -123,6 +123,7 @@ public class CardHolder : MonoBehaviour
         Transform t = card.transform;
         Vector3 endPos = t.position + t.up * 0.1f;
         t.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
+        card.Highlight(true); //yellow highlight
     }
 
 
@@ -131,11 +132,11 @@ public class CardHolder : MonoBehaviour
     /// </summary>
     public void UnSelectCard(int index)
     {
-
         if (index < 0 || index >= handCards.Count) return;
         var (endPos, endRot) = GetCardPositionAndRotation(index);
         handCards[index].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
         handCards[index].transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        handCards[index].OffHighlight();
         _hoveringCard = null;
     }
 
@@ -145,8 +146,9 @@ public class CardHolder : MonoBehaviour
         if (index < 0 || index >= handCards.Count) return;
 
         var (endPos, endRot) = GetCardPositionAndRotation(index);
-        handCards[index].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
-        handCards[index].transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        card.transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
+        card.transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        card.OffHighlight();
         _hoveringCard = null;
     }
 
