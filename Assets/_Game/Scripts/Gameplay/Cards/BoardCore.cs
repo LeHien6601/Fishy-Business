@@ -10,6 +10,7 @@ public class BoardCore : MonoBehaviour
     [SerializeField] private CardInforSO _startCardSO;
     [SerializeField] private CardInforSO _goalTreasureCardSO;
     [SerializeField] private CardInforSO _goalEmtyCardSO;
+    [SerializeField] private CardInforSO _hiddenGoalCardSO;
     [SerializeField] private Material _highlightMaterial;
     [SerializeField] private Transform _fromHandToBoardPos;
     private readonly int _rows = 5;
@@ -26,7 +27,6 @@ public class BoardCore : MonoBehaviour
     public void GenerateBoard()
     {
         _board = new Card[_rows, _cols];
-        int randomGoal = UnityEngine.Random.Range(0, 3);
         int goalIndex = 0;
         for (int r = 0; r < _rows; r++)
         {
@@ -46,14 +46,7 @@ public class BoardCore : MonoBehaviour
                 }
                 else if (GoalPos.Contains(temp))
                 {
-                    if (goalIndex == randomGoal)
-                    {
-                        card.SetData(_goalTreasureCardSO, CardLocation.Hidden);
-                    }
-                    else
-                    {
-                        card.SetData(_goalEmtyCardSO, CardLocation.Hidden);
-                    }
+                    card.SetData(_hiddenGoalCardSO, CardLocation.Hidden);
                     goalIndex++;
                     card.transform.localRotation = goalRotate;
                 }
@@ -84,7 +77,7 @@ public class BoardCore : MonoBehaviour
 
 
     [ContextMenu("CheckGoal")]
-    public List<Card> IsConnectingToAHiddenGoal()
+    public List<Vector2Int> IsConnectingToAHiddenGoal()
     {
         if (_board == null)
         {
@@ -97,7 +90,7 @@ public class BoardCore : MonoBehaviour
         queue.Enqueue(StartPos);
         visited[StartPos.x, StartPos.y] = true;
 
-        List<Card> results = new();
+        List<Vector2Int> results = new();
         while (queue.Count > 0)
         {
             Vector2Int current = queue.Dequeue();
@@ -106,7 +99,7 @@ public class BoardCore : MonoBehaviour
                 Card goal = _board[current.x, current.y];
                 if (goal.Location == CardLocation.Hidden)
                 {
-                    results.Add(goal);
+                    results.Add(current);
                     continue;
                 }
             }
@@ -150,6 +143,16 @@ public class BoardCore : MonoBehaviour
         Debug.Log("Results count:" + results.Count);
         return results;
     }
+
+    // Open Empty Goal
+    public void OpenHiddenGoalCard(Vector2Int slot, bool isTreasure)
+    {
+        Card card = _board[slot.x, slot.y];
+        card.SetData(isTreasure? _goalTreasureCardSO : _goalEmtyCardSO, CardLocation.OnBoard);
+        Quaternion rotate = cardPrefab.transform.localRotation;
+        card.transform.localRotation = rotate;
+    }
+    
 
     public void DropCardOntoBoard(Card card, Action onComplete = null)
     {

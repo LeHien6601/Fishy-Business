@@ -396,10 +396,13 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, () =>
                     {
-                        List<Card> cards = _boardCore.IsConnectingToAHiddenGoal();
-                        if (cards != null || cards.Count > 0)
+                        List<Vector2Int> slots = _boardCore.IsConnectingToAHiddenGoal();
+                        if (slots != null || slots.Count > 0)
                         {
-                            Debug.Log("Goal: " + cards.Count);
+                            foreach (var slot in slots)
+                            {
+                                RevealGoalCardServerRpc(slot);
+                            }
                         }
                     });
                     _boardCore.ClearValidSlots();
@@ -414,6 +417,19 @@ public class NetworkBoardManager : NetworkBehaviour
             default:
                 break;
         }
+    }
+
+    [ServerRpc]
+    private void RevealGoalCardServerRpc(Vector2Int slot)
+    {
+        RevealGoalCardClientRpc(slot, slot.x / 2 == _tressureIndex);
+
+    }
+
+    [ClientRpc]
+    private void RevealGoalCardClientRpc(Vector2Int slot, bool isTreasure)
+    {
+        _boardCore.OpenHiddenGoalCard(slot, isTreasure);
     }
     #endregion
 
