@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class SitState : IState
@@ -20,13 +21,13 @@ public class SitState : IState
 
     public virtual void OnEnter()
     {
+        // ReparentHandler.Instance.RequestReparentServerRpc(_host.NetworkObjectId, _seat.NetworkObjectId);
         _host.Agent.enabled = false;
         _host.CanInteract = false;
-        _seat.OnEnterSeat();
         _animator.Play(_animHash);
-        _host.transform.SetParent(_seat.transform);
         _animator.transform.SetPositionAndRotation(_seat.SitPosition(), _seat.SitRotation());
         if (_seat.CompareTag(Constant.GAME_SEAT_TAG)) CameraController.SwitchCamMode(CameraMode.FirstPerson);
+        _seat.OnEnterSeat();
     }
 
     public virtual void OnExit()
@@ -34,7 +35,8 @@ public class SitState : IState
         _seat.OnExitSeat();
         _host.Agent.enabled = true;
         _host.CanInteract = true;
-        _host.transform.SetParent(null);
+        // _host.transform.SetParent(null);
+        // ReparentHandler.Instance.RequestReparentServerRpc(_host.NetworkObjectId);
         CameraController.SwitchCamMode(CameraMode.ThirdPerson);
     }
 

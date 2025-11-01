@@ -14,6 +14,7 @@ public class CameraController : MonoBehaviour
     private Transform _headBoneTransform;
 
     [SerializeField] private Quaternion _headBoneOffset = Quaternion.Euler(0, 0, 0);
+    [SerializeField] private float _yAxisMultiplier = 1f;
     [Header("Listen to:")]
     [SerializeField] private TransformEventChannelSO _targetTransformChannel;
     [SerializeField] private TransformEventChannelSO _headBoneTransformChannel;
@@ -52,8 +53,8 @@ public class CameraController : MonoBehaviour
             _1stPersonCamera.gameObject.SetActive(true);
             if (_1stPersonCamera.TryGetComponent<CinemachinePanTilt>(out var pan))
             {
-                pan.PanAxis.Value = 0;
-                pan.TiltAxis.Value = 0;
+                pan.PanAxis.Value = pan.PanAxis.Center;
+                pan.TiltAxis.Value = pan.TiltAxis.Center;
             }
             // _1stPersonCamera.transform.rotation = _1stPersonCamera.Follow.rotation;
             _cinemachineInputAxisController.enabled = false;
@@ -86,6 +87,11 @@ public class CameraController : MonoBehaviour
         if (_headBoneTransform != null && _cameraMode == CameraMode.FirstPersonWithFreeLook)
         {
             _headBoneTransform.rotation = _1stPersonCamera.transform.rotation * _headBoneOffset;
+            // handle y axis multiplier
+            Vector3 euler = _headBoneTransform.localEulerAngles;
+            euler.y = euler.y > 180 ? euler.y - 360 : euler.y;
+            euler.y *= _yAxisMultiplier;
+            _headBoneTransform.localEulerAngles = euler;
         }
     }
 

@@ -26,6 +26,7 @@ public class PlayerController : NetworkBehaviour
         if (!IsOwner)
         {
             _interactor.enabled = false;
+            // Agent.enabled = false;
             return;
         }
         base.OnNetworkSpawn();

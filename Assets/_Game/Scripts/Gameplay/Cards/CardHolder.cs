@@ -10,16 +10,20 @@ public class CardHolder : MonoBehaviour
     public static float ArcAngle = 30f;
     public static float ArcRadius = 1.8f;
     public static float AnimationDuration = 0.3f;
+    public const float AddCardDuration = 0.6f;
     public static float CardThickness = 0.01f;
     [SerializeField] private Quaternion rotationOffset = Quaternion.identity;
+    [SerializeField] private Transform _beforeFaceSlot;
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
-
-    public bool IsTurn = true;
-
     private Card _hoveringCard; // hovering 1 card at a time
-
+    public bool IsMine = false;
+    public bool IsTurn = false;
+    public bool Cart = true;
+    public bool Hat = true;
+    public bool Shovel = true;
+    public PlayerRole PlayerRole;
 
     /// <summary>
     /// Thêm card đã có sẵn (được spawn từ nơi khác)
@@ -34,7 +38,10 @@ public class CardHolder : MonoBehaviour
         card.Holder = this;
         card.Location = CardLocation.PlayerHand;
 
-        UpdateCardPositions();
+        card.transform.DOMove(_beforeFaceSlot.transform.position, AddCardDuration);
+        card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration);
+
+        this.WaitThenExecute(AddCardDuration, () => UpdateCardPositions());
     }
 
     /// <summary>
@@ -47,7 +54,6 @@ public class CardHolder : MonoBehaviour
         if (card == null) return null;
 
         handCards.Remove(card);
-        card.Holder = null;
         card.Location = CardLocation.Discarded; // hoặc OnBoard nếu chơi ra bàn
         UpdateCardPositions();
         return card;
@@ -69,6 +75,13 @@ public class CardHolder : MonoBehaviour
         return RemoveCard(handCards[cardIndex]);
     }
 
+    public Card RemoveRandomCard()
+    {
+        if (handCards.Count == 0) return null;
+        int randomIndex = Random.Range(0, handCards.Count);
+        return RemoveCard(handCards[randomIndex]);
+    }
+
     /// <summary>
     /// Invoke when click left mouse on Card
     /// </summary>
@@ -87,7 +100,6 @@ public class CardHolder : MonoBehaviour
         return handCards.IndexOf(card);
     }
 
-
     public List<Card> RemoveCards(List<int> indexes)
     {
         List<Card> cards = new();
@@ -102,18 +114,6 @@ public class CardHolder : MonoBehaviour
         return cards;
     }
 
-    /// <summary>
-    /// Chọn card, đẩy nó lên một chút (hiệu ứng chọn)
-    /// </summary>
-    // public void SelectCard(int index)
-    // {
-    //     if (index < 0 || index >= handCards.Count) return;
-
-    //     Transform card = handCards[index].transform;
-    //     Vector3 endPos = card.position + card.up * 0.1f;
-    //     card.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
-    // }
-
     public void SelectCard(Card card)
     {
         if (handCards.Contains(card) == false) return;
@@ -123,6 +123,7 @@ public class CardHolder : MonoBehaviour
         Transform t = card.transform;
         Vector3 endPos = t.position + t.up * 0.1f;
         t.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
+        card.Highlight(true); //yellow highlight
     }
 
 
@@ -131,11 +132,11 @@ public class CardHolder : MonoBehaviour
     /// </summary>
     public void UnSelectCard(int index)
     {
-
         if (index < 0 || index >= handCards.Count) return;
         var (endPos, endRot) = GetCardPositionAndRotation(index);
         handCards[index].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
         handCards[index].transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        handCards[index].OffHighlight();
         _hoveringCard = null;
     }
 
@@ -145,8 +146,9 @@ public class CardHolder : MonoBehaviour
         if (index < 0 || index >= handCards.Count) return;
 
         var (endPos, endRot) = GetCardPositionAndRotation(index);
-        handCards[index].transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
-        handCards[index].transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        card.transform.DOMove(endPos, AnimationDuration).SetEase(Ease.OutQuad);
+        card.transform.DORotateQuaternion(endRot, AnimationDuration).SetEase(Ease.OutQuad);
+        card.OffHighlight();
         _hoveringCard = null;
     }
 
@@ -208,10 +210,37 @@ public class CardHolder : MonoBehaviour
         return (endPos, endRotation);
     }
 
-    public (Vector3, Quaternion) GetCardPositionAndRotationPublic(int index)
-    {
-        return GetCardPositionAndRotation(index);
-    }
-
     public bool IsEmpty() => handCards.Count == 0;
+
+    public Transform BeforeFaceSlot() => _beforeFaceSlot;
+
+    public bool HasTool(ToolType toolType)
+    {
+        return toolType switch
+        {
+            ToolType.Cart => Cart,
+            ToolType.Hat => Hat,
+            ToolType.Shovel => Shovel,
+            ToolType.CartHat => Cart || Hat,
+            ToolType.CartShovel => Cart || Shovel,
+            ToolType.HatShovel => Hat || Shovel,
+            _ => false,
+        };
+    }
+    public bool HasAllTools() => Cart && Hat && Shovel;
+    public bool LacksATool() => !Cart || !Hat || !Shovel;
+    public bool IsTheSelectingCard(Card card) => card == _hoveringCard;
+
+    public void SetRole(PlayerRole playerRole)
+    {
+        PlayerRole = playerRole;
+    }
+}
+
+
+public enum PlayerRole
+{
+    Unknown,
+    Cat,
+    Dog,
 }
