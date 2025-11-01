@@ -36,10 +36,12 @@ public class CardHolder : MonoBehaviour
         handCards.Add(card);
         card.transform.SetParent(transform, true);
         card.Holder = this;
-        card.Location = CardLocation.PlayerHand;
 
         card.transform.DOMove(_beforeFaceSlot.transform.position, AddCardDuration);
-        card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration);
+        card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration).OnComplete(() =>
+        {
+            card.Location = CardLocation.PlayerHand;
+        });
 
         this.WaitThenExecute(AddCardDuration, () => UpdateCardPositions());
     }

@@ -82,10 +82,73 @@ public class BoardCore : MonoBehaviour
         });
     }
 
-    public bool IsConnectingToAGoal()
+
+    [ContextMenu("CheckGoal")]
+    public List<Card> IsConnectingToAHiddenGoal()
     {
-        // @TODO: check if there is a path connects from start to a goal
-        return false;
+        if (_board == null)
+        {
+            Debug.LogWarning("Board is null!");
+            return null;
+        }
+        bool[,] visited = new bool[_rows, _cols];
+        Queue<Vector2Int> queue = new Queue<Vector2Int>();
+
+        queue.Enqueue(StartPos);
+        visited[StartPos.x, StartPos.y] = true;
+
+        List<Card> results = new();
+        while (queue.Count > 0)
+        {
+            Vector2Int current = queue.Dequeue();
+            if (GoalPos.Contains(current))
+            {
+                Card goal = _board[current.x, current.y];
+                if (goal.Location == CardLocation.Hidden)
+                {
+                    results.Add(goal);
+                    continue;
+                }
+            }
+            Card currentCard = _board[current.x, current.y];
+            if (currentCard == null) continue;
+
+            // chỉ PathCard mới có thể đi
+            if (currentCard.CardType != CardType.Path) continue;
+
+            // deadend thì không đi tiếp
+            if (currentCard.PathCardType == PathCardType.DeadEnd)
+                continue;
+
+            bool[] curCon = currentCard.Connections;
+            if (curCon == null || curCon.Length < 4) continue;
+
+            for (int d = 0; d < 4; d++) // N,E,S,W
+            {
+                if (!curCon[d]) continue;
+
+                Vector2Int next = GetNeighbor(current, (Direction)d);
+                if (!IsInsideBoard(next)) continue;
+
+                Card nextCard = _board[next.x, next.y];
+                if (nextCard == null) continue;
+                if (nextCard.CardType != CardType.Path && nextCard.CardType != CardType.Goal) continue;
+
+                bool[] nextCon = nextCard.Connections;
+                if (nextCon == null || nextCon.Length < 4) continue;
+
+                int opposite = (d + 2) % 4;
+                if (!nextCon[opposite]) continue;
+
+                if (!visited[next.x, next.y])
+                {
+                    visited[next.x, next.y] = true;
+                    queue.Enqueue(next);
+                }
+            }
+        }
+        Debug.Log("Results count:" + results.Count);
+        return results;
     }
 
     public void DropCardOntoBoard(Card card, Action onComplete = null)

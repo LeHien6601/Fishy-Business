@@ -394,7 +394,14 @@ public class NetworkBoardManager : NetworkBehaviour
             case InputAction.CONFIRM:
                 if (_placingCard)
                 {
-                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value);
+                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, () =>
+                    {
+                        List<Card> cards = _boardCore.IsConnectingToAHiddenGoal();
+                        if (cards != null || cards.Count > 0)
+                        {
+                            Debug.Log("Goal: " + cards.Count);
+                        }
+                    });
                     _boardCore.ClearValidSlots();
                     _placingCard = null;
                     _hoveringSlot = null;

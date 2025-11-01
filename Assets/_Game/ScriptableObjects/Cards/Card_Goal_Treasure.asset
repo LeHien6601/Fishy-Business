@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Card_Goal_Treasure
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 16c83da4744787545ad3f92245276983, type: 2}
-  Connections: 01010100
+  Connections: 01010101
   CardType: 3
   PathCardType: 1
   ActionCardType: 0
