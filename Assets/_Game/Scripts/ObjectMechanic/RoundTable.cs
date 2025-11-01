@@ -21,9 +21,9 @@ public class RoundTable : NetworkBehaviour
     private readonly List<NetworkObjectReference> _netSeats = new(); // all clients know this list
     public NetworkList<ulong> PlayerOrders = new(); // server writes, all read
     private bool _gameplaying;
-    public event UnityAction OnBoardGameStarted;
-    public event UnityAction OnTurnEnded;
-    public event UnityAction OnBoardGameEnded;
+    // public event UnityAction OnBoardGameStarted;
+    // public event UnityAction OnTurnEnded;
+    // public event UnityAction OnBoardGameEnded;
     public override void OnNetworkSpawn()
     {
         if (IsHost || IsServer)

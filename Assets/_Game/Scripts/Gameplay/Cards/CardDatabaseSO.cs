@@ -29,6 +29,11 @@ public class CardDatabaseSO : ScriptableObject
     public int GetCopiesOfCard(int id) => _decks[id].Amount;
     public int Size() => _decks.Count;
 
+    [ContextMenu("ResetTotalCount")]
+    public void ResetTotalCount()
+    {
+        _totalCount = -1;
+    }
 
     // [ContextMenu("Add All Cards To Deck")]
     // public void a()

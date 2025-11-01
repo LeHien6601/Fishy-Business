@@ -20,13 +20,13 @@ public class NetworkBoardManager : NetworkBehaviour
     private NetworkList<ulong> _playerOrders = new();
     private ulong _inTurnPlayer = ulong.MaxValue;
     private const float _waitBetweenPlayerTurns = 1f;
-    private const float _seeGoalCardDuration = 2;
+    private const float _actionCardDuration = 2;
 
     [SerializeField] private BoardCore _boardCore;
     private Plane _boardPlane; // for mouse raycast onto board
     private Card _placingCard = null; // card being placed by you or others
     private Vector2Int? _hoveringSlot = null; // the slot on board the _placingCard is hovering on
-    private ulong? _targerPlayer = ulong.MaxValue; // the player that is targeted by a tool card (break/repair)
+    private ulong? _targerPlayer = null; // the player that is targeted by a tool card (break/repair)
     private const float _placingOffset = 0.05f;
     private const float _snapDistance = 1f;
     private const float _deckStackSpace = 0.002f;
@@ -340,15 +340,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 if (Input.GetMouseButtonDown(0))
                 {
                     _localPlayerState = PlayerState.NONE;
-                    // @TODO: send server rpc to ...
-                    if (_placingCard.ActionCardType == ActionCardType.BrokenTool)
-                    {
-
-                    }
-                    else if (_placingCard.ActionCardType == ActionCardType.FixTool)
-                    {
-
-                    }
+                    ApplyToolOnPlayerServerRpc(_targerPlayer.Value);
                 }
                 break;
             case PlayerState.CHECKING_GOAL:
@@ -488,7 +480,7 @@ public class NetworkBoardManager : NetworkBehaviour
             return;
         }
         CheckThisGoalClientRpc(requesterId, checkSlot, checkResult: checkSlot.x / 2 == _tressureIndex);
-        this.WaitThenExecute(_seeGoalCardDuration, () => ServerDrawNewCardThenEndTurn());
+        this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
     }
 
     [ClientRpc]
@@ -518,7 +510,7 @@ public class NetworkBoardManager : NetworkBehaviour
             return;
         }
         BombThisPathClientRpc(slot);
-        this.WaitThenExecute(_seeGoalCardDuration, () => ServerDrawNewCardThenEndTurn());
+        this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
     }
 
     [ClientRpc]
@@ -542,8 +534,8 @@ public class NetworkBoardManager : NetworkBehaviour
         if (mouseWorld == Vector3.zero)
             return;
 
-        float sqrDistance = _snapDistance;
-        ulong? closetPlayer = ulong.MaxValue;
+        float sqrDistance = float.MaxValue;
+        ulong? closetPlayer = null;
         foreach (var player in _playerOrders)
         {
             Vector3 wp = _playerAndHolderMap[player].transform.position;
@@ -557,7 +549,7 @@ public class NetworkBoardManager : NetworkBehaviour
         if (closetPlayer.HasValue)
         {
             // hover this slot
-            if (!_hoveringSlot.HasValue || _targerPlayer.Value != closetPlayer.Value)
+            if (!_targerPlayer.HasValue || _targerPlayer.Value != closetPlayer.Value)
             {
                 _targerPlayer = closetPlayer.Value;
                 SwitchTargerPlayerServerRpc(_targerPlayer.Value);
@@ -565,7 +557,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void SwitchTargerPlayerServerRpc(ulong targetId)
     {
         SwitchTargerPlayerClientRpc(targetId);
@@ -575,10 +567,58 @@ public class NetworkBoardManager : NetworkBehaviour
     private void SwitchTargerPlayerClientRpc(ulong targetId)
     {
         _targerPlayer = targetId;
+        Transform targetTf = _playerAndHolderMap[targetId].BeforeFaceSlot();
+        _placingCard.transform.DOMove(targetTf.position, 0.1f);
+        _placingCard.transform.DORotateQuaternion(targetTf.rotation, 0.1f);
         Debug.Log("targeting player " + targetId);
     }
     #endregion
 
+    #region TOOL FUNCTION ON A PLAYER
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ApplyToolOnPlayerServerRpc(ulong targetPlayer)
+    {
+        if (_placingCard.ActionCardType == ActionCardType.BrokenTool || _placingCard.ActionCardType == ActionCardType.FixTool)
+        {
+            ApplyToolOnPlayerClientRpc(targetPlayer);
+            this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
+        }
+    }
+
+    [ClientRpc]
+    private void ApplyToolOnPlayerClientRpc(ulong tagetPlayer)
+    {
+        // @TODO: visualize using coins 
+        bool isRepair = _placingCard.ActionCardType == ActionCardType.FixTool;
+        CardHolder holder = _playerAndHolderMap[tagetPlayer];
+        switch (_placingCard.ToolType)
+        {
+            case ToolType.Cart:
+                holder.Cart = isRepair;
+                break;
+            case ToolType.Hat:
+                holder.Hat = isRepair;
+                break;
+            case ToolType.Shovel:
+                holder.Shovel = isRepair;
+                break;
+            case ToolType.CartHat:
+                holder.Cart = holder.Hat = isRepair;
+                break;
+            case ToolType.CartShovel:
+                holder.Cart = holder.Shovel = isRepair;
+                break;
+            case ToolType.HatShovel:
+                holder.Hat = holder.Shovel = isRepair;
+                break;
+        }
+        Destroy(_placingCard.gameObject);
+        _placingCard = null;
+        _targerPlayer = null;
+    }
+
+    #endregion
 
     #region CONDITION CHECKING WHEN HOVERING CARD IN HAND
     private void HoverCardInHand(Card card)
