@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class NetworkBoardManager : NetworkBehaviour
@@ -194,7 +195,8 @@ public class NetworkBoardManager : NetworkBehaviour
             if (role == PlayerRole.Cat)
                 remainingCats--;
 
-            SetRoleClientRpc(role, player, new()
+            _playerAndHolderMap[player].SetRole(role); // set on server
+            SetRoleClientRpc(role, player, new() // set on clients
             {
                 Send = new ClientRpcSendParams
                 {
@@ -220,9 +222,6 @@ public class NetworkBoardManager : NetworkBehaviour
         else if (totalPlayers <= 10) return 4;
         else return -1;
     }
-
-
-
     #endregion
 
     #region PLAY CARD FROM HAND TO BOARD
@@ -268,6 +267,14 @@ public class NetworkBoardManager : NetworkBehaviour
             }
         };
         PlayCardOtherClientRpc(arg0, senderId, clientRpcParams);
+
+        foreach (var holder in _cardHolders)
+        {
+            if (!holder.IsEmpty())
+                return;
+        }
+        // reaches here if all are empty
+        ServerEndBoardGame(isDogWin: false);
     }
 
     /// <summary>
@@ -423,12 +430,6 @@ public class NetworkBoardManager : NetworkBehaviour
     private void SendInputActionServerRpc(InputAction action)
     {
         SendInputActionClientRpc(action);
-
-        // after confirming placement, draw a new card then end turn
-        if (action == InputAction.CONFIRM)
-        {
-            ServerDrawNewCardThenEndTurn();
-        }
     }
 
     [ClientRpc]
@@ -441,14 +442,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, () =>
                     {
-                        List<GoalTracer> slots = _boardCore.IsConnectingToAHiddenGoal();
-                        if (slots != null || slots.Count > 0)
-                        {
-                            foreach (GoalTracer trace in slots)
-                            {
-                                RevealGoalCardServerRpc(trace);
-                            }
-                        }
+                        ServerCheckConnectingToHiddenGoals();
                     });
                     _boardCore.ClearValidSlots();
                     _placingCard = null;
@@ -464,11 +458,25 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void RevealGoalCardServerRpc(GoalTracer tracer)
+    private void ServerCheckConnectingToHiddenGoals()
     {
-        RevealGoalCardClientRpc(tracer, tracer.GoalSlot.x / 2 == _tressureIndex);
-
+        if (!IsServer)
+            return;
+        List<GoalTracer> tracers = _boardCore.GetPathsToHiddenGoals();
+        bool isEndGame = false;
+        foreach (var tracer in tracers) // 3 tracers at most
+        {
+            bool isTreasure = tracer.GoalSlot.x / 2 == _tressureIndex;
+            RevealGoalCardClientRpc(tracer, isTreasure);
+            if (isTreasure)
+            {
+                isEndGame = true;
+            }
+        }
+        if (isEndGame)
+            ServerEndBoardGame(isDogWin: true);
+        else
+            ServerDrawNewCardThenEndTurn();
     }
 
     [ClientRpc]
@@ -481,7 +489,6 @@ public class NetworkBoardManager : NetworkBehaviour
             {
                 holder.IsTurn = false;
             }
-            //@TODO: Distinguish cat and dog
         }
     }
     #endregion
@@ -747,7 +754,6 @@ public class NetworkBoardManager : NetworkBehaviour
         // wait for a short moment then end turn
         _inTurnPlayer = _playerOrders[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _playerOrders.Count];
         this.WaitThenExecute(_waitBetweenPlayerTurns, () => { NextTurnClientRpc(_inTurnPlayer); });
-
     }
 
     [ClientRpc]
@@ -813,6 +819,23 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region Endgame step
+    private void ServerEndBoardGame(bool isDogWin)
+    {
+        if (!IsServer)
+            return;
+
+        List<ulong> winners = new();
+        PlayerRole roleWin = isDogWin ? PlayerRole.Dog : PlayerRole.Cat;
+        foreach (var pair in _playerAndHolderMap)
+        {
+            if (pair.Value.PlayerRole == roleWin)
+            {
+                winners.Add(pair.Key);
+            }
+        }
+        Debug.Log("winners:" + winners);
+    }
+
     public void Reset()
     {
         ResetClientRpc();

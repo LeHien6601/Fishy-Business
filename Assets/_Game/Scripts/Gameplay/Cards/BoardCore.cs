@@ -77,7 +77,7 @@ public class BoardCore : MonoBehaviour
 
 
     [ContextMenu("CheckGoal")]
-    public List<GoalTracer> IsConnectingToAHiddenGoal()
+    public List<GoalTracer> GetPathsToHiddenGoals()
     {
         if (_board == null)
         {
