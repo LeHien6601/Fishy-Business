@@ -18,6 +18,7 @@ public class UICustomGame : UIView
     private string _selectedLobbyCode = "";
     private string _selectedRelayJoinCode = "";
     private List<UILobbyItem> _lobbyItems = new();
+    private int countClick = 0;
     #endregion
     private void Awake()
     {
@@ -28,6 +29,7 @@ public class UICustomGame : UIView
 
     void OnEnable()
     {
+        _joinBtn.interactable = false;
         _refreshLobbyListCoroutine = StartCoroutine(RefreshLobbyList());
         LobbyManager.Instance.OnUpdatedLobbyList += HandleChangeLobbyList;
     }
@@ -86,6 +88,7 @@ public class UICustomGame : UIView
             {
                 var item = Instantiate(_lobbyItemPrefab, _lobbyListContent);
                 item.OnClickedLobbyItem += HandleClickLobbyItem;
+                item.OnDeselectedLobbyItem += HandleDeselectLobbyItem;
                 _lobbyItems.Add(item);
             }
         }
@@ -97,6 +100,7 @@ public class UICustomGame : UIView
             {
                 var item = _lobbyItems[^1];
                 item.OnClickedLobbyItem -= HandleClickLobbyItem;
+                item.OnDeselectedLobbyItem -= HandleDeselectLobbyItem;
                 Destroy(item.gameObject);
                 _lobbyItems.RemoveAt(_lobbyItems.Count - 1);
             }
@@ -106,13 +110,22 @@ public class UICustomGame : UIView
         {
             _lobbyItems[i].SetLobbyInfo(lobbyList[i]);
         }
-    }   
+    }
 
     private void HandleClickLobbyItem(UILobbyItem.ClickedLobbyItemEventArgs args)
     {
+        countClick++;
+        _joinBtn.interactable = true;
         _selectedLobbyCode = args.LobbyCode;
         _selectedRelayJoinCode = args.RelayJoinCode;
         Debug.Log($"Selected Lobby Code: {_selectedLobbyCode}, Relay Join Code: {_selectedRelayJoinCode}");
+    }
+    private async void HandleDeselectLobbyItem()
+    {
+        await Task.Delay(500);
+        countClick--;
+        if (countClick == 0)
+            _joinBtn.interactable = false;
     }
     #endregion
 
