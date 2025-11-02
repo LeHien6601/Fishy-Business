@@ -18,7 +18,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
     private readonly List<CardData> _masterDeck = new(); // only server has the full deck data
     private int _tressureIndex = -1; // only server knows this, clients if want to know must send a rpc
-    private NetworkList<ulong> _playerOrders = new();
+    private NetworkList<ulong> _playerOrders = new(); // sever only
     private ulong _inTurnPlayer = ulong.MaxValue;
     private const float _waitBetweenPlayerTurns = 1f;
     private const float _actionCardDuration = 2;
@@ -115,7 +115,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private IEnumerator ReceiveHand(CardData[] cards)
     {
         Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} received {cards.Length} cards.");
-        WaitForSeconds wait = new(0.1f);
+        WaitForSeconds wait = Utils.GetWaitForSeconds(0.1f);
         foreach (CardData cardData in cards)
         {
             foreach (CardHolder holder in _cardHolders)
@@ -475,7 +475,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private void RevealGoalCardClientRpc(GoalTracer tracer, bool isTreasure)
     {
         _boardCore.OpenHiddenGoalCard(tracer, isTreasure);
-        if(isTreasure)
+        if (isTreasure)
         {
             foreach (var holder in _cardHolders)
             {
@@ -815,8 +815,27 @@ public class NetworkBoardManager : NetworkBehaviour
     #region Endgame step
     public void Reset()
     {
+        ResetClientRpc();
+        _playerOrders.Clear();
+    }
+
+    [ClientRpc]
+    private void ResetClientRpc()
+    {
+        foreach (var holder in _cardHolders)
+        {
+            Destroy(holder.gameObject);
+        }
+        _turnIndicator.gameObject.SetActive(false);
         _cardHolders.Clear();
         _playerAndHolderMap.Clear();
+        _placingCard = null;
+        _hoveringSlot = null;
+        _targerPlayer = null;
+        _localPlayerState = PlayerState.NONE;
+        _deckPlace.DeleteChildren();
+        _discardPile.DeleteChildren();
+        _boardCore.transform.DeleteChildren();
     }
     #endregion 
 }

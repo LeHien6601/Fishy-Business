@@ -183,11 +183,10 @@ public class BoardCore : MonoBehaviour
     
     private IEnumerator HightLightPathRoutine(List<Vector2Int> path)
     {
-        WaitForSeconds wait0_2 = new WaitForSeconds(0.2f);
         foreach(var slot in path)
         {
             _board[slot.x, slot.y].Highlight(true);
-            yield return wait0_2;
+            yield return Utils.GetWaitForSeconds(0.2f);
         }
     }
 
