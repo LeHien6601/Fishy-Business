@@ -12,6 +12,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     [SerializeField] private CardInforSO _cardInforSO;
     [SerializeField] private MeshRenderer _meshRenderer;
     [SerializeField] private MeshRenderer _outliner;
+    [SerializeField] private SpriteRenderer _symbol;
     [SerializeField] private Material _redHighlight;
     [SerializeField] private Material _yellowHighlight;
     [SerializeField] private CardHolder _holder;
@@ -47,6 +48,10 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         if (_meshRenderer != null)
             _meshRenderer.material = cardInforSO.material;
 
+        if (_symbol)
+        {
+            _symbol.gameObject.SetActive(false);
+        }
         Location = cardLocation;
         CardType = cardInforSO.CardType;
         PathCardType = cardInforSO.PathCardType;
@@ -54,6 +59,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         ToolType = cardInforSO.ToolType;
         Connections = (bool[])cardInforSO.Connections.Clone();
     }
+    // Call when deal or draw card to hand player
     public void SetData(CardData cardData, CardInforSO cardInforSO, CardLocation cardLocation)
     {
         CardData = cardData;
@@ -63,6 +69,15 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         if (_meshRenderer != null)
             _meshRenderer.material = cardInforSO.material;
 
+        if (_symbol && cardInforSO.Symbol)
+        {
+            _symbol.gameObject.SetActive(true);
+            _symbol.sprite = cardInforSO.Symbol;
+        }
+        else
+        {
+            _symbol.gameObject.SetActive(false);
+        }
         Location = cardLocation;
         CardType = cardInforSO.CardType;
         PathCardType = cardInforSO.PathCardType;
@@ -75,6 +90,11 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     {
         if (_meshRenderer != null)
             _meshRenderer.material = material;
+        
+        if (_symbol)
+        {
+            _symbol.gameObject.SetActive(false);
+        }
     }
 
     public void Refresh()
@@ -139,6 +159,10 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
             else if (eventData.button == PointerEventData.InputButton.Right)
             {
                 OnDiscardCard.Invoke(this);
+            }
+            if(_symbol)
+            {
+                _symbol.gameObject.SetActive(false);
             }
         }
         OffHighlight(); // turn of if any

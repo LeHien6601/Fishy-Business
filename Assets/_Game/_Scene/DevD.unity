@@ -3654,7 +3654,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _cardDatabase: {fileID: 11400000, guid: 1a5cc9c612ef7fb468bdbfbf571a6347, type: 2}
+  _cardDatabase: {fileID: 11400000, guid: c1e037bebcff67e4285c77bea38013f9, type: 2}
   _cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   _deckPlace: {fileID: 1036670618}
   _discardPile: {fileID: 655529115}
@@ -17985,7 +17985,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5052258527906030006, guid: 9a57a22c72f37db429f004e0d9de9aa6, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3745379362
+      value: 457026456
       objectReference: {fileID: 0}
     - target: {fileID: 5052258527906030006, guid: 9a57a22c72f37db429f004e0d9de9aa6, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash

@@ -477,6 +477,10 @@ public class NetworkBoardManager : NetworkBehaviour
         _boardCore.OpenHiddenGoalCard(tracer, isTreasure);
         if(isTreasure)
         {
+            foreach (var holder in _cardHolders)
+            {
+                holder.IsTurn = false;
+            }
             //@TODO: Distinguish cat and dog
         }
     }

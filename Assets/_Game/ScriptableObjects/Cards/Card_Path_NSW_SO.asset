@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Card_Path_NSW_SO
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: f712b0a9e55f29d4d8bbe1febb81d963, type: 2}
+  Symbol: {fileID: 21300000, guid: 0ae1881e24b8bf14491984d240ec2e29, type: 3}
   Connections: 01000101
   CardType: 1
   PathCardType: 1
+  ActionCardType: 0
+  ToolType: 0
