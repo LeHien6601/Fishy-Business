@@ -42,28 +42,33 @@ public class CameraController : MonoBehaviour
         _cameraMode = mode;
         if (mode == CameraMode.ThirdPerson)
         {
-            _1stPersonCamera.gameObject.SetActive(false);
-            _3rdPersonCamera.gameObject.SetActive(true);
+            _3rdPersonCamera.Priority = 10;
+            _1stPersonCamera.Priority = 0;
+            // _3rdPersonCamera.enabled = true;
+            // _1stPersonCamera.enabled = false;
             _3rdPersonCamera.transform.rotation = _3rdPersonCamera.Follow.rotation;
             Cursor.lockState = CursorLockMode.Locked;
         }
         else if (mode == CameraMode.FirstPerson)
         {
-            _3rdPersonCamera.gameObject.SetActive(false);
-            _1stPersonCamera.gameObject.SetActive(true);
             if (_1stPersonCamera.TryGetComponent<CinemachinePanTilt>(out var pan))
             {
                 pan.PanAxis.Value = pan.PanAxis.Center;
                 pan.TiltAxis.Value = pan.TiltAxis.Center;
             }
-            // _1stPersonCamera.transform.rotation = _1stPersonCamera.Follow.rotation;
+            _1stPersonCamera.Priority = 10;
+            _3rdPersonCamera.Priority = 0;
+            // _3rdPersonCamera.enabled = false;
+            // _1stPersonCamera.enabled = true;
             _cinemachineInputAxisController.enabled = false;
             Cursor.lockState = CursorLockMode.None;
         }
         else if (mode == CameraMode.FirstPersonWithFreeLook)
         {
-            _3rdPersonCamera.gameObject.SetActive(false);
-            _1stPersonCamera.gameObject.SetActive(true);
+            _1stPersonCamera.Priority = 10;
+            _3rdPersonCamera.Priority = 0;
+            // _3rdPersonCamera.enabled = false;
+            // _1stPersonCamera.enabled = true;
             _cinemachineInputAxisController.enabled = true;
             Cursor.lockState = CursorLockMode.Locked;
         }
