@@ -17,12 +17,49 @@ public class CardHolder : MonoBehaviour
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
-    private Card _hoveringCard; // hovering 1 card at a time
+    // hovering 1 card at a time
+    private Card _hoveringCard = null;
     public bool IsMine = false;
     public bool IsTurn = false;
-    public bool Cart = true;
-    public bool Hat = true;
-    public bool Shovel = true;
+    
+    private bool _cart = true;
+    public bool Cart
+    {
+        get { return _cart; }
+        set
+        {
+            _cart = value;
+            if (_cartCoin != null)
+                _cartCoin.SetActive(value);
+        }
+    }
+    [SerializeField] private GameObject _cartCoin;
+
+    private bool _hat = true;
+    public bool Hat
+    {
+        get { return _hat; }
+        set
+        {
+            _hat = value;
+            if (_hatCoin != null)
+                _hatCoin.SetActive(value);
+        }
+    }
+    [SerializeField] private GameObject _hatCoin;
+
+    private bool _shovel = true;
+    public bool Shovel
+    {
+        get { return _shovel; }
+        set
+        {
+            _shovel = value;
+            if (_shovelCoin != null)
+                _shovelCoin.SetActive(value);
+        }
+    }
+    [SerializeField] private GameObject _shovelCoin;
     public PlayerRole PlayerRole;
 
     /// <summary>
