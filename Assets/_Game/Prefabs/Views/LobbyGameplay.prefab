@@ -189,7 +189,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 0
   MoveEnabled: 0
-  MoveDuration: 1
+  MoveDuration: 0.5
   MoveDelay: 0
   MoveEaseType: 1
   MoveStartValue: {x: 0, y: 0}
@@ -201,7 +201,7 @@ MonoBehaviour:
   RotateStartValue: {x: 0, y: 0, z: 0}
   RotateEndValue: {x: 0, y: 0, z: 0}
   ScaleEnabled: 1
-  ScaleDuration: 1
+  ScaleDuration: 0.5
   ScaleDelay: 0
   ScaleEaseType: 27
   ScaleStartValue: {x: 0, y: 0}
@@ -238,13 +238,13 @@ MonoBehaviour:
   RotateStartValue: {x: 0, y: 0, z: 0}
   RotateEndValue: {x: 0, y: 0, z: 0}
   ScaleEnabled: 1
-  ScaleDuration: 1
+  ScaleDuration: 0.5
   ScaleDelay: 0
   ScaleEaseType: 26
   ScaleStartValue: {x: 1, y: 1}
   ScaleEndValue: {x: 0, y: 0}
   FadeEnabled: 1
-  FadeDuration: 1
+  FadeDuration: 0.5
   FadeDelay: 0
   FadeEaseType: 1
   FadeStartValue: 1

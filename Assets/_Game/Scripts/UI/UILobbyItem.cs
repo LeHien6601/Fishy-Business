@@ -2,9 +2,10 @@ using System;
 using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UILobbyItem : MonoBehaviour
+public class UILobbyItem : MonoBehaviour, IDeselectHandler
 {
     [Header("References")]
     [SerializeField] private TextMeshProUGUI _lobbyNameTMP;
@@ -13,6 +14,7 @@ public class UILobbyItem : MonoBehaviour
     private string _relayJoinCode = "";
     private string _lobbyCode = "";
     public event Action<ClickedLobbyItemEventArgs> OnClickedLobbyItem;
+    public event Action OnDeselectedLobbyItem;
 
     void OnEnable()
     {
@@ -46,5 +48,10 @@ public class UILobbyItem : MonoBehaviour
     private void HandleClick()
     {
         OnClickedLobbyItem?.Invoke(new ClickedLobbyItemEventArgs() { LobbyCode = _lobbyCode, RelayJoinCode = _relayJoinCode });
+    }
+
+    public void OnDeselect(BaseEventData eventData)
+    {
+        OnDeselectedLobbyItem?.Invoke();
     }
 }
