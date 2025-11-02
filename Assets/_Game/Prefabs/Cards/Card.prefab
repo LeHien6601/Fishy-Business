@@ -223,6 +223,8 @@ MonoBehaviour:
   _cardInforSO: {fileID: 0}
   _meshRenderer: {fileID: 5990605564472442173}
   _outliner: {fileID: 6755534967359586269}
+  _redHighlight: {fileID: 2100000, guid: ae70ef9e5f395ac4daf8fc915ac594fb, type: 2}
+  _yellowHighlight: {fileID: 2100000, guid: 471e813603652984ba16e88fbc826b6b, type: 2}
   _holder: {fileID: 0}
   Location: 0
   CardType: 0

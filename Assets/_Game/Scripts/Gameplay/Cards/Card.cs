@@ -12,6 +12,8 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     [SerializeField] private CardInforSO _cardInforSO;
     [SerializeField] private MeshRenderer _meshRenderer;
     [SerializeField] private MeshRenderer _outliner;
+    [SerializeField] private Material _redHighlight;
+    [SerializeField] private Material _yellowHighlight;
     [SerializeField] private CardHolder _holder;
 
     [Header("Card State")]
@@ -104,13 +106,13 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     {
         if (ok)
         {
-            // highlight yellow
-            // _outliner.gameObject.SetActive(true);
+            _outliner.gameObject.SetActive(true);
+            _outliner.material = _yellowHighlight;
         }
         else
         {
-            // highlight red
             _outliner.gameObject.SetActive(true);
+            _outliner.material = _redHighlight;
         }
     }
 

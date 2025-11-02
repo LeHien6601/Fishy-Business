@@ -221,9 +221,9 @@ public class CardHolder : MonoBehaviour
             ToolType.Cart => Cart,
             ToolType.Hat => Hat,
             ToolType.Shovel => Shovel,
-            ToolType.CartHat => Cart || Hat,
-            ToolType.CartShovel => Cart || Shovel,
-            ToolType.HatShovel => Hat || Shovel,
+            ToolType.CartHat => Cart && Hat,
+            ToolType.CartShovel => Cart && Shovel,
+            ToolType.HatShovel => Hat && Shovel,
             _ => false,
         };
     }
