@@ -69,9 +69,12 @@ public class NetworkBoardManager : NetworkBehaviour
         transform.rotation = Quaternion.Euler(0f, Camera.main.transform.eulerAngles.y, 0f);
         // spawn deck,
         _cardsInDeck.Clear();
+
+        Quaternion rotate = _cardPrefab.transform.localRotation;
+        Quaternion facedownRot = Quaternion.Euler(rotate.eulerAngles.x + 180f, rotate.eulerAngles.y, rotate.eulerAngles.z);
         for (int i = 0; i < _cardDatabase.TotalCount(); i++)
         {
-            _cardsInDeck.Push(Instantiate(_cardPrefab, _deckPlace.position + _deckStackSpace * i * Vector3.up, _cardPrefab.transform.rotation, _deckPlace));
+            _cardsInDeck.Push(Instantiate(_cardPrefab, _deckPlace.position + _deckStackSpace * i * Vector3.up, facedownRot, _deckPlace));
         }
     }
 
@@ -438,12 +441,12 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, () =>
                     {
-                        List<Vector2Int> slots = _boardCore.IsConnectingToAHiddenGoal();
+                        List<GoalTracer> slots = _boardCore.IsConnectingToAHiddenGoal();
                         if (slots != null || slots.Count > 0)
                         {
-                            foreach (var slot in slots)
+                            foreach (GoalTracer trace in slots)
                             {
-                                RevealGoalCardServerRpc(slot);
+                                RevealGoalCardServerRpc(trace);
                             }
                         }
                     });
@@ -461,17 +464,21 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
-    private void RevealGoalCardServerRpc(Vector2Int slot)
+    [ServerRpc(RequireOwnership = false)]
+    private void RevealGoalCardServerRpc(GoalTracer tracer)
     {
-        RevealGoalCardClientRpc(slot, slot.x / 2 == _tressureIndex);
+        RevealGoalCardClientRpc(tracer, tracer.GoalSlot.x / 2 == _tressureIndex);
 
     }
 
     [ClientRpc]
-    private void RevealGoalCardClientRpc(Vector2Int slot, bool isTreasure)
+    private void RevealGoalCardClientRpc(GoalTracer tracer, bool isTreasure)
     {
-        _boardCore.OpenHiddenGoalCard(slot, isTreasure);
+        _boardCore.OpenHiddenGoalCard(tracer, isTreasure);
+        if(isTreasure)
+        {
+            //@TODO: Distinguish cat and dog
+        }
     }
     #endregion
 
