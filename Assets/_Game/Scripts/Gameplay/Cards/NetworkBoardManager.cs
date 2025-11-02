@@ -267,14 +267,6 @@ public class NetworkBoardManager : NetworkBehaviour
             }
         };
         PlayCardOtherClientRpc(arg0, senderId, clientRpcParams);
-
-        foreach (var holder in _cardHolders)
-        {
-            if (!holder.IsEmpty())
-                return;
-        }
-        // reaches here if all are empty
-        ServerEndBoardGame(isDogWin: false);
     }
 
     /// <summary>
@@ -396,7 +388,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 // ignore you if its a break tool type
                 // HoverTargerPlayer(ignoreYourself: _placingCard.ActionCardType == ActionCardType.BrokenTool);
                 if (_placingCard.ActionCardType == ActionCardType.BrokenTool)
-                    HoverTargetPlayer(ignore: (player) => player.IsMine && !player.HasTool(_placingCard.ToolType));
+                    HoverTargetPlayer(ignore: (player) => player.IsMine || !player.HasTool(_placingCard.ToolType));
                 else if (_placingCard.ActionCardType == ActionCardType.FixTool)
                     HoverTargetPlayer(ignore: (player) => player.HasTool(_placingCard.ToolType));
 
@@ -752,8 +744,22 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!IsServer)
             return;
+
+        bool isOutOfCards = true;
+        foreach (var holder in _cardHolders)
+        {
+            if (!holder.IsEmpty())
+            {
+                isOutOfCards = false;
+                break;   
+            }
+        }
+        if (isOutOfCards)
+            ServerEndBoardGame(isDogWin: false);
+
+
         int id = _masterDeck.Count - _cardsInDeck.Count;
-        if (id > 0) // check before sending RPC to save bandwidth
+        if (id >= 0 && id < _masterDeck.Count) // check before sending RPC to save bandwidth
         {
             DrawNewCardClientRpc(_masterDeck[id], receiver: _inTurnPlayer);
         }
