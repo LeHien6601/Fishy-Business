@@ -49,45 +49,7 @@ public class NetworkBoardManager : NetworkBehaviour
         InitializeAndShuffleDeck();
 
         // Calculate count of cat and dog
-        CalculateCatDog(_playerOrders.Count, out int cat, out int dog);
-        foreach (var player in _playerOrders)
-        {
-            PlayerRole role;
-            // 0 = cat, 1 = dog
-            if (Random.Range(0, 2) == 0)
-            {
-                if (cat > 0)
-                {
-                    role = PlayerRole.Cat;
-                    cat--;
-                }
-                else
-                {
-                    role = PlayerRole.Dog;
-                    dog--;
-                }
-            }
-            else
-            {
-                if (dog > 0)
-                {
-                    role = PlayerRole.Dog;
-                    dog--;
-                }
-                else
-                {
-                    role = PlayerRole.Cat;
-                    cat--;
-                }
-            }
-            SetRoleClientRpc(role, player, new()
-            {
-                Send = new ClientRpcSendParams
-                {
-                    TargetClientIds = new List<ulong>() { player } // Send to all clients except sender
-                }
-            });
-        }
+        AssignRoles(_playerOrders.Count);
 
         // random goal tressure
         _tressureIndex = Random.Range(0, 3);
@@ -119,10 +81,10 @@ public class NetworkBoardManager : NetworkBehaviour
 
         int currentDeckIndex = 0;
 
-        foreach (ulong clientId in playerOrders)
+        int CardsPerPlayer = CalculateCardsPerPlayer(playerOrders.Count);
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            List<CardData> hand = new List<CardData>();
-            int CardsPerPlayer = CalculateCardsPerPlayer(playerOrders.Count);
+            List<CardData> hand = new();
             for (int i = 0; i < CardsPerPlayer; i++)
             {
                 if (currentDeckIndex >= _masterDeck.Count)
@@ -204,6 +166,41 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
+    private void AssignRoles(int totalPlayer)
+    {
+        if (!IsServer) return;
+
+        // Define number of cats based on total players
+        var catCount = totalPlayer switch
+        {
+            2 or 3 or 4 => 1,
+            5 or 6 => 2,
+            7 or 8 or 9 => 3,
+            10 => 4,
+            _ => 10
+        };
+
+        var remainingCats = catCount;
+        // Randomly assign roles to players
+        foreach (var player in _playerOrders)
+        {
+            PlayerRole role = remainingCats > 0 && Random.Range(0, _playerOrders.Count) < remainingCats
+                ? PlayerRole.Cat
+                : PlayerRole.Dog;
+
+            if (role == PlayerRole.Cat)
+                remainingCats--;
+
+            SetRoleClientRpc(role, player, new()
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new[] { player }
+                }
+            });
+        }
+    }
+
     [ClientRpc]
     private void SetRoleClientRpc(PlayerRole arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
@@ -221,48 +218,7 @@ public class NetworkBoardManager : NetworkBehaviour
         else return -1;
     }
 
-    private void CalculateCatDog(int totalPlayer, out int cat, out int dog)
-    {
-        switch (totalPlayer)
-        {
-            case 3:
-                cat = 1;
-                dog = 3;
-                break;
-            case 4:
-                cat = 1;
-                dog = 4;
-                break;
-            case 5:
-                cat = 2;
-                dog = 4;
-                break;
-            case 6:
-                cat = 2;
-                dog = 5;
-                break;
-            case 7:
-                cat = 3;
-                dog = 5;
-                break;
-            case 8:
-                cat = 3;
-                dog = 6;
-                break;
-            case 9:
-                cat = 3;
-                dog = 7;
-                break;
-            case 10:
-                cat = 4;
-                dog = 7;
-                break;
-            default:
-                cat = 10;
-                dog = 30;
-                break;
-        }
-    }
+
 
     #endregion
 
