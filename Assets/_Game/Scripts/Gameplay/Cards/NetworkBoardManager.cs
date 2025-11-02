@@ -22,7 +22,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private NetworkList<ulong> _playerOrders = new(); // sever only
     private ulong _inTurnPlayer = ulong.MaxValue;
     private const float _waitBetweenPlayerTurns = 1f;
-    private const float _actionCardDuration = 2;
+    private const float _actionCardDuration = 1.5f;
 
     [SerializeField] private BoardCore _boardCore;
     private Plane _boardPlane; // for mouse raycast onto board
@@ -394,7 +394,12 @@ public class NetworkBoardManager : NetworkBehaviour
                 break;
             case PlayerState.USING_TOOL:
                 // ignore you if its a break tool type
-                HoverTargerPlayer(ignoreYourself: _placingCard.ActionCardType == ActionCardType.BrokenTool);
+                // HoverTargerPlayer(ignoreYourself: _placingCard.ActionCardType == ActionCardType.BrokenTool);
+                if (_placingCard.ActionCardType == ActionCardType.BrokenTool)
+                    HoverTargetPlayer(ignore: (player) => player.IsMine && !player.HasTool(_placingCard.ToolType));
+                else if (_placingCard.ActionCardType == ActionCardType.FixTool)
+                    HoverTargetPlayer(ignore: (player) => player.HasTool(_placingCard.ToolType));
+
                 if (!_targerPlayer.HasValue) return;
 
                 if (Input.GetMouseButtonDown(0))
@@ -596,7 +601,7 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region HOVER MOUSE ON BOARD TO CHOOSE TARGET PLAYER
-    private void HoverTargerPlayer(bool ignoreYourself)
+    private void HoverTargetPlayer(System.Func<CardHolder, bool> ignore)
     {
         Vector3 mouseWorld = GetMouseWorldPointOnBoard();
         if (mouseWorld == Vector3.zero)
@@ -606,7 +611,7 @@ public class NetworkBoardManager : NetworkBehaviour
         ulong? closetPlayer = null;
         foreach (var player in _playerAndHolderMap)
         {
-            if (player.Value.IsMine == ignoreYourself)
+            if (ignore(player.Value))
                 continue;
             Vector3 wp = player.Value.transform.position;
             float sqrD = Vector3.SqrMagnitude(mouseWorld - wp);
@@ -626,6 +631,7 @@ public class NetworkBoardManager : NetworkBehaviour
             }
         }
     }
+
 
     [ServerRpc(RequireOwnership = false)]
     private void SwitchTargerPlayerServerRpc(ulong targetId)
