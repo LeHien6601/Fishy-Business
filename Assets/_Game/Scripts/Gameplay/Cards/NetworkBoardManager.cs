@@ -475,7 +475,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private void RevealGoalCardClientRpc(GoalTracer tracer, bool isTreasure)
     {
         _boardCore.OpenHiddenGoalCard(tracer, isTreasure);
-        if(isTreasure)
+        if (isTreasure)
         {
             //@TODO: Distinguish cat and dog
         }
@@ -811,8 +811,27 @@ public class NetworkBoardManager : NetworkBehaviour
     #region Endgame step
     public void Reset()
     {
+        ResetClientRpc();
+    }
+
+    [ClientRpc]
+    private void ResetClientRpc()
+    {
+        foreach (var holder in _cardHolders)
+        {
+            Destroy(holder.gameObject);
+        }
+        _turnIndicator.gameObject.SetActive(false);
+        _playerOrders.Clear();
         _cardHolders.Clear();
         _playerAndHolderMap.Clear();
+        _placingCard = null;
+        _hoveringSlot = null;
+        _targerPlayer = null;
+        _localPlayerState = PlayerState.NONE;
+        _deckPlace.DeleteChildren();
+        _discardPile.DeleteChildren();
+        _boardCore.transform.DeleteChildren();
     }
     #endregion 
 }
