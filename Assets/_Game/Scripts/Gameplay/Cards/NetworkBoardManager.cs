@@ -67,10 +67,11 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         // spawn board, facing towards local player
         _boardCore.GenerateBoard();
-        transform.rotation = Quaternion.Euler(0f, Camera.main.transform.eulerAngles.y, 0f);
+        Vector3 direction = transform.position - _playerAndHolderMap[NetworkManager.Singleton.LocalClientId].transform.position;
+        direction.y = 0;
+        transform.rotation = Quaternion.LookRotation(direction);
         // spawn deck,
         _cardsInDeck.Clear();
-
         Quaternion rotate = _cardPrefab.transform.localRotation;
         Quaternion facedownRot = Quaternion.Euler(rotate.eulerAngles.x + 180f, rotate.eulerAngles.y, rotate.eulerAngles.z);
         for (int i = 0; i < _cardDatabase.TotalCount(); i++)
@@ -286,7 +287,6 @@ public class NetworkBoardManager : NetworkBehaviour
         card.SetData(_cardDatabase.GetCardInforSO(arg0), CardLocation.OnBoard);
 
         _boardCore.DropCardOntoBoard(card);
-
     }
 
     #endregion
@@ -751,11 +751,15 @@ public class NetworkBoardManager : NetworkBehaviour
             if (!holder.IsEmpty())
             {
                 isOutOfCards = false;
-                break;   
+                break;
             }
         }
         if (isOutOfCards)
+        {
+            Debug.Log("Endgame due to out of cards");
             ServerEndBoardGame(isDogWin: false);
+            return;
+        }
 
 
         int id = _masterDeck.Count - _cardsInDeck.Count;
