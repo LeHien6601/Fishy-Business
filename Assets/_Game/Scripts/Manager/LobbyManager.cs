@@ -43,6 +43,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
     {
         public List<Lobby> LobbyList;
     }
+    [Serializable]
     public struct PlayerInfo
     {
         public string Name;

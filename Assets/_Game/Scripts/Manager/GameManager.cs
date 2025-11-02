@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HHDCore;
 using Unity.Netcode;
-using Unity.Services.Lobbies.Models;
+using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +9,7 @@ public class GameManager : SingletonMonoNet<GameManager>
 {
     [SerializeField] private NetworkObject _playerPrefab;
     private Dictionary<ulong, PlayerNameDisplay> _spawnedPlayerNames = new();
+    private Dictionary<ulong, string> _idMap = new(); //network id with auth id
     #region Cycle
     public void Start()
     {
@@ -70,12 +71,17 @@ public class GameManager : SingletonMonoNet<GameManager>
     private void HandlePlayerJoinNetworkClientRpc(ulong clientId)
     {
         if (clientId != NetworkManager.Singleton.LocalClientId) return;
-        HandlePlayerJoinNetworkServerRpc(clientId, PlayerInfoManager.Instance.PlayerName);
+        HandlePlayerJoinNetworkServerRpc(clientId, PlayerInfoManager.Instance.PlayerName, AuthenticationService.Instance.PlayerId);
     }
     [ServerRpc(RequireOwnership = false)]
-    private void HandlePlayerJoinNetworkServerRpc(ulong clientId, string name)
+    private void HandlePlayerJoinNetworkServerRpc(ulong clientId, string name, string authId)
     {
         _spawnedPlayerNames[clientId].SetPlayerName(name);
+        _idMap[clientId] = authId;
+    }
+    public string GetAuthIdByNetId(ulong cliendId)
+    {
+        return _idMap.TryGetValue(cliendId, out var authId) ? authId : null;
     }
 
     [Rpc(SendTo.Server)]
