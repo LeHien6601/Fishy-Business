@@ -24,12 +24,13 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public event Action<KickedFromLobbyEventArgs> OnKickedFromLobby;
     public event Action<UpdateCurrentLobbyEventArgs> OnUpdatedCurrentLobby;
     public event Action<UpdatedLoobyListEventArgs> OnUpdatedLobbyList;
-
+    public event Action<Player> OnPlayerJoinedLobby;
     private Coroutine _heartbeatCoroutine;
     private Coroutine _pollLobbyCoroutine;
+    private HashSet<string> _knownPlayers = new();
     #endregion
 
-    #region Event Args
+    #region Structs
     public struct KickedFromLobbyEventArgs
     {
         public Lobby Lobby;
@@ -41,6 +42,12 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public struct UpdatedLoobyListEventArgs
     {
         public List<Lobby> LobbyList;
+    }
+    public struct PlayerInfo
+    {
+        public string Name;
+        public int IconId;
+        public bool Found;
     }
     #endregion
 
@@ -65,6 +72,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
     private void OnEnable()
     {
         OnKickedFromLobby += HandleKickedFromLobby;
+        OnUpdatedCurrentLobby += HandleUpdatedLobby;
         PlayerInfoManager.Instance.OnChangedPlayerInfo += HandleUpdatePlayerInfo;
     }
     private void OnDisable()
@@ -74,6 +82,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             StopCoroutine(_heartbeatCoroutine);
         }
         OnKickedFromLobby -= HandleKickedFromLobby;
+        OnUpdatedCurrentLobby += HandleUpdatedLobby;
         PlayerInfoManager.Instance.OnChangedPlayerInfo -= HandleUpdatePlayerInfo;
     }
     #endregion
@@ -86,7 +95,10 @@ public class LobbyManager : SingletonMono<LobbyManager>
             var createOptions = new CreateLobbyOptions
             {
                 IsPrivate = false,
-                Player = GetPlayerData(PlayerInfoManager.Instance.PlayerName, PlayerInfoManager.Instance.PlayerIconId),
+                Player = GetPlayerData(
+                    PlayerInfoManager.Instance.PlayerName,
+                    PlayerInfoManager.Instance.PlayerIconId
+                ),
                 Data = new Dictionary<string, DataObject>
                 {
                     {Constant.KEY_HOST_ID, new DataObject(DataObject.VisibilityOptions.Member, AuthenticationService.Instance.PlayerId)},
@@ -97,7 +109,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
             currentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, Constant.MAX_PLAYERS, createOptions);
             isHost = true;
             Debug.Log($"Lobby created: {currentLobby.Id}, Code: {currentLobby.LobbyCode}");
-
+            _knownPlayers.Clear();
+            _knownPlayers.Add(AuthenticationService.Instance.PlayerId);
             // Start Relay and heartbeats
             currentLobby = await RelayManager.Instance.SetupRelay(currentLobby);
             Debug.Log("Relay Join Code: " + currentLobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value);
@@ -283,7 +296,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             Data = new Dictionary<string, PlayerDataObject>
             {
                 {Constant.KEY_PLAYER_NAME, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName)},
-                {Constant.KEY_PLAYER_ICON_ID, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, iconId.ToString())}
+                {Constant.KEY_PLAYER_ICON_ID, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, iconId.ToString())},
             }
         };
     }
@@ -319,7 +332,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
         try
         {
             Lobby updatedLobby;
-            try 
+            try
             {
                 updatedLobby = await LobbyService.Instance.GetLobbyAsync(currentLobby.Id);
             }
@@ -390,6 +403,45 @@ public class LobbyManager : SingletonMono<LobbyManager>
     {
         if (currentLobby == null) return;
         await UpdatePlayerDataAsync(args.NewPlayerName, args.NewPlayerIconId);
+    }
+    private void HandleUpdatedLobby(UpdateCurrentLobbyEventArgs args)
+    {
+        if (!isHost) return;
+        foreach (var player in args.Lobby.Players)
+        {
+            if (player.Id == AuthenticationService.Instance.PlayerId
+                || _knownPlayers.Contains(player.Id)) continue;
+            _knownPlayers.Add(player.Id);
+            OnPlayerJoinedLobby?.Invoke(player);
+            Debug.Log($"new player joined {player.Id}");
+        }
+    }
+    #endregion
+
+    #region Getters
+    public PlayerInfo GetPlayerInfoFromPlayerId(string authId)
+    {
+        if (currentLobby == null)
+        {
+            return new PlayerInfo { Found = false };
+        }
+        foreach (var player in currentLobby.Players)
+        {
+            if (player.Id == authId)
+            {
+                string name = player.Data[Constant.KEY_PLAYER_NAME].Value;
+                int iconId = int.Parse(player.Data[Constant.KEY_PLAYER_ICON_ID].Value);
+                
+                return new PlayerInfo
+                {
+                    Name = name,
+                    IconId = iconId,
+                    Found = true
+                };
+            }
+        }
+
+        return new PlayerInfo { Found = false };
     }
     #endregion
 }
