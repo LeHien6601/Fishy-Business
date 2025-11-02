@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class NetworkBoardManager : NetworkBehaviour
@@ -13,6 +12,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _deckPlace;
     [SerializeField] private Transform _discardPile;
+    [SerializeField] private Transform _turnIndicator;
     private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
@@ -811,25 +811,26 @@ public class NetworkBoardManager : NetworkBehaviour
     private void NextTurnClientRpc(ulong nextPlayerId)
     {
         _inTurnPlayer = nextPlayerId;
+        CardHolder inTurnHolder = _playerAndHolderMap[nextPlayerId];
         if (NetworkManager.Singleton.LocalClientId == nextPlayerId)
         {
-            // it's your turn
             Debug.Log("It's your turn!");
-            // set your card holder to be active
-            foreach (var holder in _cardHolders)
-            {
-                holder.IsTurn = holder.IsMine;
-            }
+            inTurnHolder.IsTurn = true;
         }
         else
         {
             Debug.Log($"It's player {nextPlayerId}'s turn.");
-            // set your card holder to be inactive
             foreach (var holder in _cardHolders)
             {
                 holder.IsTurn = false;
             }
         }
+
+        // ---- visual -----
+        _turnIndicator.gameObject.SetActive(true);
+        var direction = inTurnHolder.transform.position - _turnIndicator.position;
+        direction.y = 0;
+        _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
     }
 
     private Vector3 GetMouseWorldPointOnBoard()
