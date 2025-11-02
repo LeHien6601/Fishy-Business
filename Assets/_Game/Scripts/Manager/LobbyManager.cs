@@ -44,11 +44,18 @@ public class LobbyManager : SingletonMono<LobbyManager>
         public List<Lobby> LobbyList;
     }
     [Serializable]
-    public struct PlayerInfo
+    public struct PlayerInfo : INetworkSerializable
     {
         public string Name;
         public int IconId;
         public bool Found;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref Name);
+            serializer.SerializeValue(ref IconId);
+            serializer.SerializeValue(ref Found);
+        }
     }
     #endregion
 

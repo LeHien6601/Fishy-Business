@@ -29,6 +29,7 @@ namespace HHDCore
         {
             _childRects.Clear();
             _childAspects.Clear();
+            if (_rect == null) _rect = GetComponent<RectTransform>();
             for (int i = 0; i < transform.childCount; i++)
             {
                 if (transform.GetChild(i).gameObject.activeSelf)

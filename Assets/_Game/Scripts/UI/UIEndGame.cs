@@ -14,6 +14,7 @@ public class UIEndGame : UIView
     #region View behavior
     public override async void Show()
     {
+        UpdateData(GameplayManager.Instance.GetWinnerInfos());
         base.Show();
         await Task.Delay(5000);
         Hide();

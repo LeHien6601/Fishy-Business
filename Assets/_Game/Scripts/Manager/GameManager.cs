@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using HHDCore;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -24,7 +25,7 @@ public class GameManager : SingletonMonoNet<GameManager>
         }
     }
     #endregion
-    
+
     public void StartGame()
     {
         if (NetworkManager.Singleton.IsHost)
@@ -34,6 +35,13 @@ public class GameManager : SingletonMonoNet<GameManager>
             NetworkManager.Singleton.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
             _spawnedPlayerNames.Clear();
             Debug.Log("Game Started.");
+        }
+    }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            GameplayManager.Instance.HandleEndGame(NetworkManager.Singleton.ConnectedClientsIds.ToList(), NetworkManager.Singleton.ConnectedClientsIds.ToList());
         }
     }
 

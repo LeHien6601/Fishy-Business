@@ -825,6 +825,7 @@ public class NetworkBoardManager : NetworkBehaviour
             return;
 
         List<ulong> winners = new();
+        List<ulong> players = new();
         PlayerRole roleWin = isDogWin ? PlayerRole.Dog : PlayerRole.Cat;
         foreach (var pair in _playerAndHolderMap)
         {
@@ -832,8 +833,10 @@ public class NetworkBoardManager : NetworkBehaviour
             {
                 winners.Add(pair.Key);
             }
+            players.Add(pair.Key);
         }
         Debug.Log("winners:" + winners);
+        GameplayManager.Instance.HandleEndGame(winners, players);
     }
 
     public void Reset()
