@@ -85,7 +85,7 @@ public static class SceneSwitcherToolbar
 
         // Fetch all scenes toggle button (Disabled in Play Mode)
         EditorGUI.BeginDisabledGroup(isPlaying);
-        bool newFetchAllScenes = GUILayout.Toggle(fetchAllScenes, "NotBuilds", "Button", GUILayout.Height(dropdownBoxHeight));
+        bool newFetchAllScenes = GUILayout.Toggle(fetchAllScenes, "All", "Button", GUILayout.Height(dropdownBoxHeight));
         if (newFetchAllScenes != fetchAllScenes)
         {
             fetchAllScenes = newFetchAllScenes;

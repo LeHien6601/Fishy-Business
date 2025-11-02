@@ -18,7 +18,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
     private readonly List<CardData> _masterDeck = new(); // only server has the full deck data
     private int _tressureIndex = -1; // only server knows this, clients if want to know must send a rpc
-    private NetworkList<ulong> _playerOrders = new();
+    private NetworkList<ulong> _playerOrders = new(); // sever only
     private ulong _inTurnPlayer = ulong.MaxValue;
     private const float _waitBetweenPlayerTurns = 1f;
     private const float _actionCardDuration = 2;
@@ -812,6 +812,7 @@ public class NetworkBoardManager : NetworkBehaviour
     public void Reset()
     {
         ResetClientRpc();
+        _playerOrders.Clear();
     }
 
     [ClientRpc]
@@ -822,7 +823,6 @@ public class NetworkBoardManager : NetworkBehaviour
             Destroy(holder.gameObject);
         }
         _turnIndicator.gameObject.SetActive(false);
-        _playerOrders.Clear();
         _cardHolders.Clear();
         _playerAndHolderMap.Clear();
         _placingCard = null;
