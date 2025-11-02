@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Card_Path_EW_SO
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 5e260fdb99294c24699185ec92337e15, type: 2}
+  Symbol: {fileID: 21300000, guid: 22af33b95ef34af448d970391d30835b, type: 3}
   Connections: 00010001
   CardType: 1
   PathCardType: 1
+  ActionCardType: 0
+  ToolType: 0

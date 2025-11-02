@@ -20,7 +20,7 @@ public class RoundTable : NetworkBehaviour
     [SerializeField] private List<Seat> _seats; // only server knows this list
     private readonly List<NetworkObjectReference> _netSeats = new(); // all clients know this list
     public NetworkList<ulong> PlayerOrders = new(); // server writes, all read
-    private bool _gameplaying;
+    private bool _gameplaying = false;
     // public event UnityAction OnBoardGameStarted;
     // public event UnityAction OnTurnEnded;
     // public event UnityAction OnBoardGameEnded;
@@ -44,7 +44,7 @@ public class RoundTable : NetworkBehaviour
 
     private void InitSeats()
     {
-        _gameplaying = false;
+        _netSeats.Clear();
         for (int i = 0; i < _seats.Count; i++)
         {
             float angle = i * Mathf.PI * 2 / _seats.Count;
@@ -62,11 +62,15 @@ public class RoundTable : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void StartBoardGameServerRpc()
     {
+        if (_gameplaying)
+            return;
         if (_boardManager == null)
         {
             Debug.LogError("Server BoardManager reference is missing!");
             return;
         }
+
+        _gameplaying = true;
         PlayerOrders.Clear();
         int occupiedCount = 0;
         foreach (var seat in _seats)
@@ -77,7 +81,6 @@ public class RoundTable : NetworkBehaviour
                 occupiedCount++;
             }
         }
-        _boardManager.Reset();
         ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
         _boardManager.StartGameLogic(PlayerOrders);
     }
@@ -141,9 +144,52 @@ public class RoundTable : NetworkBehaviour
     }
 
     [ContextMenu("Reset")]
-    public void Reset() => InitSeats();
+    [ServerRpc(RequireOwnership = false)]
+    public void ResetServerRpc()
+    {
+        if (!_gameplaying)
+            return;
 
+        _gameplaying = false;
+        _boardManager.Reset();
+        ResetSeatsClientRpc(_netSeats.ToArray());
+    }
 
+    [ClientRpc]
+    private void ResetSeatsClientRpc(NetworkObjectReference[] seatRefs)
+    {
+        for (int i = 0; i < seatRefs.Length; i++)
+        {
+            Seat seat = seatRefs[i].TryGet(out NetworkObject netObj) ? netObj.GetComponent<Seat>() : null;
+            seat.gameObject.SetActive(true);
+            // ----- calculate target position / rotation -----
+            float angle = i * Mathf.PI * 2f / seatRefs.Length;
+            Vector3 targetPos = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (_radius - 0.5f);
+            Quaternion targetRot = Quaternion.LookRotation(-targetPos.normalized, Vector3.up);
+            targetPos += transform.position;                  // world-world space
+
+            Transform seatTf = seat.transform;
+            // ----- DOTween animation -----
+            float duration = 0.8f;
+            Ease easeType = Ease.OutCubic;      // smooth deceleration
+
+            // 1) Position tween
+            Tween posTween = seatTf.DOMove(targetPos, duration)
+                                   .SetEase(easeType);
+            // 2) Rotation tween (runs in parallel)
+            Tween rotTween = seatTf.DOLocalRotateQuaternion(targetRot, duration)
+                                   .SetEase(easeType);
+
+            if (seat.GetOccupant())
+            {
+                Transform occupantTf = seat.GetOccupant().transform;
+                Tween occupantPosTween = occupantTf.DOMove(seat.SitPosition(targetPos, targetRot), duration)
+                                       .SetEase(easeType);
+                Tween occupantRotTween = occupantTf.DOLocalRotateQuaternion(targetRot, duration)
+                                       .SetEase(easeType);
+            }
+        }
+    }
 
 
 #if UNITY_EDITOR
@@ -151,11 +197,11 @@ public class RoundTable : NetworkBehaviour
     {
         if (Input.GetKeyDown(KeyCode.L)) //fast testing
         {
-            if (_gameplaying == false)
-            {
-                StartBoardGameServerRpc();
-                _gameplaying = true;
-            }
+            StartBoardGameServerRpc();
+        }
+        if (Input.GetKeyDown(KeyCode.R)) //fast testing
+        {
+            ResetServerRpc();
         }
     }
 #endif

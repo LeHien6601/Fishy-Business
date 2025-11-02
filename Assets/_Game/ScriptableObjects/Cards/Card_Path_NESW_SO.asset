@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Card_Path_NESW_SO
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 043f262b2ae9675498e922d568458483, type: 2}
+  Symbol: {fileID: 21300000, guid: e69794e2991fa884c9bc4e4c71e07133, type: 3}
   Connections: 01010101
   CardType: 1
   PathCardType: 1
+  ActionCardType: 0
+  ToolType: 0

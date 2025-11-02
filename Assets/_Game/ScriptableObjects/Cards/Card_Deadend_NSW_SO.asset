@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Card_Deadend_NSW_SO
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: cea018e2e3036ea429ef245541f7bb19, type: 2}
+  Symbol: {fileID: 21300000, guid: 3f70273571205ff419399721936b0df2, type: 3}
   Connections: 01000101
   CardType: 1
   PathCardType: 2
+  ActionCardType: 0
+  ToolType: 0

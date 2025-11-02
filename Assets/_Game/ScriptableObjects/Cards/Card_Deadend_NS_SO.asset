@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Card_Deadend_NS_SO
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: e62485182b7b5be4890ac37ff0f3e0af, type: 2}
+  Symbol: {fileID: 21300000, guid: 9ae56191c99f2744aa19b9eb792a2a7c, type: 3}
   Connections: 01000100
   CardType: 1
   PathCardType: 2
+  ActionCardType: 0
+  ToolType: 0

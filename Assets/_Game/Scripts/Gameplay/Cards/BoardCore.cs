@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class BoardCore : MonoBehaviour
 {
@@ -75,7 +77,7 @@ public class BoardCore : MonoBehaviour
 
 
     [ContextMenu("CheckGoal")]
-    public List<Vector2Int> IsConnectingToAHiddenGoal()
+    public List<GoalTracer> GetPathsToHiddenGoals()
     {
         if (_board == null)
         {
@@ -84,20 +86,38 @@ public class BoardCore : MonoBehaviour
         }
         bool[,] visited = new bool[_rows, _cols];
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
+        Dictionary<Vector2Int, Vector2Int> parent = new Dictionary<Vector2Int, Vector2Int>();
 
         queue.Enqueue(StartPos);
         visited[StartPos.x, StartPos.y] = true;
+        parent[StartPos] = StartPos; // cha của start là chính nó
 
-        List<Vector2Int> results = new();
+        List<GoalTracer> results = new();
+
         while (queue.Count > 0)
         {
             Vector2Int current = queue.Dequeue();
+
             if (GoalPos.Contains(current))
             {
                 Card goal = _board[current.x, current.y];
-                if (goal.Location == CardLocation.Hidden)
+                if (goal != null && goal.Location == CardLocation.Hidden)
                 {
-                    results.Add(current);
+                    // reconstruct path
+                    List<Vector2Int> path = new List<Vector2Int>();
+                    Vector2Int temp = current;
+                    while (!temp.Equals(StartPos))
+                    {
+                        path.Add(temp);
+                        temp = parent[temp];
+                    }
+                    path.Add(StartPos);
+                    path.Reverse();
+
+                    GoalTracer tracer = new();
+                    tracer.GoalSlot = current;
+                    tracer.Path = path;
+                    results.Add(tracer);
                 }
             }
             Card currentCard = _board[current.x, current.y];
@@ -133,6 +153,7 @@ public class BoardCore : MonoBehaviour
                 if (!visited[next.x, next.y])
                 {
                     visited[next.x, next.y] = true;
+                    parent[next] = current;
                     queue.Enqueue(next);
                 }
             }
@@ -142,14 +163,33 @@ public class BoardCore : MonoBehaviour
     }
 
     // Open Empty Goal
-    public void OpenHiddenGoalCard(Vector2Int slot, bool isTreasure)
+    public void OpenHiddenGoalCard(GoalTracer tracer, bool isTreasure)
     {
-        Card card = _board[slot.x, slot.y];
-        card.SetData(isTreasure? _goalTreasureCardSO : _goalEmtyCardSO, CardLocation.OnBoard);
+        Card card = _board[tracer.GoalSlot.x, tracer.GoalSlot.y];
         Quaternion rotate = cardPrefab.transform.localRotation;
         card.transform.localRotation = rotate;
+        card.SetData(isTreasure ? _goalTreasureCardSO : _goalEmtyCardSO, CardLocation.OnBoard);
+        if(isTreasure)
+        {
+            HightLightPathToTreasure(tracer.Path);
+        }
+    }
+
+    public void HightLightPathToTreasure(List<Vector2Int> path)
+    {
+        Debug.Log($"Goal reachable via path: {string.Join(" -> ", path)}");
+        StartCoroutine(HightLightPathRoutine(path));
     }
     
+    private IEnumerator HightLightPathRoutine(List<Vector2Int> path)
+    {
+        foreach(var slot in path)
+        {
+            _board[slot.x, slot.y].Highlight(true);
+            yield return Utils.GetWaitForSeconds(0.2f);
+        }
+    }
+
 
     public void DropCardOntoBoard(Card card, Action onComplete = null)
     {

@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Card_Revive_Cart_Hat
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 028d01be38e349045821bd4da380ddb4, type: 2}
+  Symbol: {fileID: 0}
   Connections: 00000000
   CardType: 2
   PathCardType: 0
   ActionCardType: 2
-  ToolType: 2
+  ToolType: 4
