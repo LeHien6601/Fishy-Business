@@ -115,7 +115,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private IEnumerator ReceiveHand(CardData[] cards)
     {
         Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} received {cards.Length} cards.");
-        WaitForSeconds wait = new(0.1f);
+        WaitForSeconds wait = Utils.GetWaitForSeconds(0.1f);
         foreach (CardData cardData in cards)
         {
             foreach (CardHolder holder in _cardHolders)

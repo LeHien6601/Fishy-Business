@@ -15,7 +15,7 @@ public static class SceneSwitcherToolbar
     private static string lastActiveScene = "";
     private static VisualElement toolbarUI;
 
-    private static float positionOffset = 120f; // Move closer to Play button
+    private static float positionOffset = 0f; // Move closer to Play button
     private static float dropdownBoxHeight = 20f; // Dropdown button height
 
     private static bool fetchAllScenes
@@ -85,7 +85,7 @@ public static class SceneSwitcherToolbar
 
         // Fetch all scenes toggle button (Disabled in Play Mode)
         EditorGUI.BeginDisabledGroup(isPlaying);
-        bool newFetchAllScenes = GUILayout.Toggle(fetchAllScenes, "NotInBuilds", "Button", GUILayout.Height(dropdownBoxHeight));
+        bool newFetchAllScenes = GUILayout.Toggle(fetchAllScenes, "NotBuilds", "Button", GUILayout.Height(dropdownBoxHeight));
         if (newFetchAllScenes != fetchAllScenes)
         {
             fetchAllScenes = newFetchAllScenes;
