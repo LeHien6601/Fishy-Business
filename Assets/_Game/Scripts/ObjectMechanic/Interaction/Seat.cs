@@ -6,7 +6,7 @@ public class Seat : NetworkBehaviour, IInteractable
 {
     [SerializeField] private Vector3 _sitOffset;
     [SerializeField] private Vector3 _sitDirection = new(0, 0, -1);
-    private PlayerController _occupant;
+    private PlayerController _localOccupant;
 
     private NetworkVariable<ulong> _occupyingClientId = new NetworkVariable<ulong>(
         ulong.MaxValue, // Indicates no client (empty seat)
@@ -22,58 +22,50 @@ public class Seat : NetworkBehaviour, IInteractable
             _occupyingClientId.Value = ulong.MaxValue;
         }
         _occupyingClientId.OnValueChanged += OnOccupyingClientChanged;
+
+        // late joiners will use NetworkVariable _occupyingClientId to sync gameObject.layer
+        gameObject.layer = _occupyingClientId.Value == ulong.MaxValue ? Constant.INTERACTABLE_LAYER : Constant.IGNORE_LAYER;
     }
 
     public async void Interact(PlayerController actor)
     {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsClient)
+        await Task.Yield();
+        _localOccupant = actor;
+        RequestSeatServerRpc(NetworkManager.Singleton.LocalClientId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestSeatServerRpc(ulong requesterId)
+    {
+        if (_occupyingClientId.Value != ulong.MaxValue)
         {
-            await Task.Yield();
-            actor.Sit(this);
-            _occupant = actor;
+            Debug.Log("some-one wants to seat on an occupying seat");
+        }
+        else
+        {
+            gameObject.layer = Constant.IGNORE_LAYER; // fast Disable interactions on server
+            _occupyingClientId.Value = requesterId;
+            OccupySeatClientRpc(requesterId);
         }
     }
 
-    public void OnEnterSeat()
+    [ClientRpc]
+    private void OccupySeatClientRpc(ulong requesterId)
     {
-        ulong localClientId = NetworkManager.Singleton.LocalClientId;
-        RequestOccupySeatServerRpc(localClientId);
+        gameObject.layer = Constant.IGNORE_LAYER; // Disable interactions on clients
+        if (requesterId == NetworkManager.Singleton.LocalClientId && _localOccupant != null)
+        {
+            _localOccupant.Sit(this);
+        }
     }
 
     public void OnExitSeat()
     {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsClient)
-        {
-            ulong localClientId = NetworkManager.Singleton.LocalClientId;
-            RequestExitSeatServerRpc(localClientId);
-        }
+        ExitSeatServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void RequestOccupySeatServerRpc(ulong clientId)
-    {
-        // Check if seat is already occupied
-        if (_occupyingClientId.Value != ulong.MaxValue)
-        {
-            Debug.LogWarning($"Seat already occupied by client {_occupyingClientId.Value}.");
-            _occupant = null;
-            return;
-        }
-
-        // Occupy seat
-        _occupyingClientId.Value = clientId;
-        OnEnterClientRpc(clientId);
-    }
-
-    [ClientRpc]
-    private void OnEnterClientRpc(ulong clientId)
-    {
-        gameObject.layer = Constant.IGNORE_LAYER; // Disable interactions
-        Debug.Log($"Client {clientId} occupied seat {gameObject.name}.");
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void RequestExitSeatServerRpc(ulong clientId)
+    private void ExitSeatServerRpc(ulong clientId)
     {
         // Check if client is occupying this seat
         if (_occupyingClientId.Value != clientId)
@@ -84,15 +76,7 @@ public class Seat : NetworkBehaviour, IInteractable
 
         // Free seat
         _occupyingClientId.Value = ulong.MaxValue;
-        _occupant = null;
-        OnExitClientRpc(clientId);
-    }
-
-    [ClientRpc]
-    private void OnExitClientRpc(ulong clientId)
-    {
-        gameObject.layer = Constant.INTERACTABLE_LAYER; // Re-enable interactions
-        Debug.Log($"Client {clientId} left seat {gameObject.name}.");
+        _localOccupant = null;
     }
 
     private void OnOccupyingClientChanged(ulong oldClientId, ulong newClientId)
@@ -113,5 +97,5 @@ public class Seat : NetworkBehaviour, IInteractable
     public Quaternion SitRotation() => transform.rotation * Quaternion.LookRotation(_sitDirection);
     public bool IsOccupied() => _occupyingClientId.Value != ulong.MaxValue;
     public ulong GetOccupyingClientId() => _occupyingClientId.Value;
-    public PlayerController GetOccupant() => _occupant;
+    public PlayerController GetOccupant() => _localOccupant;
 }

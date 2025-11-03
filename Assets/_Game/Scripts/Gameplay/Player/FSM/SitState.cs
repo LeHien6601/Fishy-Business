@@ -27,7 +27,6 @@ public class SitState : IState
         _animator.Play(_animHash);
         _animator.transform.SetPositionAndRotation(_seat.SitPosition(), _seat.SitRotation());
         if (_seat.CompareTag(Constant.GAME_SEAT_TAG)) CameraController.SwitchCamMode(CameraMode.FirstPerson);
-        _seat.OnEnterSeat();
     }
 
     public virtual void OnExit()
