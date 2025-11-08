@@ -30,8 +30,9 @@ public class NetworkBoardManager : NetworkBehaviour
     private ulong? _targerPlayer = null; // the player that is targeted by a tool card (break/repair)
     private const float _placingOffset = 0.05f;
     private const float _snapDistance = 1f;
-    private const float _deckStackSpace = 0.002f;
+    private const float _deckStackSpace = 0.001f;
     private PlayerState _localPlayerState = PlayerState.NONE;
+    private IEnumerator _countDownTurnRoutine;
 
     public override void OnNetworkSpawn()
     {
@@ -897,6 +898,15 @@ public class NetworkBoardManager : NetworkBehaviour
         var direction = inTurnHolder.transform.position - _turnIndicator.position;
         direction.y = 0;
         _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
+
+        // ---- Start CountDown ----
+        if (_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
+        _countDownTurnRoutine = CountDownTurnRoutine();
+        StartCoroutine(_countDownTurnRoutine);
     }
 
     private Vector3 GetMouseWorldPointOnBoard()
@@ -908,6 +918,25 @@ public class NetworkBoardManager : NetworkBehaviour
             return hit;
         }
         return Vector3.zero;
+    }
+    #endregion
+
+    #region AutoPlay
+    private void OnEndTime()
+    {
+        CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
+        inTurnHolder.DiscardRandomCard();
+    }
+    private IEnumerator CountDownTurnRoutine()
+    {
+        float time = Constant.TURN_INTERVAL;
+        while (time > 0)
+        {
+            time -= Time.deltaTime;
+            Debug.Log(time);
+            yield return null;
+        }
+        OnEndTime();
     }
     #endregion
 

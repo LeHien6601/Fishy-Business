@@ -178,6 +178,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         }
         OffHighlight(); // turn of if any
     }
+    
 
     public void OnPointerExit(PointerEventData eventData)
     {
@@ -198,5 +199,10 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         {
             OnHoverCard.Invoke(this);
         }
+    }
+
+    public void TriggerDiscardCard()
+    {
+        OnDiscardCard?.Invoke(this);
     }
 }

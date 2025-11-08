@@ -131,6 +131,14 @@ public class CardHolder : MonoBehaviour
         return RemoveCard(card, CardLocation.None);
     }
 
+    public void DiscardRandomCard()
+    {
+        if (handCards.Count == 0)
+            return;
+        int random = Random.Range(0, handCards.Count);
+        handCards[random].TriggerDiscardCard();
+    }
+
     public int GetCardIndex(Card card)
     {
         return handCards.IndexOf(card);
