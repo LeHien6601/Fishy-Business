@@ -78,6 +78,7 @@ public class RoundTable : NetworkBehaviour
             if (seat.IsOccupied())
             {
                 PlayerOrders.Add(seat.GetOccupyingClientId());
+                GameplayManager.Instance.TriggerStartGame(seat.GetOccupyingClientId());
                 occupiedCount++;
             }
         }
@@ -152,6 +153,10 @@ public class RoundTable : NetworkBehaviour
 
         _gameplaying = false;
         _boardManager.Reset();
+        foreach (var seat in _seats)
+        {
+            GameplayManager.Instance.TriggerEndGame(seat.GetOccupyingClientId());
+        }
         ResetSeatsClientRpc(_netSeats.ToArray());
     }
 

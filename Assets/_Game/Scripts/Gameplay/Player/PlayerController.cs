@@ -40,6 +40,8 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Move += HandleMove;
         _inputReader.Attack += HandleAttack;
         _inputReader.Interact += HandleInteract;
+        GameplayManager.Instance.OnStartGame += OnStartGame;
+        GameplayManager.Instance.OnEndGame += OnEndGame;
 
         _targetTransformChannel.RaiseEvent(transform);
         _headBoneTransformChannel.RaiseEvent(_headBone);
@@ -53,8 +55,22 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Move -= HandleMove;
         _inputReader.Attack -= HandleAttack;
         _inputReader.Interact -= HandleInteract;
+
+        GameplayManager.Instance.OnStartGame -= OnStartGame;
+        GameplayManager.Instance.OnEndGame -= OnEndGame;
     }
 
+    private void OnEndGame(ulong arg0)
+    {
+        if (NetworkManager.Singleton.LocalClientId != arg0) return;
+        _inputReader.Interact += HandleInteract;
+    }
+
+    private void OnStartGame(ulong arg0)
+    {
+        if (NetworkManager.Singleton.LocalClientId != arg0) return;
+        _inputReader.Interact -= HandleInteract;
+    }
 
     private void HandleMove(Vector2 arg0)
     {
