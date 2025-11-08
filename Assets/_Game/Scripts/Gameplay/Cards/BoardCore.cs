@@ -75,6 +75,7 @@ public class BoardCore : MonoBehaviour
         });
     }
 
+    // Polymorphism Here
     public void PlacePathCardAt(Card card, Vector2Int slot, Quaternion rotation , Action onComplete = null)
     {
         if (card == null || !IsInsideBoard(slot)) return;

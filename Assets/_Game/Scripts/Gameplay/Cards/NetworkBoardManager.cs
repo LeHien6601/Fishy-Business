@@ -351,6 +351,7 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
 
+    // Polymorphism Here
     [ServerRpc(RequireOwnership = false)]
     private void MovePlacingCardServerRpc(Vector2Int slot)
     {
@@ -454,6 +455,9 @@ public class NetworkBoardManager : NetworkBehaviour
         DISCARD, // esc
     }
 
+
+
+    // Polymorphism Here
     [ServerRpc(RequireOwnership = false)]
     private void SendInputActionServerRpc(InputAction action, Quaternion rotation)
     {
@@ -463,7 +467,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         else
         {
-            SendInputActionClientRpc(action);
+            SendInputActionClientRpc(action, _placingCard.transform.localRotation);
         }
     }
 
