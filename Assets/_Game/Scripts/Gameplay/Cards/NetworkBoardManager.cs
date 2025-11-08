@@ -934,7 +934,9 @@ public class NetworkBoardManager : NetworkBehaviour
     #region AutoPlay
     private void OnEndTime()
     {
+        if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0) return;
         CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
+        if (inTurnHolder == null) return;
         inTurnHolder.DiscardRandomCard();
     }
     private IEnumerator CountDownTurnRoutine()

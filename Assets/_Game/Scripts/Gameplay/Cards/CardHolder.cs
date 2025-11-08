@@ -136,6 +136,7 @@ public class CardHolder : MonoBehaviour
         if (handCards.Count == 0)
             return;
         int random = Random.Range(0, handCards.Count);
+        if (handCards[random] == null) return;
         handCards[random].TriggerDiscardCard();
     }
 
