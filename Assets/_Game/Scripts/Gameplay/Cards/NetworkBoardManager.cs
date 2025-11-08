@@ -331,7 +331,7 @@ public class NetworkBoardManager : NetworkBehaviour
             {
                 _hoveringSlot = bestSlot.Value;
                 // MovePlacingCardServerRpc(bestSlot.Value);
-                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.transform.localRotation);
+                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.GetRealRotateCard());
             }
         }
     }
@@ -348,35 +348,6 @@ public class NetworkBoardManager : NetworkBehaviour
         if (_placingCard.CardType == CardType.Path)
         {
             _placingCard.transform.localRotation = quaternion;
-            _hoveringSlot = slot;
-            if (!_boardCore.IsPlacableWithCurrentRotation(_placingCard, slot))
-            {
-                _placingCard.Rotate();
-            }
-        }
-        else if (_placingCard.ActionCardType != ActionCardType.Bomb && _placingCard.ActionCardType != ActionCardType.CheckGold)
-        {
-            return;
-        }
-
-        // move card visually to this slot position (slightly above)
-        Vector3 targetPos = _boardCore.GetWorldPositionForSlot(slot) + Vector3.up * _placingOffset;
-        _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
-    }
-
-
-    // Polymorphism Here
-    [ServerRpc(RequireOwnership = false)]
-    private void MovePlacingCardServerRpc(Vector2Int slot)
-    {
-        MovePlacingCardClientRpc(slot);
-    }
-
-    [ClientRpc]
-    private void MovePlacingCardClientRpc(Vector2Int slot)
-    {
-        if (_placingCard.CardType == CardType.Path)
-        {
             _hoveringSlot = slot;
             if (!_boardCore.IsPlacableWithCurrentRotation(_placingCard, slot))
             {
