@@ -243,6 +243,7 @@ public class NetworkBoardManager : NetworkBehaviour
         _placingCard = card;
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_boardCore.transform);
+        card.transform.localScale = Vector3.one;
         PlayerState nextState = MatchStateWithCard(card);
         _boardCore.DropCardOntoBoard(card, onComplete: () => { _localPlayerState = nextState; });
 

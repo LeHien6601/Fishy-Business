@@ -13,6 +13,8 @@ public class CardHolder : MonoBehaviour
     public static float CardThickness = 0.01f;
     [SerializeField] private Quaternion rotationOffset = Quaternion.identity;
     [SerializeField] private Transform _beforeFaceSlot;
+    [SerializeField] private Vector3 _handOffset;
+    [SerializeField] private Transform _cardContainer;
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
@@ -70,7 +72,8 @@ public class CardHolder : MonoBehaviour
         if (card == null) return;
 
         handCards.Add(card);
-        card.transform.SetParent(transform, true);
+        card.transform.SetParent(_cardContainer, true);
+        card.transform.localScale = Vector3.one;
         card.Holder = this;
         card.Location = CardLocation.PlayerHand;
 
@@ -224,7 +227,7 @@ public class CardHolder : MonoBehaviour
                 0f
             );
             Vector3 offset = (i - handCards.Count / 2f) * CardThickness * transform.forward;
-            Vector3 endPos = transform.TransformPoint(localPos) + offset;
+            Vector3 endPos = transform.TransformPoint(localPos) + offset + _handOffset;
 
             handCards[i].DOKill();
             // Animate with DOTween
@@ -250,7 +253,7 @@ public class CardHolder : MonoBehaviour
             0f
         );
         Vector3 offset = (index - handCards.Count / 2f) * CardThickness * transform.forward;
-        Vector3 endPos = transform.TransformPoint(localPos) + offset;
+        Vector3 endPos = transform.TransformPoint(localPos) + offset + _handOffset;
 
         return (endPos, endRotation);
     }

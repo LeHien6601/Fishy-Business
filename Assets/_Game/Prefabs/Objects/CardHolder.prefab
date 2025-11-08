@@ -32,6 +32,7 @@ Transform:
   m_Children:
   - {fileID: 4021512077508387046}
   - {fileID: 838760903683621613}
+  - {fileID: 7305513372142644604}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 48, y: 0, z: 0}
 --- !u!114 &7166603470112289033
@@ -48,6 +49,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationOffset: {x: 0, y: 0, z: 0, w: 1}
   _beforeFaceSlot: {fileID: 4021512077508387046}
+  _handOffset: {x: 0, y: -0.12, z: 0}
+  _cardContainer: {fileID: 7305513372142644604}
   IsMine: 0
   IsTurn: 0
   _cartCoin: {fileID: 3433239789444642856}
@@ -109,8 +112,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2632829059607208658}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38742483, y: 0.000000039347473, z: 0.000000015104082, w: 0.92190135}
-  m_LocalPosition: {x: 0, y: 0.24, z: 0.469}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0.08, z: 0.32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -118,7 +121,38 @@ Transform:
   - {fileID: 4416995451412556685}
   - {fileID: 892518797816687809}
   m_Father: {fileID: 1652505997874262010}
-  m_LocalEulerAnglesHint: {x: 45.589, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
+--- !u!1 &5080820892929926873
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7305513372142644604}
+  m_Layer: 3
+  m_Name: CardContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7305513372142644604
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5080820892929926873}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1652505997874262010}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &858046106813434666
 PrefabInstance:
   m_ObjectHideFlags: 0
