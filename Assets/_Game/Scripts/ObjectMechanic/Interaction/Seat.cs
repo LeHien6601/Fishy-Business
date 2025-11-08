@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
@@ -13,6 +14,16 @@ public class Seat : NetworkBehaviour, IInteractable
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
+    public event Action<PlayerEnterSeatEventArg> OnPlayerEnterSeat;
+    public struct PlayerEnterSeatEventArg : INetworkSerializable
+    {
+        public ulong OldClientId, NewClientId;
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref OldClientId);
+            serializer.SerializeValue(ref NewClientId);
+        }
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -81,15 +92,14 @@ public class Seat : NetworkBehaviour, IInteractable
 
     private void OnOccupyingClientChanged(ulong oldClientId, ulong newClientId)
     {
-        // Update local state (e.g., UI or visuals) when seat occupancy changes
-        if (newClientId == ulong.MaxValue)
+        bool isEnterSeat = newClientId == ulong.MaxValue;
+        gameObject.layer =  isEnterSeat?
+            Constant.INTERACTABLE_LAYER : Constant.IGNORE_LAYER;
+        OnPlayerEnterSeat?.Invoke(new PlayerEnterSeatEventArg()
         {
-            gameObject.layer = Constant.INTERACTABLE_LAYER; // Seat is empty
-        }
-        else
-        {
-            gameObject.layer = Constant.IGNORE_LAYER; // Seat is occupied
-        }
+            OldClientId = oldClientId,
+            NewClientId = newClientId
+        });
     }
 
     public Vector3 SitPosition() => transform.position + transform.TransformDirection(_sitOffset);
@@ -99,3 +109,4 @@ public class Seat : NetworkBehaviour, IInteractable
     public ulong GetOccupyingClientId() => _occupyingClientId.Value;
     public PlayerController GetOccupant() => _localOccupant;
 }
+

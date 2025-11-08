@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class RoundTable : NetworkBehaviour
 {
@@ -20,10 +19,8 @@ public class RoundTable : NetworkBehaviour
     [SerializeField] private List<Seat> _seats; // only server knows this list
     private readonly List<NetworkObjectReference> _netSeats = new(); // all clients know this list
     public NetworkList<ulong> PlayerOrders = new(); // server writes, all read
-    private bool _gameplaying = false;
-    // public event UnityAction OnBoardGameStarted;
-    // public event UnityAction OnTurnEnded;
-    // public event UnityAction OnBoardGameEnded;
+    [SerializeField] private Button _startBtn;
+    private NetworkVariable<bool> _gameplaying = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public override void OnNetworkSpawn()
     {
         if (IsHost || IsServer)
@@ -37,9 +34,36 @@ public class RoundTable : NetworkBehaviour
                 seat.GetComponent<NetworkObject>().Spawn(true);
                 seat.name = $"Seat {i + 1}";
                 _seats.Add(seat);
+                seat.OnPlayerEnterSeat += HandleChangeGameStateRpc;
             }
             InitSeats();
         }
+        _startBtn.onClick.AddListener(StartBoardGameServerRpc);
+        _gameplaying.OnValueChanged += HandleChangeGameState;
+    }
+    [Rpc(SendTo.Everyone)]
+    private void HandleChangeGameStateRpc(Seat.PlayerEnterSeatEventArg args)
+    {
+        if (args.OldClientId == NetworkManager.Singleton.LocalClientId)
+        {
+            _startBtn.gameObject.SetActive(false);
+        }
+        if (args.NewClientId == NetworkManager.Singleton.LocalClientId) 
+        {
+            _startBtn.gameObject.SetActive(true);
+        }
+    }
+
+    private void HandleChangeGameState(bool previousValue, bool newValue)
+    {
+        if (newValue)
+            _startBtn.gameObject.SetActive(false);
+    }
+
+    public override void OnDestroy()
+    {
+        _startBtn.onClick.RemoveAllListeners();
+        base.OnDestroy();
     }
 
     private void InitSeats()
@@ -62,7 +86,7 @@ public class RoundTable : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void StartBoardGameServerRpc()
     {
-        if (_gameplaying)
+        if (_gameplaying.Value)
             return;
         if (_boardManager == null)
         {
@@ -70,7 +94,8 @@ public class RoundTable : NetworkBehaviour
             return;
         }
 
-        _gameplaying = true;
+        _gameplaying.Value = true;
+
         PlayerOrders.Clear();
         int occupiedCount = 0;
         foreach (var seat in _seats)
@@ -148,10 +173,10 @@ public class RoundTable : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void ResetServerRpc()
     {
-        if (!_gameplaying)
+        if (!_gameplaying.Value)
             return;
 
-        _gameplaying = false;
+        _gameplaying.Value = false;
         _boardManager.Reset();
         foreach (var seat in _seats)
         {
@@ -208,15 +233,9 @@ public class RoundTable : NetworkBehaviour
         {
             ResetServerRpc();
         }
+        
     }
 #endif
+
 }
 
-// public enum BoardGameState
-// {
-//     WaitingForPlayers,
-//     DealingCards,
-//     PlayerTurn,
-//     RoundEnd,
-//     GameEnd
-// }

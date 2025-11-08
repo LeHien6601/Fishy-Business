@@ -5418,23 +5418,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.4
+      value: -6.25
       objectReference: {fileID: 0}
     - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.030834
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 17.937681
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9702957
+      value: 0.9980676
       objectReference: {fileID: 0}
     - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.2419219
+      value: 0.06213744
       objectReference: {fileID: 0}
     - target: {fileID: 3300744077860899600, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_LocalRotation.y
@@ -5454,11 +5454,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6545577006575079135, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: field of view
-      value: 17.6
+      value: 60.000004
       objectReference: {fileID: 0}
     - target: {fileID: 6545577006575079135, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: near clip plane
-      value: 4.1
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 8399639361241533213, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
       propertyPath: m_IsActive
@@ -24452,6 +24452,10 @@ PrefabInstance:
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 4189244092
       objectReference: {fileID: 0}
+    - target: {fileID: 5961079652306323777, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: _cardDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: c1e037bebcff67e4285c77bea38013f9, type: 2}
     - target: {fileID: 6143101593210262607, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

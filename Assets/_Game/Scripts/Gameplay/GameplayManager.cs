@@ -12,6 +12,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     public event UnityAction<ulong> OnStartGame;
     public event UnityAction<ulong> OnEndGame;
     public event Action<StartedNewTurnEventArgs> OnStartedNewTurn;
+    public event Action OnResetGame;
     public struct StartedNewTurnEventArgs
     {
         public ulong ClientId;

@@ -902,7 +902,6 @@ public class NetworkBoardManager : NetworkBehaviour
         while (time > 0)
         {
             time -= Time.deltaTime;
-            Debug.Log(time);
             yield return null;
         }
         OnEndTime();
