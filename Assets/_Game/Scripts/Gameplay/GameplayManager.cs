@@ -1,16 +1,21 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
-using Unity.VisualScripting;
-using UnityEngine;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
     private List<LobbyManager.PlayerInfo> _winnerInfos = new(); //Only handle for 1 board!
     private PlayerRole _playerRole;
-    //Server
+    public event Action<StartedNewTurnEventArgs> OnStartedNewTurn;
+    public struct StartedNewTurnEventArgs
+    {
+        public ulong ClientId;
+    }
+
+    #region HANDLERS
+    //Server-Start game
     public void HandleStartGame(Dictionary<ulong, PlayerRole> playerRoleMap)
     {
         foreach (var pair in playerRoleMap)
@@ -25,12 +30,9 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         _playerRole = role;
         UIManager.Instance.ShowUI(EUIState.InGame);
     }
-    public PlayerRole GetPlayerRole()
-    {
-        return _playerRole;
-    }
     
-    //Server
+    
+    //Server-End game
     public void HandleEndGame(List<ulong> winnerIds, List<ulong> playerIds)
     {
         _winnerInfos.Clear();
@@ -56,5 +58,21 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         _winnerInfos = winnerInfos.ToList();
         UIManager.Instance.ShowUI(EUIState.EndGame);
     }
+    
+    public void HandleNewTurn(ulong cliendId)
+    {
+        OnStartedNewTurn?.Invoke(new StartedNewTurnEventArgs()
+        {
+            ClientId = cliendId
+        });
+    }
+    #endregion
+
+    #region GETTERS
     public List<LobbyManager.PlayerInfo> GetWinnerInfos() { return _winnerInfos; }
+    public PlayerRole GetPlayerRole()
+    {
+        return _playerRole;
+    }
+    #endregion
 }

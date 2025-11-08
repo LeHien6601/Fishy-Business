@@ -897,6 +897,8 @@ public class NetworkBoardManager : NetworkBehaviour
         var direction = inTurnHolder.transform.position - _turnIndicator.position;
         direction.y = 0;
         _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
+
+        GameplayManager.Instance.HandleNewTurn(nextPlayerId);
     }
 
     private Vector3 GetMouseWorldPointOnBoard()
