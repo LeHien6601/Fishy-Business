@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class NetworkBoardManager : NetworkBehaviour
 {
@@ -34,6 +35,10 @@ public class NetworkBoardManager : NetworkBehaviour
     private PlayerState _localPlayerState = PlayerState.NONE;
     private IEnumerator _countDownTurnRoutine;
 
+    // API - transfer visual effects/ sound effects to another class to handle
+    public event UnityAction<Vector3> BombEvent;
+    // public event UnityAction 
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -41,7 +46,7 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
     #region SETUP
-    public async void StartGameLogic(NetworkList<ulong> playerOrders)
+    public async void ServerStartGameLogic(NetworkList<ulong> playerOrders)
     {
         if (!IsServer) return;
 
@@ -233,11 +238,6 @@ public class NetworkBoardManager : NetworkBehaviour
     private void PlayCard(Card card)
     {
         // condition checking are already handled when hovering in hand
-        if(_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
         card.Holder.IsTurn = false;
         PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
         _placingCard = card;
@@ -290,11 +290,6 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
-        if(_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         _placingCard = card;
@@ -332,7 +327,7 @@ public class NetworkBoardManager : NetworkBehaviour
             {
                 _hoveringSlot = bestSlot.Value;
                 // MovePlacingCardServerRpc(bestSlot.Value);
-                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.GetRealRotateCard());
+                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.GetRealRotation());
             }
         }
     }
@@ -379,16 +374,14 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     // after placing card, wait for drawing a new card, then end turn 
                     _localPlayerState = PlayerState.NONE;
-
-                    SendInputActionServerRpc(InputAction.CONFIRM, _placingCard.GetRealRotateCard());
-                    // SendInputActionServerRpc(InputAction.CONFIRM);
+                    ConfirmCardPlacementServerRpc(_hoveringSlot.Value, _placingCard.GetRealRotation());
                 }
                 if (Input.GetMouseButtonDown(1)) // right mouse = rotate
                 {
                     // check condition in advance before sending RPC to save network traffic
                     if (_boardCore.IsPlacableWithOppositeRotation(_placingCard, _hoveringSlot.Value))
                     {
-                        SendInputActionServerRpc(InputAction.ROTATE);
+                        RotateCardServerRpc();
                     }
                 }
                 break;
@@ -404,7 +397,6 @@ public class NetworkBoardManager : NetworkBehaviour
                 break;
             case PlayerState.USING_TOOL:
                 // ignore you if its a break tool type
-                // HoverTargerPlayer(ignoreYourself: _placingCard.ActionCardType == ActionCardType.BrokenTool);
                 if (_placingCard.ActionCardType == ActionCardType.BrokenTool)
                     HoverTargetPlayer(ignore: (player) => player.IsMine || !player.HasTool(_placingCard.ToolType));
                 else if (_placingCard.ActionCardType == ActionCardType.FixTool)
@@ -434,84 +426,48 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    public enum InputAction
+    [ServerRpc(RequireOwnership = false)]
+    private void ConfirmCardPlacementServerRpc(Vector2Int slot, Quaternion rot)
     {
-        CONFIRM, // left mouse
-        ROTATE, // right mouse
-        DISCARD, // esc
+        ConfirmCardPlacementClientRpc(slot, rot);
     }
 
-
-
-    // Polymorphism Here
-    [ServerRpc(RequireOwnership = false)]
-    private void SendInputActionServerRpc(InputAction action, Quaternion rotation)
+    [ClientRpc]
+    private void ConfirmCardPlacementClientRpc(Vector2Int slot, Quaternion rot)
     {
-        if (rotation != Quaternion.identity)
+        if (_placingCard)
         {
-            SendInputActionClientRpc(action, rotation);
+            _boardCore.PlacePathCardAt(_placingCard, slot, rot, () =>
+            {
+                ServerCheckConnectingToHiddenGoals();
+            });
+            _boardCore.ClearValidSlots();
+            _placingCard = null;
+            _hoveringSlot = null;
         }
         else
         {
-            SendInputActionClientRpc(action, _placingCard.transform.localRotation);
-        }
-    }
-
-    [ClientRpc]
-    private void SendInputActionClientRpc(InputAction action, Quaternion rotation)
-    {
-        switch (action)
-        {
-            case InputAction.CONFIRM:
-                if (_placingCard)
-                {
-                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, rotation, () =>
-                    {
-                        ServerCheckConnectingToHiddenGoals();
-                    });
-                    _boardCore.ClearValidSlots();
-                    _placingCard = null;
-                    _hoveringSlot = null;
-                }
-                break;
-            case InputAction.ROTATE:
-                _placingCard.Rotate();
-                break;
-            case InputAction.DISCARD: // not allow for now
-            default:
-                break;
+            Debug.LogWarning("_placingCard should not be null in this function");
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendInputActionServerRpc(InputAction action)
+    private void RotateCardServerRpc()
     {
-        SendInputActionClientRpc(action);
+        RotateCardClientRpc();
     }
 
+
     [ClientRpc]
-    private void SendInputActionClientRpc(InputAction action)
+    private void RotateCardClientRpc()
     {
-        switch (action)
+        if (_placingCard)
         {
-            case InputAction.CONFIRM:
-                if (_placingCard)
-                {
-                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, () =>
-                    {
-                        ServerCheckConnectingToHiddenGoals();
-                    });
-                    _boardCore.ClearValidSlots();
-                    _placingCard = null;
-                    _hoveringSlot = null;
-                }
-                break;
-            case InputAction.ROTATE:
-                _placingCard.Rotate();
-                break;
-            case InputAction.DISCARD: // not allow for now
-            default:
-                break;
+            _placingCard.Rotate();
+        }
+        else
+        {
+            Debug.LogWarning("_placingCard should not be null in this function");
         }
     }
 
@@ -553,14 +509,11 @@ public class NetworkBoardManager : NetworkBehaviour
     #region DISCARD CARD FROM HAND T0 DISCARD PILE
     private void DiscardCardFromHand(Card card)
     {
-        if(_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
+        StopCountDown();
         card.Holder.IsTurn = false;
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_discardPile.transform);
+        card.transform.DOScale(1f, 1f).SetEase(Ease.OutCubic);
         card.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
         card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
         // zero because we already edit the _discardPile pos and rot
@@ -589,11 +542,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
     {
-        if(_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
+        StopCountDown();
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         card.transform.SetParent(_discardPile.transform);
@@ -635,7 +584,6 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region BOMB A PATH ON BOARD
-
     [ServerRpc(RequireOwnership = false)]
     private void BombThisPathServerRpc(Vector2Int slot)
     {
@@ -651,12 +599,14 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void BombThisPathClientRpc(Vector2Int slot)
     {
-        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        Vector3 wp = _boardCore.GetWorldPositionForSlot(slot);
+        _placingCard.transform.DOMove(wp, BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
         {
             Destroy(_placingCard.gameObject);
             _placingCard = null;
         });
         _boardCore.BombThisPath(slot);
+        BombEvent.Invoke(wp);
         // @TODO: add some visuals
     }
 
@@ -875,6 +825,8 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             Debug.Log("It's your turn!");
             inTurnHolder.IsTurn = true;
+            // ---- Start CountDown ----
+            StartCountDown();
         }
         else
         {
@@ -891,14 +843,6 @@ public class NetworkBoardManager : NetworkBehaviour
         direction.y = 0;
         _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
 
-        // ---- Start CountDown ----
-        if (_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
-        _countDownTurnRoutine = CountDownTurnRoutine();
-        StartCoroutine(_countDownTurnRoutine);
 
         GameplayManager.Instance.HandleNewTurn(nextPlayerId);
     }
@@ -916,13 +860,57 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region AutoPlay
-    private void OnEndTime()
+    private void StopCountDown()
+    {
+        if (_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
+    }
+
+    private void StartCountDown()
+    {
+        if (_countDownTurnRoutine != null)
+            StopCoroutine(_countDownTurnRoutine);
+        _countDownTurnRoutine = CountDownTurnRoutine();
+        StartCoroutine(_countDownTurnRoutine);
+    }
+
+
+    private void OnEndTime() // only the in-turn player is supposed to call this function
     {
         if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0) return;
-        CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
-        if (inTurnHolder == null) return;
-        inTurnHolder.DiscardRandomCard();
+
+        if (_placingCard)
+        {
+            _localPlayerState = PlayerState.NONE; // fast switching state on in-turn side
+            DiscardPlacingCardServerRpc();
+        }
+        else
+        {
+            CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
+            if (inTurnHolder == null) return;
+            inTurnHolder.DiscardRandomCard();
+        }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DiscardPlacingCardServerRpc()
+    {
+        ServerDrawNewCardThenEndTurn();
+        DiscardPlacingCardClientRpc();
+    }
+
+    [ClientRpc]
+    private void DiscardPlacingCardClientRpc()
+    {
+        _localPlayerState = PlayerState.NONE;
+        _placingCard.transform.SetParent(_discardPile.transform);
+        _placingCard.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
+        _placingCard.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+    }
+
     private IEnumerator CountDownTurnRoutine()
     {
         float time = Constant.TURN_INTERVAL;

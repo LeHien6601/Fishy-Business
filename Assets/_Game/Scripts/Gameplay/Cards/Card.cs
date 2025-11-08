@@ -121,7 +121,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         Connections = newCon;
     }
 
-    public Quaternion GetRealRotateCard()
+    public Quaternion GetRealRotation()
     {
         if (CardType != CardType.Path || Connections == null || Connections.Length < 4) return Quaternion.Euler(new Vector3(90f, 0, 0f));
         for (int i = 0; i < 4; i++)
@@ -203,6 +203,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     public void TriggerDiscardCard()
     {
-        OnDiscardCard?.Invoke(this);
+        OnDiscardCard.Invoke(this);
     }
 }

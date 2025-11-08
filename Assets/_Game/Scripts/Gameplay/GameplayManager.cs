@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using HHDCore;
 using Unity.Netcode;
+using UnityEngine.Events;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
     private List<LobbyManager.PlayerInfo> _winnerInfos = new(); //Only handle for 1 board!
     private PlayerRole _playerRole;
+    public event UnityAction<ulong> OnStartGame;
+    public event UnityAction<ulong> OnEndGame;
     public event Action<StartedNewTurnEventArgs> OnStartedNewTurn;
     public struct StartedNewTurnEventArgs
     {
@@ -15,6 +18,14 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     }
 
     #region HANDLERS
+    public void TriggerStartGame(ulong id)
+    {
+        OnStartGame?.Invoke(id);
+    }
+    public void TriggerEndGame(ulong id)
+    {
+        OnEndGame?.Invoke(id);
+    }
     //Server-Start game
     public void HandleStartGame(Dictionary<ulong, PlayerRole> playerRoleMap)
     {
@@ -30,8 +41,8 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         _playerRole = role;
         UIManager.Instance.ShowUI(EUIState.InGame);
     }
-    
-    
+
+
     //Server-End game
     public void HandleEndGame(List<ulong> winnerIds, List<ulong> playerIds)
     {
@@ -58,7 +69,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         _winnerInfos = winnerInfos.ToList();
         UIManager.Instance.ShowUI(EUIState.EndGame);
     }
-    
+
     public void HandleNewTurn(ulong cliendId)
     {
         OnStartedNewTurn?.Invoke(new StartedNewTurnEventArgs()

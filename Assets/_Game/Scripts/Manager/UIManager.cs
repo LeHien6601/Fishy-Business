@@ -32,9 +32,11 @@ public class UIManager : SingletonMono<UIManager>
                 if (isShowingLobbyUI)
                 {
                     HideUI(EUIState.LobbyGameplay, true);
+                    Cursor.lockState = CursorLockMode.Locked;
                 }
                 else
                 {
+                    Cursor.lockState = CursorLockMode.None;
                     ShowUI(EUIState.LobbyGameplay);
                 }
             }
