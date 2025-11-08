@@ -209,6 +209,7 @@ public class BoardCore : MonoBehaviour
 
     public void DropCardOntoBoard(Card card, Action onComplete = null)
     {
+        card.transform.DOScale(1f, FromHandToBoardDuration * 0.2f).SetEase(Ease.OutCubic);
         card.transform.DOLocalRotate(new Vector3(90f, 0f, 0f), FromHandToBoardDuration * 0.2f).SetEase(Ease.OutCubic);
         card.transform.DOMove(_fromHandToBoardPos.position, FromHandToBoardDuration * 1.2f).SetEase(Ease.OutCubic).OnComplete(() =>
         {
