@@ -35,7 +35,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private PlayerState _localPlayerState = PlayerState.NONE;
     private IEnumerator _countDownTurnRoutine;
 
-    // API
+    // API - transfer visual effects/ sound effects to another class to handle
     public event UnityAction<Vector3> BombEvent;
     // public event UnityAction 
 
@@ -597,12 +597,14 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void BombThisPathClientRpc(Vector2Int slot)
     {
-        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        Vector3 wp = _boardCore.GetWorldPositionForSlot(slot);
+        _placingCard.transform.DOMove(wp, BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
         {
             Destroy(_placingCard.gameObject);
             _placingCard = null;
         });
         _boardCore.BombThisPath(slot);
+        BombEvent.Invoke(wp);
         // @TODO: add some visuals
     }
 
@@ -867,7 +869,8 @@ public class NetworkBoardManager : NetworkBehaviour
 
     private void StartCountDown()
     {
-        StopCoroutine(_countDownTurnRoutine);
+        if (_countDownTurnRoutine != null)
+            StopCoroutine(_countDownTurnRoutine);
         _countDownTurnRoutine = CountDownTurnRoutine();
         StartCoroutine(_countDownTurnRoutine);
     }
