@@ -917,6 +917,8 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         _countDownTurnRoutine = CountDownTurnRoutine();
         StartCoroutine(_countDownTurnRoutine);
+
+        GameplayManager.Instance.HandleNewTurn(nextPlayerId);
     }
 
     private Vector3 GetMouseWorldPointOnBoard()
