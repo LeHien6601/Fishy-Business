@@ -243,7 +243,6 @@ public class NetworkBoardManager : NetworkBehaviour
         _placingCard = card;
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_boardCore.transform);
-        card.transform.localScale = Vector3.one;
         PlayerState nextState = MatchStateWithCard(card);
         _boardCore.DropCardOntoBoard(card, onComplete: () => { _localPlayerState = nextState; });
 
@@ -765,23 +764,6 @@ public class NetworkBoardManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-        bool isOutOfCards = true;
-        foreach (var holder in _cardHolders)
-        {
-            if (!holder.IsEmpty())
-            {
-                isOutOfCards = false;
-                break;
-            }
-        }
-        if (isOutOfCards)
-        {
-            Debug.Log("Endgame due to out of cards");
-            ServerEndBoardGame(isDogWin: false);
-            return;
-        }
-
-
         int id = _masterDeck.Count - _cardsInDeck.Count;
         if (id >= 0 && id < _masterDeck.Count) // check before sending RPC to save bandwidth
         {
@@ -789,7 +771,11 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         // wait for a short moment then end turn
         _inTurnPlayer = _playerOrders[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _playerOrders.Count];
-        this.WaitThenExecute(_waitBetweenPlayerTurns, () => { NextTurnClientRpc(_inTurnPlayer); });
+        this.WaitThenExecute(_waitBetweenPlayerTurns, () =>
+        {
+            if (!ServerCheckForOutOfCards())
+                NextTurnClientRpc(_inTurnPlayer);
+        });
     }
 
     [ClientRpc]
@@ -825,7 +811,6 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             Debug.Log("It's your turn!");
             inTurnHolder.IsTurn = true;
-            // ---- Start CountDown ----
             StartCountDown();
         }
         else
@@ -925,6 +910,26 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region Endgame step
+
+    private bool ServerCheckForOutOfCards()
+    {
+        bool isOutOfCards = true;
+        foreach (var holder in _cardHolders)
+        {
+            if (!holder.IsEmpty())
+            {
+                isOutOfCards = false;
+                break;
+            }
+        }
+        if (isOutOfCards)
+        {
+            Debug.Log("Endgame due to out of cards");
+            ServerEndBoardGame(isDogWin: false);
+        }
+        return isOutOfCards;
+    }
+
     private void ServerEndBoardGame(bool isDogWin)
     {
         if (!IsServer)
