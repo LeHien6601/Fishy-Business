@@ -82,7 +82,7 @@ public class RoundTable : NetworkBehaviour
             }
         }
         ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
-        _boardManager.StartGameLogic(PlayerOrders);
+        _boardManager.ServerStartGameLogic(PlayerOrders);
     }
 
     /// <summary>

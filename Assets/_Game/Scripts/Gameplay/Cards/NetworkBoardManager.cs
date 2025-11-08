@@ -41,7 +41,7 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
     #region SETUP
-    public async void StartGameLogic(NetworkList<ulong> playerOrders)
+    public async void ServerStartGameLogic(NetworkList<ulong> playerOrders)
     {
         if (!IsServer) return;
 
@@ -331,7 +331,7 @@ public class NetworkBoardManager : NetworkBehaviour
             {
                 _hoveringSlot = bestSlot.Value;
                 // MovePlacingCardServerRpc(bestSlot.Value);
-                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.GetRealRotateCard());
+                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.GetRealRotation());
             }
         }
     }
@@ -378,7 +378,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     // after placing card, wait for drawing a new card, then end turn 
                     _localPlayerState = PlayerState.NONE;
-                    ConfirmCardPlacementServerRpc(_hoveringSlot.Value, _placingCard.GetRealRotateCard());
+                    ConfirmCardPlacementServerRpc(_hoveringSlot.Value, _placingCard.GetRealRotation());
                 }
                 if (Input.GetMouseButtonDown(1)) // right mouse = rotate
                 {
@@ -430,7 +430,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void ConfirmCardPlacementServerRpc(Vector2Int slot, Quaternion rot)
     {
         ConfirmCardPlacementClientRpc(slot, rot);
@@ -595,7 +595,6 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region BOMB A PATH ON BOARD
-
     [ServerRpc(RequireOwnership = false)]
     private void BombThisPathServerRpc(Vector2Int slot)
     {
