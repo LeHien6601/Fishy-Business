@@ -1,5 +1,53 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9133680027316100798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 255002665181537676}
+  - component: {fileID: 6779497058943192501}
+  m_Layer: 0
+  m_Name: BoardEffectHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &255002665181537676
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9133680027316100798}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6143101593210262607}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6779497058943192501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9133680027316100798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27e474e2c26c5ed4295d739417cda7a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardGameEffectHandler
+  _bombPrefab: {fileID: 2433282508537954060, guid: ca4abd46042290a44bd0deb7282300bc, type: 3}
+  _bombSize: 2
+  _upOffset: 0.1
+  _source: {fileID: 5961079652306323777}
 --- !u!1001 &5965606102020289444
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18,7 +66,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0eee47b1ddfaeae4e9c40826ed21fdd1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0eee47b1ddfaeae4e9c40826ed21fdd1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -74,6 +122,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0eee47b1ddfaeae4e9c40826ed21fdd1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8814269916308932634}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0eee47b1ddfaeae4e9c40826ed21fdd1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 255002665181537676}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0eee47b1ddfaeae4e9c40826ed21fdd1, type: 3}
       insertIndex: -1
@@ -123,8 +174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4189244092
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3537713087
+  InScenePlacedSourceGlobalObjectIdHash: 4189244092
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -166,6 +217,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 652408990101189457, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
+      propertyPath: _cardDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: 1a5cc9c612ef7fb468bdbfbf571a6347, type: 2}
     - target: {fileID: 1118738589342569302, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
       propertyPath: m_Name
       value: BoardManager
@@ -241,6 +296,14 @@ PrefabInstance:
     - target: {fileID: 5926982106345369991, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 6936226678464876808, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6936226678464876808, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -188202721
       objectReference: {fileID: 0}
     - target: {fileID: 8077146912050054615, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
       propertyPath: m_StaticEditorFlags

@@ -36,7 +36,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private IEnumerator _countDownTurnRoutine;
 
     // API - transfer visual effects/ sound effects to another class to handle
-    public event UnityAction<Vector3> BombEvent;
+    public event UnityAction<Vector3> BombEvent = delegate { };
     // public event UnityAction 
 
     public override void OnNetworkSpawn()
@@ -605,8 +605,8 @@ public class NetworkBoardManager : NetworkBehaviour
             Destroy(_placingCard.gameObject);
             _placingCard = null;
         });
-        _boardCore.BombThisPath(slot);
         BombEvent.Invoke(wp);
+        _boardCore.BombThisPath(slot);
         // @TODO: add some visuals
     }
 
