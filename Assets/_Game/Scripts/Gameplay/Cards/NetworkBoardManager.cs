@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class NetworkBoardManager : NetworkBehaviour
@@ -57,6 +56,10 @@ public class NetworkBoardManager : NetworkBehaviour
 
         await Task.Delay(1000); // wait for a moment to ensure all clients are ready
         StartGameClientRpc();
+
+        GameplayManager.Instance.HandleStartGame(_playerAndHolderMap.ToDictionary(
+            kvp => kvp.Key, kvp => kvp.Value.PlayerRole));
+
         DealCards(playerOrders);
         await Task.Delay(1000); // wait for a moment before starting first turn
         NextTurnClientRpc(_playerOrders[0]);
@@ -880,6 +883,18 @@ public class NetworkBoardManager : NetworkBehaviour
         _boardCore.transform.DeleteChildren();
     }
     #endregion 
+
+    #region GETTERS
+    public PlayerRole GetPlayerRole()
+    {
+        PlayerRole role = PlayerRole.Unknown;
+        foreach (var pair in _playerAndHolderMap)
+        {
+            if (pair.Key == NetworkManager.Singleton.LocalClientId) return pair.Value.PlayerRole;
+        }
+        return role;
+    }
+    #endregion
 }
 public enum PlayerState
 {

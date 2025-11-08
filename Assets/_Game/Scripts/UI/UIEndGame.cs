@@ -18,6 +18,7 @@ public class UIEndGame : UIView
         base.Show();
         await Task.Delay(5000);
         Hide();
+        UIManager.Instance.HideUI(EUIState.InGame);
     }
     #endregion
 

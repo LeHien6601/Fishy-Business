@@ -1360,6 +1360,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2442432111916233226, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
   m_PrefabInstance: {fileID: 78491674}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &78491676 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 652408990101189457, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
+  m_PrefabInstance: {fileID: 78491674}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bf14e0b7ee7fe24cba36218ee557e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &81833040
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6181,7 +6192,7 @@ MonoBehaviour:
   _seatPrefab: {fileID: 264057911059269100, guid: d4ab18ac7b1cbcc45977679f8cbf7d31, type: 3}
   _cardHolderPrefab: {fileID: 7166603470112289033, guid: d33fc81cf8942fa4087ce6acfbb8800a, type: 3}
   _radius: 3
-  _boardManager: {fileID: 652408990101189457, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
+  _boardManager: {fileID: 78491676}
   _seats: []
 --- !u!114 &840802719
 MonoBehaviour:

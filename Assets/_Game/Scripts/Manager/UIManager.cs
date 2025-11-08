@@ -109,6 +109,7 @@ public enum EUIState
     Loading,
     PlayerInfo,
     EndGame,
+    InGame
 }
 [Serializable]
 public struct UIViewState

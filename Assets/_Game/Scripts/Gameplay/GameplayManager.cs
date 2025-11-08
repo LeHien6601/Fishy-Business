@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
 using Unity.VisualScripting;
@@ -7,7 +8,28 @@ using UnityEngine;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
-    private List<LobbyManager.PlayerInfo> _winnerInfos = new();
+    private List<LobbyManager.PlayerInfo> _winnerInfos = new(); //Only handle for 1 board!
+    private PlayerRole _playerRole;
+    //Server
+    public void HandleStartGame(Dictionary<ulong, PlayerRole> playerRoleMap)
+    {
+        foreach (var pair in playerRoleMap)
+        {
+            UpdatePlayRoleClientRpc(pair.Key, pair.Value);
+        }
+    }
+    [ClientRpc]
+    private void UpdatePlayRoleClientRpc(ulong cliendId, PlayerRole role)
+    {
+        if (cliendId != NetworkManager.Singleton.LocalClientId) return;
+        _playerRole = role;
+        UIManager.Instance.ShowUI(EUIState.InGame);
+    }
+    public PlayerRole GetPlayerRole()
+    {
+        return _playerRole;
+    }
+    
     //Server
     public void HandleEndGame(List<ulong> winnerIds, List<ulong> playerIds)
     {
@@ -25,12 +47,6 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
                 _winnerInfos.Add(playerInfo);
             }
         }
-        Debug.Log(winnerIds.Count);
-        foreach (var id in winnerIds) Debug.Log(id);
-        Debug.Log(winnerAuthIds.Count);
-        foreach (var id in winnerAuthIds) Debug.Log(id);
-        Debug.Log(_winnerInfos.Count);
-        foreach (var info in _winnerInfos) Debug.Log(info.Name);
         UpdateWinnerInfosClientRpc(_winnerInfos.ToArray(), playerIds.ToArray());
     }
     [ClientRpc]
