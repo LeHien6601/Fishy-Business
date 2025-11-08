@@ -121,6 +121,17 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         Connections = newCon;
     }
 
+    public Quaternion GetRealRotateCard()
+    {
+        if (CardType != CardType.Path || Connections == null || Connections.Length < 4) return Quaternion.Euler(new Vector3(90f, 0, 0f));
+        for (int i = 0; i < 4; i++)
+        {
+            if (Connections[i] != CardInforSO.Connections[i])
+                return Quaternion.Euler(new Vector3(90f, 180f, 0f));
+        }
+        return Quaternion.Euler(new Vector3(90f, 0, 0f));
+    }
+
 
     public void Highlight(bool ok)
     {
