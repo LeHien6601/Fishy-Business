@@ -75,6 +75,21 @@ public class BoardCore : MonoBehaviour
         });
     }
 
+    public void PlacePathCardAt(Card card, Vector2Int slot, Quaternion rotation , Action onComplete = null)
+    {
+        if (card == null || !IsInsideBoard(slot)) return;
+
+        card.transform.localRotation = rotation;
+        Card placeHolder = _board[slot.x, slot.y];
+        card.transform.DOMove(placeHolder.transform.position, PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            Destroy(placeHolder.gameObject);
+            _board[slot.x, slot.y] = card;
+            OnBoardPaths.Add(slot);
+            onComplete?.Invoke();
+        });
+    }
+
 
     [ContextMenu("CheckGoal")]
     public List<GoalTracer> GetPathsToHiddenGoals()
@@ -193,7 +208,7 @@ public class BoardCore : MonoBehaviour
 
     public void DropCardOntoBoard(Card card, Action onComplete = null)
     {
-        card.transform.DOLocalRotate(new Vector3(90f, 0f, 0f), FromHandToBoardDuration* 0.1f).SetEase(Ease.OutCubic);
+        card.transform.DOLocalRotate(new Vector3(90f, 0f, 0f), FromHandToBoardDuration * 0.2f).SetEase(Ease.OutCubic);
         card.transform.DOMove(_fromHandToBoardPos.position, FromHandToBoardDuration * 1.2f).SetEase(Ease.OutCubic).OnComplete(() =>
         {
             onComplete?.Invoke();

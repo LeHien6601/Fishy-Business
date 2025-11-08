@@ -316,9 +316,38 @@ public class NetworkBoardManager : NetworkBehaviour
             if (!_hoveringSlot.HasValue || _hoveringSlot.Value != bestSlot.Value)
             {
                 _hoveringSlot = bestSlot.Value;
-                MovePlacingCardServerRpc(bestSlot.Value);
+                // MovePlacingCardServerRpc(bestSlot.Value);
+                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.transform.localRotation);
             }
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void MovePlacingCardServerRpc(Vector2Int slot, Quaternion quaternion)
+    {
+        MovePlacingCardClientRpc(slot, quaternion);
+    }
+
+    [ClientRpc]
+    private void MovePlacingCardClientRpc(Vector2Int slot, Quaternion quaternion)
+    {
+        if (_placingCard.CardType == CardType.Path)
+        {
+            _placingCard.transform.localRotation = quaternion;
+            _hoveringSlot = slot;
+            if (!_boardCore.IsPlacableWithCurrentRotation(_placingCard, slot))
+            {
+                _placingCard.Rotate();
+            }
+        }
+        else if (_placingCard.ActionCardType != ActionCardType.Bomb && _placingCard.ActionCardType != ActionCardType.CheckGold)
+        {
+            return;
+        }
+
+        // move card visually to this slot position (slightly above)
+        Vector3 targetPos = _boardCore.GetWorldPositionForSlot(slot) + Vector3.up * _placingOffset;
+        _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
     }
 
 
@@ -363,7 +392,9 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     // after placing card, wait for drawing a new card, then end turn 
                     _localPlayerState = PlayerState.NONE;
-                    SendInputActionServerRpc(InputAction.CONFIRM);
+
+                    SendInputActionServerRpc(InputAction.CONFIRM, _placingCard.GetRealRotateCard());
+                    // SendInputActionServerRpc(InputAction.CONFIRM);
                 }
                 if (Input.GetMouseButtonDown(1)) // right mouse = rotate
                 {
@@ -421,6 +452,45 @@ public class NetworkBoardManager : NetworkBehaviour
         CONFIRM, // left mouse
         ROTATE, // right mouse
         DISCARD, // esc
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendInputActionServerRpc(InputAction action, Quaternion rotation)
+    {
+        if (rotation != Quaternion.identity)
+        {
+            SendInputActionClientRpc(action, rotation);
+        }
+        else
+        {
+            SendInputActionClientRpc(action);
+        }
+    }
+
+    [ClientRpc]
+    private void SendInputActionClientRpc(InputAction action, Quaternion rotation)
+    {
+        switch (action)
+        {
+            case InputAction.CONFIRM:
+                if (_placingCard)
+                {
+                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, rotation, () =>
+                    {
+                        ServerCheckConnectingToHiddenGoals();
+                    });
+                    _boardCore.ClearValidSlots();
+                    _placingCard = null;
+                    _hoveringSlot = null;
+                }
+                break;
+            case InputAction.ROTATE:
+                _placingCard.Rotate();
+                break;
+            case InputAction.DISCARD: // not allow for now
+            default:
+                break;
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
