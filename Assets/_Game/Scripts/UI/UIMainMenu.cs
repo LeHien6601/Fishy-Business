@@ -32,6 +32,7 @@ public class UIMainMenu : UIView
 
     private async void QuickMatch()
     {
+        UIManager.Instance.ShowUI(EUIState.Loading);
         try
         {
             Task task = LobbyManager.Instance.QuickJoinAsync(PlayerInfoManager.Instance.PlayerName, PlayerInfoManager.Instance.PlayerIconId);
@@ -39,14 +40,13 @@ public class UIMainMenu : UIView
             if (task.Status == TaskStatus.Faulted)
             {
                 Debug.LogError("Quick Join task faulted.");
+                UIManager.Instance.HideUI(EUIState.Loading);
                 return;
             }
             else
             {
                 UIManager.Instance.HideUI(EUIState.MainMenu);
                 UIManager.Instance.HideUI(EUIState.Footer);
-                await Task.Delay(500);
-                UIManager.Instance.ShowUI(EUIState.Loading);
                 while (!task.IsCompleted)
                 {
                     await Task.Yield();
@@ -58,6 +58,8 @@ public class UIMainMenu : UIView
         catch (System.Exception ex)
         {
             Debug.LogError("Quick Join failed: " + ex.Message);
+            UIManager.Instance.HideUI(EUIState.Loading);
+            await Task.Delay(500);
             ShowMessage(_quickMatchFailureMessage, 5f);
             return;
         }
