@@ -29,6 +29,11 @@ public class UIInGame : UIView
         _borderImage.color = isCat ? _catBorderColor : _dogBorderColor;
         base.Show();
     }
+    public override void Hide()
+    {
+        _isMyTurn = false;
+        base.Hide();
+    }
     void OnEnable()
     {
         GameplayManager.Instance.OnStartedNewTurn += HandleNewTurn;

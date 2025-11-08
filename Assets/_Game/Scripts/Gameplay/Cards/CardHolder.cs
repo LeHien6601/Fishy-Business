@@ -15,12 +15,24 @@ public class CardHolder : MonoBehaviour
     [SerializeField] private Transform _beforeFaceSlot;
     [SerializeField] private Vector3 _handOffset;
     [SerializeField] private Transform _cardContainer;
+    [SerializeField] private Vector3 _othersCoinContainerPosition;
+    [SerializeField] private Vector3 _myCoinContainerPosition;
+    [SerializeField] private Transform _coinContainer;
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
     // hovering 1 card at a time
     private Card _hoveringCard = null;
-    public bool IsMine = false;
+    private bool _isMine = false;
+    public bool IsMine
+    {
+        get { return _isMine; }
+        set
+        {
+            _isMine = value;
+            HandleCoinContainerPosition();
+        }
+    }
     public bool IsTurn = false;
     
     private bool _cart = true;
@@ -62,6 +74,8 @@ public class CardHolder : MonoBehaviour
     }
     [SerializeField] private GameObject _shovelCoin;
     public PlayerRole PlayerRole;
+
+    #region CARDS
 
     /// <summary>
     /// Thêm card đã có sẵn (được spawn từ nơi khác)
@@ -260,7 +274,11 @@ public class CardHolder : MonoBehaviour
 
     public bool IsEmpty() => handCards.Count == 0;
 
+    public bool IsTheSelectingCard(Card card) => card == _hoveringCard;
     public Transform BeforeFaceSlot() => _beforeFaceSlot;
+    #endregion
+
+    #region TOOLS
 
     public bool HasTool(ToolType toolType)
     {
@@ -277,8 +295,14 @@ public class CardHolder : MonoBehaviour
     }
     public bool HasAllTools() => Cart && Hat && Shovel;
     public bool LacksATool() => !Cart || !Hat || !Shovel;
-    public bool IsTheSelectingCard(Card card) => card == _hoveringCard;
+    #endregion
 
+    #region COINS
+    private void HandleCoinContainerPosition()
+    {
+        _coinContainer.localPosition = IsMine ? _myCoinContainerPosition : _othersCoinContainerPosition;
+    }
+    #endregion
     public void SetRole(PlayerRole playerRole)
     {
         PlayerRole = playerRole;

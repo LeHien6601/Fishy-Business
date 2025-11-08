@@ -42,6 +42,20 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         UIManager.Instance.ShowUI(EUIState.InGame);
     }
 
+    public void HandleResetGame(List<ulong> idList)
+    {
+        foreach (var id in idList)
+        {
+            ResetPlayerClientRpc(id);
+        }
+    }
+    [ClientRpc]
+    private void ResetPlayerClientRpc(ulong cliendId)
+    {
+        if (cliendId != NetworkManager.Singleton.LocalClientId) return;
+        _playerRole = PlayerRole.Unknown;
+        UIManager.Instance.HideUI(EUIState.InGame);
+    }
 
     //Server-End game
     public void HandleEndGame(List<ulong> winnerIds, List<ulong> playerIds)

@@ -947,6 +947,12 @@ public class NetworkBoardManager : NetworkBehaviour
 
     public void Reset()
     {
+        List<ulong> idList = new();
+        foreach (var player in _playerOrders)
+        {
+            idList.Add(player);
+        }
+        GameplayManager.Instance.HandleResetGame(idList);
         ResetClientRpc();
         _playerOrders.Clear();
     }

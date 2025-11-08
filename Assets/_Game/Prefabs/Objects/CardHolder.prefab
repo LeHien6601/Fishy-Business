@@ -51,7 +51,9 @@ MonoBehaviour:
   _beforeFaceSlot: {fileID: 4021512077508387046}
   _handOffset: {x: 0, y: -0.12, z: 0}
   _cardContainer: {fileID: 7305513372142644604}
-  IsMine: 0
+  _othersCoinContainerPosition: {x: 0, y: 0.08, z: 0.32}
+  _myCoinContainerPosition: {x: 0, y: 0.31, z: 0.5}
+  _coinContainer: {fileID: 838760903683621613}
   IsTurn: 0
   _cartCoin: {fileID: 3433239789444642856}
   _hatCoin: {fileID: 3893222623970488631}
