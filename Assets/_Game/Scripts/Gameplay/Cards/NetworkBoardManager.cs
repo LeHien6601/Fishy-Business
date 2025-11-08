@@ -233,6 +233,11 @@ public class NetworkBoardManager : NetworkBehaviour
     private void PlayCard(Card card)
     {
         // condition checking are already handled when hovering in hand
+        if(_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
         card.Holder.IsTurn = false;
         PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
         _placingCard = card;
@@ -571,6 +576,11 @@ public class NetworkBoardManager : NetworkBehaviour
     #region DISCARD CARD FROM HAND T0 DISCARD PILE
     private void DiscardCardFromHand(Card card)
     {
+        if(_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
         card.Holder.IsTurn = false;
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_discardPile.transform);
