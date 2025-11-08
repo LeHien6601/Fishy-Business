@@ -233,7 +233,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private void PlayCard(Card card)
     {
         // condition checking are already handled when hovering in hand
-        if(_countDownTurnRoutine != null)
+        if (_countDownTurnRoutine != null)
         {
             StopCoroutine(_countDownTurnRoutine);
             _countDownTurnRoutine = null;
@@ -289,7 +289,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
-        if(_countDownTurnRoutine != null)
+        if (_countDownTurnRoutine != null)
         {
             StopCoroutine(_countDownTurnRoutine);
             _countDownTurnRoutine = null;
@@ -378,16 +378,14 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     // after placing card, wait for drawing a new card, then end turn 
                     _localPlayerState = PlayerState.NONE;
-
-                    SendInputActionServerRpc(InputAction.CONFIRM, _placingCard.GetRealRotateCard());
-                    // SendInputActionServerRpc(InputAction.CONFIRM);
+                    ConfirmCardPlacementServerRpc(_hoveringSlot.Value, _placingCard.GetRealRotateCard());
                 }
                 if (Input.GetMouseButtonDown(1)) // right mouse = rotate
                 {
                     // check condition in advance before sending RPC to save network traffic
                     if (_boardCore.IsPlacableWithOppositeRotation(_placingCard, _hoveringSlot.Value))
                     {
-                        SendInputActionServerRpc(InputAction.ROTATE);
+                        RotateCardServerRpc();
                     }
                 }
                 break;
@@ -403,7 +401,6 @@ public class NetworkBoardManager : NetworkBehaviour
                 break;
             case PlayerState.USING_TOOL:
                 // ignore you if its a break tool type
-                // HoverTargerPlayer(ignoreYourself: _placingCard.ActionCardType == ActionCardType.BrokenTool);
                 if (_placingCard.ActionCardType == ActionCardType.BrokenTool)
                     HoverTargetPlayer(ignore: (player) => player.IsMine || !player.HasTool(_placingCard.ToolType));
                 else if (_placingCard.ActionCardType == ActionCardType.FixTool)
@@ -433,84 +430,48 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    public enum InputAction
+    [ServerRpc]
+    private void ConfirmCardPlacementServerRpc(Vector2Int slot, Quaternion rot)
     {
-        CONFIRM, // left mouse
-        ROTATE, // right mouse
-        DISCARD, // esc
+        ConfirmCardPlacementClientRpc(slot, rot);
     }
 
-
-
-    // Polymorphism Here
-    [ServerRpc(RequireOwnership = false)]
-    private void SendInputActionServerRpc(InputAction action, Quaternion rotation)
+    [ClientRpc]
+    private void ConfirmCardPlacementClientRpc(Vector2Int slot, Quaternion rot)
     {
-        if (rotation != Quaternion.identity)
+        if (_placingCard)
         {
-            SendInputActionClientRpc(action, rotation);
+            _boardCore.PlacePathCardAt(_placingCard, slot, rot, () =>
+            {
+                ServerCheckConnectingToHiddenGoals();
+            });
+            _boardCore.ClearValidSlots();
+            _placingCard = null;
+            _hoveringSlot = null;
         }
         else
         {
-            SendInputActionClientRpc(action, _placingCard.transform.localRotation);
-        }
-    }
-
-    [ClientRpc]
-    private void SendInputActionClientRpc(InputAction action, Quaternion rotation)
-    {
-        switch (action)
-        {
-            case InputAction.CONFIRM:
-                if (_placingCard)
-                {
-                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, rotation, () =>
-                    {
-                        ServerCheckConnectingToHiddenGoals();
-                    });
-                    _boardCore.ClearValidSlots();
-                    _placingCard = null;
-                    _hoveringSlot = null;
-                }
-                break;
-            case InputAction.ROTATE:
-                _placingCard.Rotate();
-                break;
-            case InputAction.DISCARD: // not allow for now
-            default:
-                break;
+            Debug.LogWarning("_placingCard should not be null in this function");
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendInputActionServerRpc(InputAction action)
+    private void RotateCardServerRpc()
     {
-        SendInputActionClientRpc(action);
+        RotateCardClientRpc();
     }
 
+
     [ClientRpc]
-    private void SendInputActionClientRpc(InputAction action)
+    private void RotateCardClientRpc()
     {
-        switch (action)
+        if (_placingCard)
         {
-            case InputAction.CONFIRM:
-                if (_placingCard)
-                {
-                    _boardCore.PlacePathCardAt(_placingCard, _hoveringSlot.Value, () =>
-                    {
-                        ServerCheckConnectingToHiddenGoals();
-                    });
-                    _boardCore.ClearValidSlots();
-                    _placingCard = null;
-                    _hoveringSlot = null;
-                }
-                break;
-            case InputAction.ROTATE:
-                _placingCard.Rotate();
-                break;
-            case InputAction.DISCARD: // not allow for now
-            default:
-                break;
+            _placingCard.Rotate();
+        }
+        else
+        {
+            Debug.LogWarning("_placingCard should not be null in this function");
         }
     }
 
@@ -552,7 +513,7 @@ public class NetworkBoardManager : NetworkBehaviour
     #region DISCARD CARD FROM HAND T0 DISCARD PILE
     private void DiscardCardFromHand(Card card)
     {
-        if(_countDownTurnRoutine != null)
+        if (_countDownTurnRoutine != null)
         {
             StopCoroutine(_countDownTurnRoutine);
             _countDownTurnRoutine = null;
@@ -588,7 +549,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
     {
-        if(_countDownTurnRoutine != null)
+        if (_countDownTurnRoutine != null)
         {
             StopCoroutine(_countDownTurnRoutine);
             _countDownTurnRoutine = null;
