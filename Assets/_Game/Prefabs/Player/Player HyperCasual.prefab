@@ -10062,7 +10062,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1013939895
+  GlobalObjectIdHash: 2612088225
   InScenePlacedSourceGlobalObjectIdHash: 2612088225
   DeferredDespawnTick: 0
   Ownership: 1
@@ -10194,7 +10194,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   _target: {fileID: 6917190293077928722}
-  _fadedAlpha: 0.33
+  _fadedAlpha: 0
   _retainShadows: 1
   _targetPositionOffset: {x: 0, y: 1, z: 0}
   _fadeSpeed: 3
@@ -17065,8 +17065,6 @@ MonoBehaviour:
   _nameContainerTransform: {fileID: 325540999130110919}
   _nameTMP: {fileID: 2531301924962020825}
   _canvas: {fileID: 1184092920061621709}
-  _playerName:
-    m_InternalValue: 
 --- !u!1 &7145508984416671783
 GameObject:
   m_ObjectHideFlags: 0
