@@ -289,6 +289,11 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
+        if(_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         _placingCard = card;
@@ -326,7 +331,7 @@ public class NetworkBoardManager : NetworkBehaviour
             {
                 _hoveringSlot = bestSlot.Value;
                 // MovePlacingCardServerRpc(bestSlot.Value);
-                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.transform.localRotation);
+                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.GetRealRotateCard());
             }
         }
     }
@@ -343,35 +348,6 @@ public class NetworkBoardManager : NetworkBehaviour
         if (_placingCard.CardType == CardType.Path)
         {
             _placingCard.transform.localRotation = quaternion;
-            _hoveringSlot = slot;
-            if (!_boardCore.IsPlacableWithCurrentRotation(_placingCard, slot))
-            {
-                _placingCard.Rotate();
-            }
-        }
-        else if (_placingCard.ActionCardType != ActionCardType.Bomb && _placingCard.ActionCardType != ActionCardType.CheckGold)
-        {
-            return;
-        }
-
-        // move card visually to this slot position (slightly above)
-        Vector3 targetPos = _boardCore.GetWorldPositionForSlot(slot) + Vector3.up * _placingOffset;
-        _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
-    }
-
-
-    // Polymorphism Here
-    [ServerRpc(RequireOwnership = false)]
-    private void MovePlacingCardServerRpc(Vector2Int slot)
-    {
-        MovePlacingCardClientRpc(slot);
-    }
-
-    [ClientRpc]
-    private void MovePlacingCardClientRpc(Vector2Int slot)
-    {
-        if (_placingCard.CardType == CardType.Path)
-        {
             _hoveringSlot = slot;
             if (!_boardCore.IsPlacableWithCurrentRotation(_placingCard, slot))
             {
@@ -612,6 +588,11 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
     {
+        if(_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         card.transform.SetParent(_discardPile.transform);
@@ -936,7 +917,9 @@ public class NetworkBoardManager : NetworkBehaviour
     #region AutoPlay
     private void OnEndTime()
     {
+        if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0) return;
         CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
+        if (inTurnHolder == null) return;
         inTurnHolder.DiscardRandomCard();
     }
     private IEnumerator CountDownTurnRoutine()
