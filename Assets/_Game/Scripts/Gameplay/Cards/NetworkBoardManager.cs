@@ -289,6 +289,11 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
+        if(_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         _placingCard = card;
@@ -612,6 +617,11 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
     {
+        if(_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         card.transform.SetParent(_discardPile.transform);
