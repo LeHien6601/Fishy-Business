@@ -23398,14 +23398,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 82628722373251712, guid: 849dfd95c3a235c4db9ebafe8041c2c9, type: 3}
-      propertyPath: m_Range
-      value: 7.660863
-      objectReference: {fileID: 0}
-    - target: {fileID: 82628722373251712, guid: 849dfd95c3a235c4db9ebafe8041c2c9, type: 3}
-      propertyPath: m_Intensity
-      value: 13.008129
-      objectReference: {fileID: 0}
     - target: {fileID: 1436904212765512228, guid: 849dfd95c3a235c4db9ebafe8041c2c9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18.90149
@@ -23449,10 +23441,6 @@ PrefabInstance:
     - target: {fileID: 3992570529611212489, guid: 849dfd95c3a235c4db9ebafe8041c2c9, type: 3}
       propertyPath: m_Name
       value: Lighting
-      objectReference: {fileID: 0}
-    - target: {fileID: 5064069163410352428, guid: 849dfd95c3a235c4db9ebafe8041c2c9, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
