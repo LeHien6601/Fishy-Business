@@ -545,6 +545,7 @@ public class NetworkBoardManager : NetworkBehaviour
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         card.transform.SetParent(_discardPile.transform);
+        card.transform.DOScale(1f, 1f).SetEase(Ease.OutCubic);
         card.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
         card.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
         // zero because we already edit the _discardPile pos and rot
@@ -892,6 +893,7 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         _localPlayerState = PlayerState.NONE;
         _placingCard.transform.SetParent(_discardPile.transform);
+        _placingCard.transform.DOScale(1f, 1f).SetEase(Ease.OutCubic);
         _placingCard.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
         _placingCard.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
     }

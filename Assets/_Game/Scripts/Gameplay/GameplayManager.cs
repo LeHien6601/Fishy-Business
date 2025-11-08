@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
 using UnityEngine.Events;
@@ -59,7 +60,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     }
 
     //Server-End game
-    public void HandleEndGame(List<ulong> winnerIds, List<ulong> playerIds)
+    public async void HandleEndGame(List<ulong> winnerIds, List<ulong> playerIds)
     {
         _winnerInfos.Clear();
         List<string> winnerAuthIds = winnerIds.Select(id => GameManager.Instance.GetAuthIdByNetId(id)).ToList();
@@ -76,6 +77,8 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
             }
         }
         UpdateWinnerInfosClientRpc(_winnerInfos.ToArray(), playerIds.ToArray());
+        await Task.Delay((int)(1000 * Constant.RESTART_INTERVAL + 1000));
+        OnResetGame?.Invoke();
     }
     [ClientRpc]
     private void UpdateWinnerInfosClientRpc(LobbyManager.PlayerInfo[] winnerInfos, ulong[] playerIds)

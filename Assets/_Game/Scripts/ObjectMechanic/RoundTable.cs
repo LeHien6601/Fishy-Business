@@ -37,9 +37,17 @@ public class RoundTable : NetworkBehaviour
                 seat.OnPlayerEnterSeat += HandleChangeGameStateRpc;
             }
             InitSeats();
+            GameplayManager.Instance.OnResetGame += ResetServerRpc;
         }
         _startBtn.onClick.AddListener(StartBoardGameServerRpc);
         _gameplaying.OnValueChanged += HandleChangeGameState;
+    }
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        GameplayManager.Instance.OnResetGame -= ResetServerRpc;
+        _startBtn.onClick.RemoveAllListeners();
+        _gameplaying.OnValueChanged -= HandleChangeGameState;
     }
     [Rpc(SendTo.Everyone)]
     private void HandleChangeGameStateRpc(Seat.PlayerEnterSeatEventArg args)
@@ -58,6 +66,12 @@ public class RoundTable : NetworkBehaviour
     {
         if (newValue)
             _startBtn.gameObject.SetActive(false);
+        // else if (PlayerOrders.Contains(NetworkManager.Singleton.LocalClientId))
+        // {
+        //     _startBtn.gameObject.SetActive(true);
+        //     Debug.Log("HandleChangeGameState" + PlayerOrders.Count + " " + newValue);
+        // }
+        // Debug.Log("end");
     }
 
     public override void OnDestroy()
@@ -188,6 +202,7 @@ public class RoundTable : NetworkBehaviour
     [ClientRpc]
     private void ResetSeatsClientRpc(NetworkObjectReference[] seatRefs)
     {
+
         for (int i = 0; i < seatRefs.Length; i++)
         {
             Seat seat = seatRefs[i].TryGet(out NetworkObject netObj) ? netObj.GetComponent<Seat>() : null;
@@ -212,6 +227,8 @@ public class RoundTable : NetworkBehaviour
 
             if (seat.GetOccupant())
             {
+                if (NetworkManager.Singleton.LocalClientId == seat.GetOccupyingClientId())
+                    _startBtn.gameObject.SetActive(true);
                 Transform occupantTf = seat.GetOccupant().transform;
                 Tween occupantPosTween = occupantTf.DOMove(seat.SitPosition(targetPos, targetRot), duration)
                                        .SetEase(easeType);

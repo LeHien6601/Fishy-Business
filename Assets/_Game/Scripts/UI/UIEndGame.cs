@@ -16,7 +16,7 @@ public class UIEndGame : UIView
     {
         UpdateData(GameplayManager.Instance.GetWinnerInfos());
         base.Show();
-        await Task.Delay(10000);
+        await Task.Delay((int)(1000 * Constant.RESTART_INTERVAL));
         Hide();
         UIManager.Instance.HideUI(EUIState.InGame);
     }

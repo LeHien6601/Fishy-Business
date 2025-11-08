@@ -19,4 +19,5 @@ public class Constant
     public const string KEY_LOBBY_CODE = "LobbyCode";
     public const int MAX_PLAYERS = 8;
     public const float TURN_INTERVAL = 30f;
+    public const float RESTART_INTERVAL = 5f;
 }

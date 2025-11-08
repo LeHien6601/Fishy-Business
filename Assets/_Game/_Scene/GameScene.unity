@@ -24455,7 +24455,7 @@ PrefabInstance:
     - target: {fileID: 5961079652306323777, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: _cardDatabase
       value: 
-      objectReference: {fileID: 11400000, guid: c1e037bebcff67e4285c77bea38013f9, type: 2}
+      objectReference: {fileID: 11400000, guid: f4ac0b03337432c45a071ecd0c88ec81, type: 2}
     - target: {fileID: 6143101593210262607, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
