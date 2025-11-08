@@ -203,6 +203,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     public void TriggerDiscardCard()
     {
-        OnDiscardCard?.Invoke(this);
+        OnDiscardCard.Invoke(this);
     }
 }

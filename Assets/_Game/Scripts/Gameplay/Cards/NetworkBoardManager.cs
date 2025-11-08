@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class NetworkBoardManager : NetworkBehaviour
 {
@@ -33,6 +34,10 @@ public class NetworkBoardManager : NetworkBehaviour
     private const float _deckStackSpace = 0.001f;
     private PlayerState _localPlayerState = PlayerState.NONE;
     private IEnumerator _countDownTurnRoutine;
+
+    // API
+    public event UnityAction<Vector3> BombEvent;
+    // public event UnityAction 
 
     public override void OnNetworkSpawn()
     {
@@ -233,11 +238,6 @@ public class NetworkBoardManager : NetworkBehaviour
     private void PlayCard(Card card)
     {
         // condition checking are already handled when hovering in hand
-        if (_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
         card.Holder.IsTurn = false;
         PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
         _placingCard = card;
@@ -289,11 +289,6 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
-        if (_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         _placingCard = card;
@@ -513,11 +508,7 @@ public class NetworkBoardManager : NetworkBehaviour
     #region DISCARD CARD FROM HAND T0 DISCARD PILE
     private void DiscardCardFromHand(Card card)
     {
-        if (_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
+        StopCountDown();
         card.Holder.IsTurn = false;
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_discardPile.transform);
@@ -549,11 +540,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void DiscardCardFromHandOtherClientRpc(ulong senderId, ClientRpcParams clientRpcParams)
     {
-        if (_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
+        StopCountDown();
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         card.transform.SetParent(_discardPile.transform);
@@ -834,6 +821,8 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             Debug.Log("It's your turn!");
             inTurnHolder.IsTurn = true;
+            // ---- Start CountDown ----
+            StartCountDown();
         }
         else
         {
@@ -850,14 +839,6 @@ public class NetworkBoardManager : NetworkBehaviour
         direction.y = 0;
         _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
 
-        // ---- Start CountDown ----
-        if (_countDownTurnRoutine != null)
-        {
-            StopCoroutine(_countDownTurnRoutine);
-            _countDownTurnRoutine = null;
-        }
-        _countDownTurnRoutine = CountDownTurnRoutine();
-        StartCoroutine(_countDownTurnRoutine);
 
         GameplayManager.Instance.HandleNewTurn(nextPlayerId);
     }
@@ -875,13 +856,56 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region AutoPlay
-    private void OnEndTime()
+    private void StopCountDown()
+    {
+        if (_countDownTurnRoutine != null)
+        {
+            StopCoroutine(_countDownTurnRoutine);
+            _countDownTurnRoutine = null;
+        }
+    }
+
+    private void StartCountDown()
+    {
+        StopCoroutine(_countDownTurnRoutine);
+        _countDownTurnRoutine = CountDownTurnRoutine();
+        StartCoroutine(_countDownTurnRoutine);
+    }
+
+
+    private void OnEndTime() // only the in-turn player is supposed to call this function
     {
         if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0) return;
-        CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
-        if (inTurnHolder == null) return;
-        inTurnHolder.DiscardRandomCard();
+
+        if (_placingCard)
+        {
+            _localPlayerState = PlayerState.NONE; // fast switching state on in-turn side
+            DiscardPlacingCardServerRpc();
+        }
+        else
+        {
+            CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
+            if (inTurnHolder == null) return;
+            inTurnHolder.DiscardRandomCard();
+        }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DiscardPlacingCardServerRpc()
+    {
+        ServerDrawNewCardThenEndTurn();
+        DiscardPlacingCardClientRpc();
+    }
+
+    [ClientRpc]
+    private void DiscardPlacingCardClientRpc()
+    {
+        _localPlayerState = PlayerState.NONE;
+        _placingCard.transform.SetParent(_discardPile.transform);
+        _placingCard.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
+        _placingCard.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+    }
+
     private IEnumerator CountDownTurnRoutine()
     {
         float time = Constant.TURN_INTERVAL;
