@@ -56,7 +56,7 @@ public class RoundTable : NetworkBehaviour
         {
             _startBtn.gameObject.SetActive(false);
         }
-        if (args.NewClientId == NetworkManager.Singleton.LocalClientId) 
+        if (args.NewClientId == NetworkManager.Singleton.LocalClientId)
         {
             _startBtn.gameObject.SetActive(true);
         }
@@ -135,17 +135,23 @@ public class RoundTable : NetworkBehaviour
     [ClientRpc]
     private void ArrangeSeatsClientRpc(NetworkObjectReference[] seatRefs, int occupiedCount)
     {
-        for (int i = 0; i < seatRefs.Length; i++)
+        int i = 0;
+        foreach (var seatRef in seatRefs)
         {
-            Seat seat = seatRefs[i].TryGet(out NetworkObject netObj) ? netObj.GetComponent<Seat>() : null;
-            if (!seat || !seat.IsOccupied())
+            Seat seat = seatRef.TryGet(out NetworkObject netObj) ? netObj.GetComponent<Seat>() : null;
+            if (!seat)
+            {
+                Debug.LogWarning("Seat Component not found in a seat");
+                continue;
+            }
+            if (!seat.IsOccupied())
             {
                 seat.gameObject.SetActive(false);
                 continue;
             }
 
             // ----- calculate target position / rotation -----
-            float angle = i * Mathf.PI * 2f / occupiedCount;
+            float angle = i++ * Mathf.PI * 2f / occupiedCount;
             Vector3 targetPos = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (_radius - 0.5f);
             Quaternion targetRot = Quaternion.LookRotation(-targetPos.normalized, Vector3.up);
             targetPos += transform.position;                  // world-world space
@@ -250,7 +256,7 @@ public class RoundTable : NetworkBehaviour
         {
             ResetServerRpc();
         }
-        
+
     }
 #endif
 
