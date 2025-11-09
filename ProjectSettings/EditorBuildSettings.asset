@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Game/_Scene/DevH.unity
     guid: da9c62b03c66aa445b7e6483f24f7337
+  - enabled: 1
+    path: Assets/_Game/_Scene/LightWeightScene.unity
+    guid: f4ed271d4437d664db124229925e4cea
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -580,10 +580,6 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
-    - target: {fileID: 652408990101189457, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
-      propertyPath: _cardDatabase
-      value: 
-      objectReference: {fileID: 11400000, guid: 1a5cc9c612ef7fb468bdbfbf571a6347, type: 2}
     - target: {fileID: 1118738589342569302, guid: 232ca23b409149a4198e7431b80fb74e, type: 3}
       propertyPath: m_Name
       value: BoardManager

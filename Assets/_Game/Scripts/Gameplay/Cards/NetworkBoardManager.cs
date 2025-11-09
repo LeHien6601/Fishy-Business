@@ -68,7 +68,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
         DealCards(playerOrders);
         await Task.Delay(1000); // wait for a moment before starting first turn
-        NextTurnClientRpc(_playerOrders[0]);
+        NextTurnClientRpc(_playerOrders[Random.Range(0, _playerOrders.Count)]);
     }
 
     [ClientRpc]
@@ -81,11 +81,11 @@ public class NetworkBoardManager : NetworkBehaviour
         transform.rotation = Quaternion.LookRotation(direction);
         // spawn deck,
         _cardsInDeck.Clear();
-        Quaternion rotate = _cardPrefab.transform.localRotation;
-        Quaternion facedownRot = Quaternion.Euler(rotate.eulerAngles.x + 180f, rotate.eulerAngles.y, rotate.eulerAngles.z);
         for (int i = 0; i < _cardDatabase.TotalCount(); i++)
         {
-            _cardsInDeck.Push(Instantiate(_cardPrefab, _deckPlace.position + _deckStackSpace * i * Vector3.up, facedownRot, _deckPlace));
+            var card = Instantiate(_cardPrefab, _deckPlace.position + _deckStackSpace * i * Vector3.up, Quaternion.identity, _deckPlace);
+            card.transform.localRotation = Quaternion.identity;
+            _cardsInDeck.Push(card);
         }
     }
 
