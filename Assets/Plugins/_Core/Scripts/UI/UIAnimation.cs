@@ -3,7 +3,6 @@ using DG.Tweening;
 using UnityEditor;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using UnityEngine.UIElements;
 
 [RequireComponent(typeof(CanvasGroup))]
 [RequireComponent(typeof(RectTransform))]
@@ -58,7 +57,6 @@ public class UIAnimation : MonoBehaviour
     {
         EditorApplication.update -= EditorUpdate;
     }
-#endif
     private void EditorUpdate()
     {
         if (Application.isPlaying) return;
@@ -67,6 +65,7 @@ public class UIAnimation : MonoBehaviour
         _lastEditorTime = currentTime;
         DOTween.ManualUpdate(deltaTime, deltaTime);
     }
+#endif
 
     #endregion
 

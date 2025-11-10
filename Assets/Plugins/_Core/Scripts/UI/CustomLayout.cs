@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 namespace HHDCore
@@ -18,7 +16,7 @@ namespace HHDCore
         [SerializeField] private bool _controlChildWidth = false;
         [SerializeField] private bool _controlChildHeight = false;
         private RectTransform _rect;
-        protected override void OnValidate()
+        protected override void Awake()
         {
             _rect = GetComponent<RectTransform>();
             UpdateLayoutFitType();

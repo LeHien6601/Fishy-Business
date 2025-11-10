@@ -45,6 +45,7 @@ public class PlayerController : NetworkBehaviour
 
         _targetTransformChannel.RaiseEvent(transform);
         _headBoneTransformChannel.RaiseEvent(_headBone);
+        CameraController.SwitchCamMode(CameraMode.ThirdPerson);
     }
 
     public override void OnNetworkDespawn()
