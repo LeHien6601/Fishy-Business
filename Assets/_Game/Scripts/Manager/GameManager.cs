@@ -160,7 +160,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     public void DespawnPlayerRpc(ulong clientId)
     {
         var playerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-        if (playerObject != null)
+        if (playerObject != null && playerObject.IsSpawned)
         {
             playerObject.Despawn(false);
             _spawnedPlayerNames.Remove(clientId);

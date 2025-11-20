@@ -25,9 +25,10 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public event Action<UpdateCurrentLobbyEventArgs> OnUpdatedCurrentLobby;
     public event Action<UpdatedLoobyListEventArgs> OnUpdatedLobbyList;
     public event Action<Player> OnPlayerJoinedLobby;
+    public event Action<string> OnPlayerLeftLobby;
     private Coroutine _heartbeatCoroutine;
     private Coroutine _pollLobbyCoroutine;
-    private HashSet<string> _knownPlayers = new();
+    private HashSet<string> _currentPlayerIds = new();
     #endregion
 
     #region Structs
@@ -122,8 +123,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
             currentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, Constant.MAX_PLAYERS, createOptions);
             isHost = true;
             Debug.Log($"Lobby created: {currentLobby.Id}, Code: {currentLobby.LobbyCode}");
-            _knownPlayers.Clear();
-            _knownPlayers.Add(AuthenticationService.Instance.PlayerId);
+            _currentPlayerIds.Clear();
+            _currentPlayerIds.Add(AuthenticationService.Instance.PlayerId);
             // Start Relay and heartbeats
             currentLobby = await RelayManager.Instance.SetupRelay(currentLobby);
             Debug.Log("Relay Join Code: " + currentLobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value);
@@ -421,14 +422,24 @@ public class LobbyManager : SingletonMono<LobbyManager>
     private void HandleUpdatedLobby(UpdateCurrentLobbyEventArgs args)
     {
         if (!isHost) return;
+        var previousPlayerIds = new HashSet<string>(_currentPlayerIds);
+        var currentPlayers = new HashSet<string>();
         foreach (var player in args.Lobby.Players)
         {
-            if (player.Id == AuthenticationService.Instance.PlayerId
-                || _knownPlayers.Contains(player.Id)) continue;
-            _knownPlayers.Add(player.Id);
+            currentPlayers.Add(player.Id);
+            if (_currentPlayerIds.Contains(player.Id)) continue;
             OnPlayerJoinedLobby?.Invoke(player);
-            Debug.Log($"new player joined {player.Id}");
+            Debug.Log($"New player joined: {player.Id}");
         }
+        foreach (var oldId in previousPlayerIds)
+        {
+            if (currentPlayers.Contains(oldId)) continue;
+            OnPlayerLeftLobby?.Invoke(oldId);
+            Debug.Log($"Player left lobby: {oldId}");
+        }
+        _currentPlayerIds.Clear();
+        foreach (var id in currentPlayers)
+            _currentPlayerIds.Add(id);
     }
     private async void HandleStartGame(ulong cliendId)
     {
