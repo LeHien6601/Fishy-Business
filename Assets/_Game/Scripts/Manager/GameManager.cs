@@ -56,9 +56,11 @@ public class GameManager : SingletonMonoNet<GameManager>
             SpawnPlayerRpc(clientId);
             HandlePlayerJoinNetworkClientRpc(clientId);
         }
+        // Leave lobby or kicked from lobby -> clean up
         else if (sceneName == "Lobby")
         {
             _spawnedPlayerNames.Clear();
+            UIManager.Instance.HideUI(EUIState.InGame);
         }
     }
     /// <summary>
