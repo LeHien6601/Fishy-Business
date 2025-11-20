@@ -12,7 +12,6 @@ public class Constant
     public const string KEY_PLAYER_NAME = "PlayerName";
     public const string KEY_PLAYER_NETWORK_ID = "PlayerID";
     public const string KEY_PLAYER_ICON_ID = "PlayerIconID";
-    public const string KEY_NUMBER_OF_PLAYERS = "NumOfPlayers";
     public const string KEY_START_GAME = "StartGame";
     public const string KEY_HOST_ID = "HostID";
     public const string KEY_RELAY_JOIN_CODE = "RelayJoinCode";

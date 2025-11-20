@@ -10,8 +10,8 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
     private List<LobbyManager.PlayerInfo> _winnerInfos = new(); //Only handle for 1 board!
     private PlayerRole _playerRole;
-    public event UnityAction<ulong> OnStartGame;
-    public event UnityAction<ulong> OnEndGame;
+    public event Action<ulong> OnStartGame;
+    public event Action<ulong> OnEndGame;
     public event Action<StartedNewTurnEventArgs> OnStartedNewTurn;
     public event Action OnResetGame;
     public struct StartedNewTurnEventArgs

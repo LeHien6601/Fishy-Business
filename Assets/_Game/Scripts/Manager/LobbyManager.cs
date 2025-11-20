@@ -82,6 +82,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
         OnKickedFromLobby += HandleKickedFromLobby;
         OnUpdatedCurrentLobby += HandleUpdatedLobby;
         PlayerInfoManager.Instance.OnChangedPlayerInfo += HandleUpdatePlayerInfo;
+        GameplayManager.Instance.OnStartGame += HandleStartGame;
+        GameplayManager.Instance.OnEndGame += HandleEndGame;
     }
     private void OnDisable()
     {
@@ -92,6 +94,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
         OnKickedFromLobby -= HandleKickedFromLobby;
         OnUpdatedCurrentLobby += HandleUpdatedLobby;
         PlayerInfoManager.Instance.OnChangedPlayerInfo -= HandleUpdatePlayerInfo;
+        GameplayManager.Instance.OnStartGame -= HandleStartGame;
+        GameplayManager.Instance.OnEndGame -= HandleEndGame;
     }
     #endregion
 
@@ -110,7 +114,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
                 Data = new Dictionary<string, DataObject>
                 {
                     {Constant.KEY_HOST_ID, new DataObject(DataObject.VisibilityOptions.Member, AuthenticationService.Instance.PlayerId)},
-                    {Constant.KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Public, "")}
+                    {Constant.KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Public, "")},
+                    {Constant.KEY_START_GAME, new DataObject(DataObject.VisibilityOptions.Public, "false", DataObject.IndexOptions.S1)}
                 }
             };
 
@@ -160,6 +165,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
                 Filters = new List<QueryFilter>
                 {
                     new (QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT),
+                    new (QueryFilter.FieldOptions.S1, "false", QueryFilter.OpOptions.EQ)
                 },
                 Order = new List<QueryOrder> { new(false, QueryOrder.FieldOptions.Created) },
                 Count = 10
@@ -423,6 +429,26 @@ public class LobbyManager : SingletonMono<LobbyManager>
             OnPlayerJoinedLobby?.Invoke(player);
             Debug.Log($"new player joined {player.Id}");
         }
+    }
+    private async void HandleStartGame(ulong cliendId)
+    {
+        if (!isHost) return;
+        Dictionary<string, DataObject> updatedData = currentLobby.Data;
+        updatedData[Constant.KEY_START_GAME] = new DataObject(DataObject.VisibilityOptions.Public, "true", DataObject.IndexOptions.S1);
+        currentLobby = await LobbyService.Instance.UpdateLobbyAsync(currentLobby.Id, new UpdateLobbyOptions
+        {
+            Data = updatedData
+        });
+    }
+    private async void HandleEndGame(ulong cliendId)
+    {
+        if (!isHost) return;
+        Dictionary<string, DataObject> updatedData = currentLobby.Data;
+        updatedData[Constant.KEY_START_GAME] = new DataObject(DataObject.VisibilityOptions.Public, "false", DataObject.IndexOptions.S1);
+        currentLobby = await LobbyService.Instance.UpdateLobbyAsync(currentLobby.Id, new UpdateLobbyOptions
+        {
+            Data = updatedData
+        });
     }
     #endregion
 

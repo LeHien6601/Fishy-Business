@@ -16,22 +16,18 @@ public class RelayManager : SingletonMono<RelayManager>
         {
             var allocation = await RelayService.Instance.CreateAllocationAsync(Constant.MAX_PLAYERS - 1);
             var joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-
+            Dictionary<string, DataObject> updatedData = lobby.Data;
+            updatedData[Constant.KEY_RELAY_JOIN_CODE] = new DataObject(DataObject.VisibilityOptions.Public, joinCode);
+            updatedData[Constant.KEY_LOBBY_CODE] = new DataObject(DataObject.VisibilityOptions.Public, lobby.Id);
             await LobbyService.Instance.UpdateLobbyAsync(lobby.Id, new UpdateLobbyOptions
             {
-                Data = new Dictionary<string, DataObject>
-                {
-                    {Constant.KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Public, joinCode)},
-                    {Constant.KEY_LOBBY_CODE, new DataObject(DataObject.VisibilityOptions.Public, lobby.LobbyCode)}
-                }
+                Data = updatedData
             });
-
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
             transport.SetRelayServerData(allocation.RelayServer.IpV4, (ushort)allocation.RelayServer.Port, allocation.AllocationIdBytes, allocation.Key, allocation.ConnectionData);
             NetworkManager.Singleton.StartHost();
             lobby = await LobbyService.Instance.GetLobbyAsync(lobby.Id);
             return lobby;
-            // NetworkManager.Singleton.SceneManager.LoadScene("GameScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
         catch (RelayServiceException e)
         {
