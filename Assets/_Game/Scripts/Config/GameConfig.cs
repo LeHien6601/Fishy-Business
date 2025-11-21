@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using HHDCore;
-using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GameConfig", menuName = "MyGame/GameConfig", order = 1)]

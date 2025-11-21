@@ -1,0 +1,26 @@
+{
+    "groups": [
+        {
+            "groupName": "SFX",
+            "isExpanded": true,
+            "soundTypes": [
+                "Click",
+                "ShowView",
+                "HideView",
+                "StartGame",
+                "Victory",
+                "Lose",
+                "JoinLobby"
+            ]
+        },
+        {
+            "groupName": "Music",
+            "isExpanded": true,
+            "soundTypes": [
+                "Menu",
+                "Lobby",
+                "Gameplay"
+            ]
+        }
+    ]
+}
