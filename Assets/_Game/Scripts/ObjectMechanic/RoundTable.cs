@@ -38,16 +38,19 @@ public class RoundTable : NetworkBehaviour
             }
             InitSeats();
             GameplayManager.Instance.OnResetGame += ResetServerRpc;
+            LobbyManager.Instance.OnPlayerLeftLobby += HandlePlayerLeaveLobby;
         }
         _startBtn.onClick.AddListener(StartBoardGameServerRpc);
         _gameplaying.OnValueChanged += HandleChangeGameState;
     }
+
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
         GameplayManager.Instance.OnResetGame -= ResetServerRpc;
         _startBtn.onClick.RemoveAllListeners();
         _gameplaying.OnValueChanged -= HandleChangeGameState;
+        LobbyManager.Instance.OnPlayerLeftLobby -= HandlePlayerLeaveLobby;
     }
     [Rpc(SendTo.Everyone)]
     private void HandleChangeGameStateRpc(Seat.PlayerEnterSeatEventArg args)
@@ -72,6 +75,19 @@ public class RoundTable : NetworkBehaviour
         //     Debug.Log("HandleChangeGameState" + PlayerOrders.Count + " " + newValue);
         // }
         // Debug.Log("end");
+    }
+
+    private void HandlePlayerLeaveLobby(string obj)
+    {
+        GameManager.Instance.GetNetIdByAuthId(obj, out ulong playerId);
+        foreach (var seat in _seats)
+        {
+            if (seat && seat.GetOccupyingClientId() == playerId)
+            {
+                seat.ServerEmptySeat();
+            }
+        }
+        ResetServerRpc();
     }
 
     public override void OnDestroy()

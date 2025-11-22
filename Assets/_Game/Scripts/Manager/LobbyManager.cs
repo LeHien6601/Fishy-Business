@@ -414,6 +414,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
         GameManager.Instance.HandleLoadComplete(NetworkManager.Singleton.LocalClientId, "Lobby", LoadSceneMode.Single);
         EventSystem.current.SetSelectedGameObject(null);
         UIManager.Instance.ShowUI(EUIState.MainMenu);
+        UIManager.Instance.HideUI(EUIState.LobbyGameplay);
+        Cursor.lockState = CursorLockMode.None;
     }
     private async void HandleUpdatePlayerInfo(PlayerInfoManager.ChangedPlayerInfoEventArgs args)
     {

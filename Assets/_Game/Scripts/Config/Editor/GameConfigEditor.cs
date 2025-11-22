@@ -178,7 +178,6 @@ public class GameConfigEditor : EditorWindow
         EditorGUILayout.Space();
         if (GUILayout.Button("Refresh List"))
         {
-            // Optional: clean up duplicates or missing
             serializedConfig.ApplyModifiedProperties();
             serializedConfig.Update();
         }

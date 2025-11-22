@@ -16,29 +16,27 @@ public class UIManager : SingletonMono<UIManager>
 
     void Update()
     {
-        if (true)
+        if (GameManager.Instance.CurrentGameState != GameManager.EGameState.InGame) return;
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            bool isShowingLobbyUI = false;
+            foreach (var viewState in _uiViewStates)
             {
-                bool isShowingLobbyUI = false;
-                foreach (var viewState in _uiViewStates)
+                if (viewState.State == EUIState.LobbyGameplay && viewState.View.gameObject.activeSelf)
                 {
-                    if (viewState.State == EUIState.LobbyGameplay && viewState.View.gameObject.activeSelf)
-                    {
-                        isShowingLobbyUI = true;
-                        break;
-                    }
+                    isShowingLobbyUI = true;
+                    break;
                 }
-                if (isShowingLobbyUI)
-                {
-                    HideUI(EUIState.LobbyGameplay, true);
-                    Cursor.lockState = CursorLockMode.Locked;
-                }
-                else
-                {
-                    Cursor.lockState = CursorLockMode.None;
-                    ShowUI(EUIState.LobbyGameplay);
-                }
+            }
+            if (isShowingLobbyUI)
+            {
+                HideUI(EUIState.LobbyGameplay, true);
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                ShowUI(EUIState.LobbyGameplay);
             }
         }
     }
