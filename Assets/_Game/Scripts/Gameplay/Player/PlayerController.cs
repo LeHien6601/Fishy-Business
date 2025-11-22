@@ -30,7 +30,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
         base.OnNetworkSpawn();
-        Animator animator = GetComponent<Animator>(); 
+        Animator animator = GetComponent<Animator>();
         _idleState = new IdleState(animator);
         _moveState = new MoveState(this, animator, _moveSpeed);
         _attackState = new AttackState(animator);
@@ -128,4 +128,18 @@ public class PlayerController : NetworkBehaviour
 
     // called by animation event
     private void BackToIdle() => ToState(_idleState);
+
+    public void OwnerActivateInput()
+    {
+        if (!IsOwner)
+            return;
+        _inputReader.Move += HandleMove;
+        _inputReader.Attack += HandleAttack;
+    }
+
+    public void DeactivateInput()
+    {
+        _inputReader.Move -= HandleMove;
+        _inputReader.Attack -= HandleAttack;
+    }
 }
