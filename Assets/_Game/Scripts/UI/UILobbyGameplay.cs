@@ -43,7 +43,6 @@ public class UILobbyGameplay : UIView
     }
     private void HandleClickContinue()
     {
-        // Continue button logic here
         Debug.Log("Continue button clicked");
         HideWithParams(true);
         EventSystem.current.SetSelectedGameObject(null);
@@ -56,7 +55,6 @@ public class UILobbyGameplay : UIView
     }
     private void HandleClickSettings()
     {
-        // Settings button logic here
         Debug.Log("Settings button clicked");
         EventSystem.current.SetSelectedGameObject(null);
     }
