@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using DG.Tweening;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,7 +22,10 @@ public class RoundTable : NetworkBehaviour
     [SerializeField] private List<Seat> _seats; // only server knows this list
     private readonly List<NetworkObjectReference> _netSeats = new(); // all clients know this list
     public NetworkList<ulong> PlayerOrders = new(); // server writes, all read
+    [Header("UI References")]
     [SerializeField] private Button _startBtn;
+    [SerializeField] private TextMeshProUGUI _countdownTMP;
+
     private NetworkVariable<bool> _gameplaying = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public override void OnNetworkSpawn()
     {
@@ -68,13 +74,29 @@ public class RoundTable : NetworkBehaviour
     private void HandleChangeGameState(bool previousValue, bool newValue)
     {
         if (newValue)
+        {
             _startBtn.gameObject.SetActive(false);
+            HandleCountdownTimer();
+        }
         // else if (PlayerOrders.Contains(NetworkManager.Singleton.LocalClientId))
         // {
         //     _startBtn.gameObject.SetActive(true);
         //     Debug.Log("HandleChangeGameState" + PlayerOrders.Count + " " + newValue);
         // }
         // Debug.Log("end");
+    }
+    private async void HandleCountdownTimer()
+    {
+        _countdownTMP.gameObject.SetActive(true);
+        _countdownTMP.text = "GAME STARTS IN " + Constant.START_GAME_COUNTDOWN.ToString("F0") +"S";
+        float timer = Constant.START_GAME_COUNTDOWN;
+        while (timer > 0)
+        {
+            await Task.Yield();
+            timer -= Time.deltaTime;
+            _countdownTMP.text = "GAME STARTS IN " + Mathf.Ceil(timer).ToString("F0") +"S";
+        }
+        _countdownTMP.gameObject.SetActive(false);
     }
 
     private void HandlePlayerLeaveLobby(string obj)
@@ -137,8 +159,12 @@ public class RoundTable : NetworkBehaviour
                 occupiedCount++;
             }
         }
-        ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
-        _boardManager.ServerStartGameLogic(PlayerOrders);
+        this.WaitThenExecute(5f, () =>
+        {
+            ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
+            _boardManager.ServerStartGameLogic(PlayerOrders);
+        });
+        
     }
 
     /// <summary>

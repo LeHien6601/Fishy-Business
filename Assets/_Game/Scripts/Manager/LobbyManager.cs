@@ -85,6 +85,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
         PlayerInfoManager.Instance.OnChangedPlayerInfo += HandleUpdatePlayerInfo;
         GameplayManager.Instance.OnStartGame += HandleStartGame;
         GameplayManager.Instance.OnEndGame += HandleEndGame;
+        OnPlayerJoinedLobby += HandlePlayerJoinLobby;
     }
     private void OnDisable()
     {
@@ -97,6 +98,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
         PlayerInfoManager.Instance.OnChangedPlayerInfo -= HandleUpdatePlayerInfo;
         GameplayManager.Instance.OnStartGame -= HandleStartGame;
         GameplayManager.Instance.OnEndGame -= HandleEndGame;
+        OnPlayerJoinedLobby -= HandlePlayerJoinLobby;
     }
     #endregion
 
@@ -443,6 +445,21 @@ public class LobbyManager : SingletonMono<LobbyManager>
         _currentPlayerIds.Clear();
         foreach (var id in currentPlayers)
             _currentPlayerIds.Add(id);
+    }
+    private async void HandlePlayerJoinLobby(Player player)
+    {
+        if (!isHost) return;
+        float timer = 0f;
+        while (timer < 3f)
+        {
+            timer += Time.deltaTime;
+            await Task.Yield();
+            if (currentLobby.Data[Constant.KEY_START_GAME].Value == "true")
+            {
+                //await LobbyService.Instance.RemovePlayerAsync(currentLobby.Id, player.Id);
+                return;
+            }
+        }
     }
     private async void HandleStartGame(ulong cliendId)
     {
