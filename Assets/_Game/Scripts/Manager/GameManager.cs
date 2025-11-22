@@ -11,6 +11,8 @@ public class GameManager : SingletonMonoNet<GameManager>
     [SerializeField] private NetworkObject _playerPrefab;
     private Dictionary<ulong, PlayerNameDisplay> _spawnedPlayerNames = new();
     private Dictionary<ulong, string> _idMap = new(); //network id with auth id
+    private EGameState _currentGameState = EGameState.MainMenu;
+    public EGameState CurrentGameState => _currentGameState;
     #endregion
 
     #region Cycle
@@ -62,6 +64,7 @@ public class GameManager : SingletonMonoNet<GameManager>
         {
             _spawnedPlayerNames.Clear();
             UIManager.Instance.HideUI(EUIState.InGame);
+            _currentGameState = EGameState.MainMenu;
         }
     }
     /// <summary>
@@ -73,6 +76,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     {
         if (clientId != NetworkManager.Singleton.LocalClientId) return;
         HandlePlayerJoinNetworkServerRpc(clientId, PlayerInfoManager.Instance.PlayerName, AuthenticationService.Instance.PlayerId);
+        _currentGameState = EGameState.InGame;
     }
 
     /// <summary>
@@ -170,4 +174,9 @@ public class GameManager : SingletonMonoNet<GameManager>
         }
     }
 #endregion
+public enum EGameState
+    {
+        MainMenu,
+        InGame
+    }
 }
