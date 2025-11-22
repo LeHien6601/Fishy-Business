@@ -102,6 +102,12 @@ public class Seat : NetworkBehaviour, IInteractable
         });
     }
 
+    public void ServerEmptySeat()
+    {
+        _occupyingClientId.Value = ulong.MaxValue;
+        _localOccupant = null;
+    }
+
     public Vector3 SitPosition() => transform.position + transform.TransformDirection(_sitOffset);
     public Vector3 SitPosition(Vector3 seatPos, Quaternion seatRot) => seatPos + seatRot * _sitOffset;
     public Quaternion SitRotation() => transform.rotation * Quaternion.LookRotation(_sitDirection);
