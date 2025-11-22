@@ -41,6 +41,7 @@ public class GameManager : SingletonMonoNet<GameManager>
         NetworkManager.Singleton.SceneManager.OnLoadComplete += HandleLoadComplete;
         NetworkManager.Singleton.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
         _spawnedPlayerNames.Clear();
+        _idMap.Clear();
         Debug.Log("Game Started.");
     }
     #region Handlers
