@@ -68,12 +68,7 @@ public class UICustomGame : UIView
         foreach (var lobby in args.LobbyList)
         {
             Debug.Log($"Lobby ID: {lobby.Id}, Name: {lobby.Name}, Players: {lobby.Players.Count}/{lobby.MaxPlayers}");
-            Debug.Log(lobby.Data[Constant.KEY_LOBBY_CODE].Value);
-            for (int i = 0; i < lobby.Players.Count; i++)
-            {
-                Debug.Log($" - Player {i + 1}:");
-                // Debug.Log($"{ lobby.Players[i].Data[Constant.KEY_PLAYER_NAME].Value}");
-            }
+            Debug.Log($"Lobby code: {lobby.LobbyCode} Relay join code: {lobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value}");
         }
         HandleChangeLobbyListUI(args.LobbyList);
     }

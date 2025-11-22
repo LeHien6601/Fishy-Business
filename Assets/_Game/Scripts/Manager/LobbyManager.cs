@@ -186,6 +186,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
     {
         try
         {
+            Debug.Log($"Attempting to join lobby with code: {lobbyCode} {playerName} {iconId}");
             var joinOptions = new JoinLobbyByCodeOptions
             {
                 Player = GetPlayerData(playerName, iconId)

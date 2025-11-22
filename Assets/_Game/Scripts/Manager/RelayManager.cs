@@ -18,7 +18,7 @@ public class RelayManager : SingletonMono<RelayManager>
             var joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             Dictionary<string, DataObject> updatedData = lobby.Data;
             updatedData[Constant.KEY_RELAY_JOIN_CODE] = new DataObject(DataObject.VisibilityOptions.Public, joinCode);
-            updatedData[Constant.KEY_LOBBY_CODE] = new DataObject(DataObject.VisibilityOptions.Public, lobby.Id);
+            updatedData[Constant.KEY_LOBBY_CODE] = new DataObject(DataObject.VisibilityOptions.Public, lobby.LobbyCode);
             await LobbyService.Instance.UpdateLobbyAsync(lobby.Id, new UpdateLobbyOptions
             {
                 Data = updatedData
