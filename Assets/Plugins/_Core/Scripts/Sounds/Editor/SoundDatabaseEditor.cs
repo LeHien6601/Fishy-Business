@@ -5,61 +5,100 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-public class SoundManagerEditor : EditorWindow
+public class SoundDatabaseEditor : EditorWindow
 {
     private Vector2 scrollPos;
     private int selectedTab = 0;
-    private readonly string[] tabNames = { "Sound Groups", "All Sounds" };
-
-    // Tab 1: Group & Type Management
-    
-
+    private readonly string[] tabNames = { "Sound Groups", "All Sounds", "Sound Types (Enum)" };
     private List<SoundGroupData> soundGroups = new();
-
-    // Cache all SoundData assets
     private SoundData[] allSoundDatas;
     private Editor[] soundDataPreviewEditors;
 
     private const string DATA_PATH = "Assets/Resources/SoundGroups.json";
+    private const string ENUM_FILE_PATH = "Assets/Plugins/_Core/Scripts/Sounds/SoundType.cs";
+
+    // === ENUM BUFFER SYSTEM ===
+    private List<string> originalEnumValues;
+    private List<string> bufferedEnumValues;  // Working copy
+    private bool hasPendingEnumChanges = false;
 
     [MenuItem("MyGame/Sound Manager Editor")]
     public static void OpenWindow()
     {
-        GetWindow<SoundManagerEditor>("Sound Manager");
+        GetWindow<SoundDatabaseEditor>("Sound Manager");
     }
 
     private void OnEnable()
     {
         LoadGroupData();
         RefreshSoundDataList();
+        LoadCurrentEnumValues();
+    }
+
+    private void LoadCurrentEnumValues()
+    {
+        originalEnumValues = Enum.GetNames(typeof(SoundType)).ToList();
+        bufferedEnumValues = new List<string>(originalEnumValues);
+        hasPendingEnumChanges = false;
     }
 
     private void OnGUI()
     {
         selectedTab = GUILayout.Toolbar(selectedTab, tabNames, GUILayout.Height(30));
-
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-
-        switch (selectedTab)
+    switch (selectedTab)
         {
-            case 0:
-                DrawSoundGroupsTab();
-                break;
-            case 1:
-                DrawAllSoundsTab();
-                break;
+            case 0: DrawSoundGroupsTab(); break;
+            case 1: DrawAllSoundsTab(); break;
+            case 2: DrawSoundTypesTab(); break;
         }
-
         EditorGUILayout.EndScrollView();
 
         EditorGUILayout.Space(10);
-        if (GUILayout.Button("Save All Changes", GUILayout.Height(30)))
+
+        // === Global Save Button + Enum Apply/Discard ===
+        EditorGUILayout.BeginHorizontal();
+
+        if (GUILayout.Button("Save Groups & Assets", GUILayout.Height(30)))
         {
             SaveGroupData();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("Sound Manager: All changes saved!");
+            Debug.Log("Sound Groups & Assets saved!");
         }
+
+        EditorGUI.BeginDisabledGroup(!hasPendingEnumChanges);
+        if (GUILayout.Button("Apply Enum Changes", GUILayout.Height(30)))
+        {
+            ApplyEnumChanges();
+        }
+        if (GUILayout.Button("Discard Enum Changes", GUILayout.Height(30)))
+        {
+            LoadCurrentEnumValues();
+            Repaint();
+        }
+        EditorGUI.EndDisabledGroup();
+
+        EditorGUILayout.EndHorizontal();
+
+        if (hasPendingEnumChanges)
+        {
+            EditorGUILayout.HelpBox($"Warning: {CountPendingChanges()} pending changes to SoundType enum. Click 'Apply' to save.", MessageType.Warning);
+        }
+    }
+    private int CountPendingChanges()
+    {
+        int added = bufferedEnumValues.Count(v => v != "None" && !originalEnumValues.Contains(v));
+        int removed = originalEnumValues.Count(v => v != "None" && !bufferedEnumValues.Contains(v));
+        int renamed = 0;
+
+        foreach (var oldName in originalEnumValues)
+        {
+            if (oldName == "None") continue;
+            if (!bufferedEnumValues.Contains(oldName)) renamed++;
+        }
+
+        return added + removed + renamed;
     }
 
     #region Tab 1: Sound Groups
@@ -130,96 +169,6 @@ public class SoundManagerEditor : EditorWindow
     #endregion
 
     #region Tab 2: All SoundData Assets
-
-    // private void DrawAllSoundsTab()
-    // {
-    //     if (allSoundDatas == null || allSoundDatas.Length == 0)
-    //     {
-    //         EditorGUILayout.HelpBox("No SoundData assets found!", MessageType.Info);
-    //         if (GUILayout.Button("Create New SoundData"))
-    //             CreateNewSoundData();
-    //         return;
-    //     }
-
-    //     EditorGUILayout.LabelField($"Found {allSoundDatas.Length} SoundData(s)", EditorStyles.boldLabel);
-
-    //     if (GUILayout.Button("Refresh List", GUILayout.Height(25)))
-    //         RefreshSoundDataList();
-
-    //     EditorGUILayout.Space(8);
-
-    //     for (int i = 0; i < allSoundDatas.Length; i++)
-    //     {
-    //         var soundData = allSoundDatas[i];
-    //         if (soundData == null) continue;
-
-    //         EditorGUILayout.BeginVertical("box");
-    //         EditorGUILayout.BeginHorizontal();
-    //         EditorGUILayout.LabelField(Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(soundData)), EditorStyles.boldLabel);
-    //         if (GUILayout.Button("Ping", GUILayout.Width(40))) EditorGUIUtility.PingObject(soundData);
-    //         EditorGUILayout.EndHorizontal();
-
-    //         // === Preview Row ===
-    //         if (soundDataPreviewEditors[i] == null)
-    //             soundDataPreviewEditors[i] = Editor.CreateEditor(soundData, typeof(SoundDataEditor));
-
-    //         var editor = soundDataPreviewEditors[i] as SoundDataEditor;
-    //         if (editor != null)
-    //         {
-    //             AudioClip previewClip = soundData.clips[soundData.sequenceIndex % soundData.clips.Count];
-    //             EditorGUILayout.BeginHorizontal();
-    //             editor.DrawPreviewControls();
-
-    //             if (previewClip != null)
-    //                 editor.DrawClipPreview(previewClip);
-    //             else
-    //                 EditorGUILayout.HelpBox("No clip assigned", MessageType.Warning);
-    //             EditorGUILayout.EndHorizontal();
-    //         }
-
-    //         // === Group & Type Row (Inline Popups) ===
-    //         EditorGUILayout.BeginHorizontal();
-            
-    //         EditorGUI.BeginChangeCheck();
-
-    //         // Group Popup
-    //         int selectedGroupIndex = soundGroups.FindIndex(g => g.groupName == soundData.soundGroup);
-    //         if (selectedGroupIndex == -1) selectedGroupIndex = 0;
-    //         string[] groupNames = soundGroups.Select(g => g.groupName).Prepend("Uncategorized").ToArray();
-    //         int newGroupIndex = EditorGUILayout.Popup(
-    //             selectedGroupIndex < 0 ? 0 : selectedGroupIndex + 1,
-    //             groupNames,
-    //             GUILayout.Width(140)
-    //         );
-    //         string newGroup = newGroupIndex == 0 ? "Uncategorized" : groupNames[newGroupIndex];
-
-    //         GUILayout.Space(8);
-
-    //         // Type Popup (based on selected group)
-    //         List<string> typeOptions = newGroup == "Uncategorized" 
-    //             ? new List<string> { "Default" } 
-    //             : soundGroups.Find(g => g.groupName == newGroup)?.soundTypes ?? new List<string> { "Default" };
-
-    //         int selectedTypeIndex = typeOptions.IndexOf(soundData.soundType);
-    //         if (selectedTypeIndex == -1) selectedTypeIndex = 0;
-
-    //         int newTypeIndex = EditorGUILayout.Popup(selectedTypeIndex, typeOptions.ToArray());
-    //         string newType = typeOptions[Mathf.Max(0, newTypeIndex)];
-
-    //         if (EditorGUI.EndChangeCheck())
-    //         {
-    //             soundData.soundGroup = newGroup;
-    //             soundData.soundType = newType;
-    //             EditorUtility.SetDirty(soundData);
-    //         }
-
-    //         EditorGUILayout.EndHorizontal();
-
-    //         EditorGUILayout.EndVertical();
-    //         EditorGUILayout.Space(6);
-    //     }
-    // }
-
     private void DrawAllSoundsTab()
     {
         if (allSoundDatas == null || allSoundDatas.Length == 0)
@@ -268,30 +217,7 @@ public class SoundManagerEditor : EditorWindow
 
                 // === Editable Name Field ===
                 EditorGUI.BeginChangeCheck();
-                string newName = EditorGUILayout.TextField(soundData.name, EditorStyles.boldLabel);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    string oldPath = AssetDatabase.GetAssetPath(soundData);
-                    string folder = Path.GetDirectoryName(oldPath);
-                    string extension = Path.GetExtension(oldPath);
-                    string newPath = $"{folder}/{newName}{extension}";
-
-                    // Validate filename
-                    if (string.IsNullOrWhiteSpace(newName))
-                    {
-                        EditorUtility.DisplayDialog("Invalid Name", "SoundData name cannot be empty.", "OK");
-                    }
-                    else if (AssetDatabase.LoadAssetAtPath<SoundData>(newPath) != null && newPath != oldPath)
-                    {
-                        EditorUtility.DisplayDialog("Name Conflict", "A SoundData with this name already exists in the folder.", "OK");
-                    }
-                    else
-                    {
-                        soundData.name = newName; // Update object name
-                        AssetDatabase.RenameAsset(oldPath, newName);
-                        EditorUtility.SetDirty(soundData);
-                    }
-                }
+                EditorGUILayout.LabelField(soundData.name, EditorStyles.boldLabel);
 
                 // === Ping Button ===
                 if (GUILayout.Button("Ping", GUILayout.Width(50)))
@@ -347,10 +273,7 @@ public class SoundManagerEditor : EditorWindow
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    Undo.RecordObject(soundData, "Change Sound Group/Type");
-                    soundData.soundGroup = newGroup;
-                    soundData.soundType = newType;
-                    EditorUtility.SetDirty(soundData);
+                    SoundDataEditor.ApplyGroupAndType(soundData, newGroup, newType);
                 }
 
                 EditorGUILayout.EndHorizontal();
@@ -368,6 +291,119 @@ public class SoundManagerEditor : EditorWindow
         {
             CreateNewSoundData();
         }
+    }
+
+    #endregion
+
+    #region Tab 3: SoundType Enum (Buffered)
+    private void DrawSoundTypesTab()
+    {
+        EditorGUILayout.LabelField("Manage SoundType Enum Values", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Changes are buffered. Click 'Apply Enum Changes' to write to file.", MessageType.Info);
+
+        EditorGUILayout.Space();
+
+        // Show list from buffered values
+        for (int i = 0; i < bufferedEnumValues.Count; i++)
+        {
+            string value = bufferedEnumValues[i];
+            if (value == "None") 
+            {
+                EditorGUILayout.LabelField("    None,", EditorStyles.miniLabel);
+                continue;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+
+            string newName = EditorGUILayout.TextField(value, GUILayout.Width(220));
+
+            if (GUILayout.Button("−", GUILayout.Width(30)))
+            {
+                if (EditorUtility.DisplayDialog("Remove SoundType", 
+                    $"Remove '{value}' from SoundType enum?", "Remove", "Cancel"))
+                {
+                    bufferedEnumValues.RemoveAt(i);
+                    hasPendingEnumChanges = true;
+                    Repaint();
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            // Rename handling
+            if (newName != value && !string.IsNullOrWhiteSpace(newName))
+            {
+                if (bufferedEnumValues.Contains(newName))
+                {
+                    EditorUtility.DisplayDialog("Duplicate", $"SoundType '{newName}' already exists!", "OK");
+                }
+                else if (!IsValidIdentifier(newName))
+                {
+                    EditorUtility.DisplayDialog("Invalid", "Must be valid C# identifier (letters, digits, _)", "OK");
+                }
+                else
+                {
+                    bufferedEnumValues[i] = newName;
+                    hasPendingEnumChanges = true;
+                    Repaint();
+                }
+            }
+        }
+
+        EditorGUILayout.Space(10);
+        if (GUILayout.Button("+ Add New SoundType", GUILayout.Height(35)))
+        {
+            string newName = "NewSound";
+            int counter = 1;
+            while (bufferedEnumValues.Contains(newName + (counter > 1 ? counter.ToString() : "")))
+                counter++;
+            if (counter > 1) newName += counter;
+
+            bufferedEnumValues.Add(newName);
+            hasPendingEnumChanges = true;
+            Repaint();
+        }
+    }
+
+    private void ApplyEnumChanges()
+    {
+        if (!EditorUtility.DisplayDialog("Apply SoundType Changes",
+            $"This will rewrite SoundType.cs with {bufferedEnumValues.Count(v => v != "None")} entries.\n\nContinue?", 
+            "Apply", "Cancel"))
+            return;
+
+        RewriteEnumFile(bufferedEnumValues);
+        originalEnumValues = new List<string>(bufferedEnumValues);
+        hasPendingEnumChanges = false;
+        Debug.Log("SoundType.cs successfully updated!");
+    }
+
+    private void RewriteEnumFile(List<string> values)
+    {
+        var lines = new List<string>
+        {
+            "public enum SoundType",
+            "{",
+            "    None,"
+        };
+
+        foreach (var val in values)
+        {
+            if (val != "None")
+                lines.Add($"    {val},");
+        }
+
+        lines.Add("}");
+
+        File.WriteAllLines(ENUM_FILE_PATH, lines);
+        AssetDatabase.Refresh();
+    }
+
+    private bool IsValidIdentifier(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        if (!char.IsLetter(name[0]) && name[0] != '_') return false;
+        return name.All(c => char.IsLetterOrDigit(c) || c == '_');
     }
 
     #endregion
@@ -442,7 +478,6 @@ public class SoundManagerEditor : EditorWindow
         EditorGUIUtility.PingObject(newAsset);
         RefreshSoundDataList();
     }
-    
     #endregion
 }
 [Serializable]

@@ -131,9 +131,7 @@ public class SoundDataEditor : Editor
 
         if (EditorGUI.EndChangeCheck())
         {
-            soundData.soundGroup = newGroup;
-            soundData.soundType = newType;
-            EditorUtility.SetDirty(soundData);
+            ApplyGroupAndType(soundData, newGroup, newType);
         }
 
         EditorGUILayout.EndHorizontal();
@@ -297,10 +295,9 @@ public class SoundDataEditor : Editor
         if (File.Exists(DATA_PATH))
         {
             string json = File.ReadAllText(DATA_PATH);
-            var save = JsonUtility.FromJson<SoundManagerEditor.SaveData>(json);
+            var save = JsonUtility.FromJson<SoundDatabaseEditor.SaveData>(json);
             soundGroups = save.groups ?? new List<SoundGroupData>();
         }
-
         if (soundGroups.Count == 0)
         {
             soundGroups.Add(new SoundGroupData
@@ -314,6 +311,27 @@ public class SoundDataEditor : Editor
                 soundTypes = new List<string> { "Menu", "Gameplay", "Boss" }
             });
         }
+    }
+    static public void ApplyGroupAndType(SoundData soundData, string newGroup, string newType)
+    {
+        if (soundData.soundGroup == newGroup && soundData.soundType == newType)
+            return;
+        Undo.RecordObject(soundData, "Change Sound Group/Type");
+        soundData.soundGroup = newGroup;
+        soundData.soundType = newType;
+        string newAssetName = $"{newGroup}_{newType}";
+        string oldPath = AssetDatabase.GetAssetPath(soundData);
+        string folder = Path.GetDirectoryName(oldPath);
+        string newPath = Path.Combine(folder, newAssetName + ".asset");
+        if (AssetDatabase.LoadAssetAtPath<SoundData>(newPath) != null && newPath != oldPath)
+        {
+            Debug.LogWarning($"Cannot rename: '{newAssetName}' already exists.");
+        }
+        else
+        {
+            AssetDatabase.RenameAsset(oldPath, newAssetName);
+        }
+        EditorUtility.SetDirty(soundData);
     }
     public override bool RequiresConstantRepaint() => isPlaying;
 }
