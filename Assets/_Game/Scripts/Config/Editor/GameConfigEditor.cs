@@ -1,5 +1,4 @@
 using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public class GameConfigEditor : EditorWindow
@@ -7,7 +6,7 @@ public class GameConfigEditor : EditorWindow
     private GameConfig config;
     private SerializedObject serializedConfig;
     private int currentTab = 0;
-    private string[] tabNames = { "UIView", "PlayerIcons" }; // Customize tabs here
+    private string[] tabNames = { "UIView", "PlayerIcons", "Sound Mapping" }; // Customize tabs here
 
     [MenuItem("MyGame/Config Editor")] // This adds the menu item under a new "MyGame" tab in the menu bar
     public static void OpenWindow()
@@ -47,12 +46,9 @@ public class GameConfigEditor : EditorWindow
         EditorGUILayout.BeginVertical("box");
         switch (currentTab)
         {
-            case 0: // UIView tab
-                DrawUIViewsTable();
-                break;
-            case 1: // Player Icons tab
-                DrawProperty("playerIcons");
-                break;
+            case 0: DrawUIViewsTable(); break;
+            case 1: DrawProperty("playerIcons"); break;
+            case 2: DrawSoundMappingTab(); break;
         }
         EditorGUILayout.EndVertical();
 
@@ -79,6 +75,7 @@ public class GameConfigEditor : EditorWindow
         }
     }
 
+#region UIViews
     private void DrawUIViewsTable()
     {
         SerializedProperty uiViewProp = serializedConfig.FindProperty("uiViewPrefabs");
@@ -129,4 +126,62 @@ public class GameConfigEditor : EditorWindow
             newItem.FindPropertyRelative("SortingOrder").intValue = 0;
         }
     }
+#endregion
+
+#region SoundMapping 
+    private void DrawSoundMappingTab()
+    {
+        SerializedProperty mappingsProp = serializedConfig.FindProperty("soundMappings");
+        if (mappingsProp == null) return;
+
+        EditorGUILayout.LabelField("Map SoundType → SoundData", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        // Ensure all enum values exist
+        var enumValues = System.Enum.GetValues(typeof(SoundType));
+        foreach (SoundType type in enumValues)
+        {
+            if (type == SoundType.None) continue;
+
+            int index = -1;
+            for (int i = 0; i < mappingsProp.arraySize; i++)
+            {
+                var element = mappingsProp.GetArrayElementAtIndex(i);
+                var typePro = element.FindPropertyRelative("soundType");
+                if (typePro.enumValueIndex == (int)type)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            // Auto-add missing entries
+            if (index == -1)
+            {
+                mappingsProp.arraySize++;
+                index = mappingsProp.arraySize - 1;
+                var newElement = mappingsProp.GetArrayElementAtIndex(index);
+                newElement.FindPropertyRelative("soundType").enumValueIndex = (int)type;
+                newElement.FindPropertyRelative("soundData").objectReferenceValue = null;
+            }
+
+            var itemProp = mappingsProp.GetArrayElementAtIndex(index);
+            var typeProp = itemProp.FindPropertyRelative("soundType");
+            var dataProp = itemProp.FindPropertyRelative("soundData");
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(typeProp, GUIContent.none, GUILayout.Width(120));
+            EditorGUILayout.PropertyField(dataProp, GUIContent.none);
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.Space();
+        if (GUILayout.Button("Refresh List"))
+        {
+            // Optional: clean up duplicates or missing
+            serializedConfig.ApplyModifiedProperties();
+            serializedConfig.Update();
+        }
+    }
+#endregion
 }

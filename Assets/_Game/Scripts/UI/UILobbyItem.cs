@@ -36,6 +36,7 @@ public class UILobbyItem : MonoBehaviour, IDeselectHandler
         _lobbyStatusTMP.text = $"{lobby.Players.Count}/{lobby.MaxPlayers} in Game";
         _relayJoinCode = lobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value;
         _lobbyCode = lobby.Data[Constant.KEY_LOBBY_CODE].Value;
+        Debug.Log($"Lobby code: {_lobbyCode}, Relay join code: {_relayJoinCode}");
     }
     public void SetLobbyName(string name)
     {

@@ -13,8 +13,8 @@ namespace HHDCore
         private List<RectTransform> _childRects = new();
         private List<AspectRatioFitter> _childAspects = new();
         [SerializeField] private float _spacing;
-        [SerializeField] private bool _controlChildWidth = false;
-        [SerializeField] private bool _controlChildHeight = false;
+        // [SerializeField] private bool _controlChildWidth = false;
+        // [SerializeField] private bool _controlChildHeight = false;
         private RectTransform _rect;
         protected override void Awake()
         {

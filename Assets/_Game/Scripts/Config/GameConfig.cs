@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using HHDCore;
-using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GameConfig", menuName = "MyGame/GameConfig", order = 1)]
@@ -12,6 +12,16 @@ public class GameConfig : SingletonScriptableObject<GameConfig>
 
     [Header("Player Icon Settings")]
     public List<Sprite> playerIcons = new();
+
+    [Serializable]
+    public class SoundMapping
+    {
+        public SoundType soundType;
+        public SoundData soundData;
+    }
+
+    [Header("Sound Mapping")]
+    public List<SoundMapping> soundMappings = new List<SoundMapping>();
 
     #region Getters
     public Sprite GetPlayerIconById(int iconId)
