@@ -1,112 +1,136 @@
+// SoundManager.cs
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using HHDCore;
 
 public class SoundManager : SingletonMono<SoundManager>
 {
     [Header("Audio Sources")]
-    [SerializeField] private AudioSource sfx2DSource;        // For UI / non-spatial
     [SerializeField] private AudioSource musicSource;
 
-    [Header("3D Sound Settings")]
-    [SerializeField] private int initialPoolSize = 15;
-    [SerializeField] private int maxPoolSize = 50;
+    [Header("Pooling")]
+    [SerializeField] private int initial2DPoolSize = 10;
+    [SerializeField] private int initial3DPoolSize = 15;
+    [SerializeField] private int maxPoolSize = 60;
 
     private Dictionary<SoundType, SoundData> soundMap;
-    private readonly Queue<AudioSource> sourcePool = new();
-    private readonly List<AudioSource> activeSources = new();
+
+    // Separate pools
+    private readonly Queue<AudioSource> pool2D = new();
+    private readonly Queue<AudioSource> pool3D = new();
+    private readonly List<AudioSource> active2DSources = new();
+    private readonly List<AudioSource> active3DSources = new();
+
+    private Transform poolParent;
 
     public override void Awake()
     {
         base.Awake();
         BuildSoundMap();
-        InitializePool();
+        InitializePools();
     }
 
-    private void InitializePool()
+    private void InitializePools()
     {
-        var poolParent = new GameObject("[3D Sound Pool]").transform;
+        poolParent = new GameObject("[Sound Pool]").transform;
         poolParent.parent = transform;
         DontDestroyOnLoad(poolParent.gameObject);
 
-        for (int i = 0; i < initialPoolSize; i++)
-        {
-            CreatePooledSource(poolParent);
-        }
+        for (int i = 0; i < initial2DPoolSize; i++) CreatePooledSource(false);
+        for (int i = 0; i < initial3DPoolSize; i++) CreatePooledSource(true);
     }
 
-    private AudioSource CreatePooledSource(Transform parent)
+    private AudioSource CreatePooledSource(bool is3D)
     {
-        var go = new GameObject("Pooled3DAudioSource");
-        go.transform.parent = parent;
+        var go = new GameObject(is3D ? "3D_SFX" : "2D_SFX");
+        go.transform.parent = poolParent;
         go.SetActive(false);
 
         var source = go.AddComponent<AudioSource>();
         source.playOnAwake = false;
         source.loop = false;
-        source.spatialBlend = 1f;           // Fully 3D
-        source.dopplerLevel = 1f;
+        source.spatialBlend = is3D ? 1f : 0f;
+        source.dopplerLevel = is3D ? 1f : 0f;
         source.rolloffMode = AudioRolloffMode.Logarithmic;
         source.minDistance = 1f;
         source.maxDistance = 25f;
 
-        sourcePool.Enqueue(source);
+        if (is3D)
+            pool3D.Enqueue(source);
+        else
+            pool2D.Enqueue(source);
+
         return source;
     }
 
-    private AudioSource GetAvailableSource()
+    private AudioSource GetSource(bool is3D)
     {
-        // Reuse from pool
-        if (sourcePool.Count > 0)
+        var pool = is3D ? pool3D : pool2D;
+        var activeList = is3D ? active3DSources : active2DSources;
+
+        if (pool.Count > 0)
         {
-            var source = sourcePool.Dequeue();
+            var source = pool.Dequeue();
             source.gameObject.SetActive(true);
-            activeSources.Add(source);
+            activeList.Add(source);
             return source;
         }
 
-        // Create new if under max limit
-        if (activeSources.Count + sourcePool.Count < maxPoolSize)
+        if (active2DSources.Count + active3DSources.Count + pool2D.Count + pool3D.Count < maxPoolSize)
         {
-            var source = CreatePooledSource(transform);
+            var source = CreatePooledSource(is3D);
             source.gameObject.SetActive(true);
-            activeSources.Add(source);
+            activeList.Add(source);
             return source;
         }
 
-        // Fallback: reuse oldest active source (least recently used)
-        var oldest = activeSources[0];
+        // Fallback: steal oldest from same category
+        var oldest = activeList[0];
         oldest.Stop();
         return oldest;
     }
 
-    private void ReturnSourceToPool(AudioSource source)
+    private void ReturnToPool(AudioSource source)
     {
         source.Stop();
         source.clip = null;
         source.gameObject.SetActive(false);
-        activeSources.Remove(source);
-        sourcePool.Enqueue(source);
+
+        if (source.spatialBlend > 0.5f)
+        {
+            active3DSources.Remove(source);
+            pool3D.Enqueue(source);
+        }
+        else
+        {
+            active2DSources.Remove(source);
+            pool2D.Enqueue(source);
+        }
+
         source.transform.position = Vector3.zero;
     }
 
     private void Update()
     {
-        // Return finished sources to pool
-        for (int i = activeSources.Count - 1; i >= 0; i--)
+        // Return finished 2D sources
+        for (int i = active2DSources.Count - 1; i >= 0; i--)
         {
-            var source = activeSources[i];
-            if (!source.isPlaying)
-            {
-                ReturnSourceToPool(source);
-            }
+            if (!active2DSources[i].isPlaying)
+                ReturnToPool(active2DSources[i]);
+        }
+
+        // Return finished 3D sources
+        for (int i = active3DSources.Count - 1; i >= 0; i--)
+        {
+            if (!active3DSources[i].isPlaying)
+                ReturnToPool(active3DSources[i]);
         }
     }
 
     private void BuildSoundMap()
     {
         soundMap = new Dictionary<SoundType, SoundData>();
-
         var config = GameConfig.Instance;
         if (config == null)
         {
@@ -117,32 +141,36 @@ public class SoundManager : SingletonMono<SoundManager>
         foreach (var mapping in config.soundMappings)
         {
             if (mapping.soundData != null && !soundMap.ContainsKey(mapping.soundType))
-            {
                 soundMap[mapping.soundType] = mapping.soundData;
-            }
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // MAIN PLAY METHODS
-    // ─────────────────────────────────────────────────────────────────────
+    // ===================================================================
+    // PUBLIC PLAY METHODS
+    // ===================================================================
 
     /// <summary>
-    /// Play a sound at a world position (3D spatialized)
+    /// Play 3D sound at world position (with optional delay)
     /// </summary>
-    public static void Play(SoundType type, Vector3 position)
+    public static void Play(SoundType type, Vector3 position, float delay = 0f)
     {
         if (Instance == null) return;
-        Instance.InternalPlay(type, position, true);
+        if (delay > 0f)
+            Instance.StartCoroutine(Instance.DelayedPlay(type, position, true, delay));
+        else
+            Instance.InternalPlay(type, position, true);
     }
 
     /// <summary>
-    /// Play a 2D sound (UI, music, etc.)
+    /// Play 2D sound (UI, effects) with optional delay
     /// </summary>
-    public static void Play2D(SoundType type)
+    public static void Play2D(SoundType type, float delay = 0f)
     {
-        if (Instance == null || Instance.sfx2DSource == null) return;
-        Instance.InternalPlay(type, Vector3.zero, false);
+        if (Instance == null) return;
+        if (delay > 0f)
+            Instance.StartCoroutine(Instance.DelayedPlay(type, Vector3.zero, false, delay));
+        else
+            Instance.InternalPlay(type, Vector3.zero, false);
     }
 
     /// <summary>
@@ -169,51 +197,40 @@ public class SoundManager : SingletonMono<SoundManager>
         Instance.musicSource.Play();
     }
 
-    // ─────────────────────────────────────────────────────────────────────
+    // ===================================================================
 
     private void InternalPlay(SoundType type, Vector3 worldPos, bool is3D)
     {
         if (!soundMap.TryGetValue(type, out SoundData soundData) || soundData == null)
         {
-            Debug.LogWarning($"No SoundData mapped for SoundType: {type}");
+            Debug.LogWarning($"[SoundManager] No SoundData for: {type}");
             return;
         }
 
         var clip = soundData.GetNextClip();
         if (clip == null)
         {
-            Debug.LogWarning($"No clip in SoundData: {soundData.name}");
+            Debug.LogWarning($"[SoundManager] No clip in: {soundData.name}");
             return;
         }
 
-        AudioSource source;
+        var source = GetSource(is3D);
 
         if (is3D)
-        {
-            source = GetAvailableSource();
             source.transform.position = worldPos;
-            source.spatialBlend = 1f;
-        }
-        else
-        {
-            source = sfx2DSource;
-            source.spatialBlend = 0f; // Force 2D
-        }
 
         source.clip = clip;
         source.volume = soundData.GetRandomVolume();
         source.pitch = soundData.GetRandomPitch();
         source.loop = false;
-
         source.Play();
-
-        // For 2D source, no need to track — it's always active
-        if (!is3D)
-            return;
-
-        // Auto-return when done (handled in Update)
     }
 
-    // Optional: Rebuild mapping at runtime
+    private IEnumerator DelayedPlay(SoundType type, Vector3 pos, bool is3D, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        InternalPlay(type, pos, is3D);
+    }
+
     public void RebuildMap() => BuildSoundMap();
 }

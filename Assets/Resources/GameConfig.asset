@@ -73,4 +73,4 @@ MonoBehaviour:
   - soundType: 9
     soundData: {fileID: 0}
   - soundType: 10
-    soundData: {fileID: 0}
+    soundData: {fileID: 11400000, guid: a310783ccace95540983bdb5953f6fc0, type: 2}

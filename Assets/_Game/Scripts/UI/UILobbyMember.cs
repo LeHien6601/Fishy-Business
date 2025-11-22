@@ -67,6 +67,7 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         if (!NetworkManager.Singleton.IsHost) return;
         if (_isMine) return;
         if (_emptyTMP.gameObject.activeSelf) return;
@@ -81,11 +82,13 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
     }
     private void HandleClickYes()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         LobbyManager.Instance.KickPlayerAsync(_id);
         ToggleKickContainer();
     }
     private void HandleClickNo()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         ToggleKickContainer();
     }
     #endregion

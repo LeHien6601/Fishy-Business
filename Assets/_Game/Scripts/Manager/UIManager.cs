@@ -57,7 +57,7 @@ public class UIManager : SingletonMono<UIManager>
         }
         foreach (var viewState in _uiViewStates.ToList())
         {
-            if (viewState.State == state)
+            if (viewState.State == state && !viewState.View.IsShowing)
             {
                 viewState.View.SetSortingOrder(GetSortingOrder(state));
                 if (param != null)
@@ -75,7 +75,7 @@ public class UIManager : SingletonMono<UIManager>
     {
         foreach (var viewState in _uiViewStates)
         {
-            if (viewState.State == state)
+            if (viewState.State == state && viewState.View.IsShowing)
             {
                 if (param != null)
                 {

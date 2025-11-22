@@ -68,6 +68,7 @@ public class UIPlayerInfo : UIView
     }
     private void HandleSelectIcon(int iconId)
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         _selectedIconId = iconId;
         _hasChangeIcon = _selectedIconId != PlayerInfoManager.Instance.PlayerIconId;
         _saveButton.interactable = _hasChangedName || _hasChangeIcon;
@@ -78,10 +79,12 @@ public class UIPlayerInfo : UIView
     }
     private void HandleClickBack()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
     }
     private void HandleClickSave()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         string newName = _nameInputField.text.Trim();
         if (newName.Length < MIN_NAME_LENGTH)
         {
