@@ -39,11 +39,16 @@ public static class GameObjectExtensions
     /// <param name="obj">The object being checked.</param>
     /// <returns>The object itself if it exists and not destroyed, null otherwise.</returns>
     public static T OrNull<T>(this T obj) where T : Object => obj ? obj : null;
-    
+
 
 
     public static void DeleteChildren(this Transform t)
     {
         foreach (Transform child in t) Object.Destroy(child.gameObject);
+    }
+
+    public static void DisableChildren(this Transform t)
+    {
+        foreach (Transform child in t) child.gameObject.SetActive(false);
     }
 }
