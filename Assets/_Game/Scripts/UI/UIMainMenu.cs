@@ -28,6 +28,7 @@ public class UIMainMenu : UIView
     {
         base.Show();
         UIManager.Instance.ShowUI(EUIState.Footer);
+        SoundManager.PlayMusic(SoundType.MainMenu);
     }
 
     private async void QuickMatch()

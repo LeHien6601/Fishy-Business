@@ -187,14 +187,19 @@ public class SoundManager : SingletonMono<SoundManager>
         }
 
         var clip = data.GetNextClip();
-        if (clip == null) return;
-
+        if (clip == null || (Instance.musicSource.clip == clip && Instance.musicSource.isPlaying)) return;
+        
         Instance.musicSource.Stop();
         Instance.musicSource.clip = clip;
         Instance.musicSource.volume = data.GetRandomVolume();
         Instance.musicSource.pitch = data.GetRandomPitch();
         Instance.musicSource.loop = true;
         Instance.musicSource.Play();
+    }
+    static public void StopMusic()
+    {
+        if (Instance == null || Instance.musicSource == null) return;
+        Instance.musicSource.Stop();
     }
 
     // ===================================================================
