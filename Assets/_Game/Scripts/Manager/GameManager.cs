@@ -81,8 +81,8 @@ public class GameManager : SingletonMonoNet<GameManager>
     [ServerRpc(RequireOwnership = false)]
     private void HandlePlayerJoinNetworkServerRpc(ulong clientId, string name, string authId)
     {
-        _spawnedPlayerNames[clientId].SetPlayerName(name);
         _idMap[clientId] = authId;
+        _spawnedPlayerNames[clientId].SetPlayerName(name);
     }
     /// <summary>
     /// Triggered whenever the lobby data changes (e.g., someone edits their name).
@@ -164,6 +164,7 @@ public class GameManager : SingletonMonoNet<GameManager>
         {
             playerObject.Despawn(false);
             _spawnedPlayerNames.Remove(clientId);
+            _idMap.Remove(clientId);
             Debug.Log($"Despawned player for client {clientId}");
         }
     }
