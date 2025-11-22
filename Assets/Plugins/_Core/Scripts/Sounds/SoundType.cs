@@ -5,9 +5,10 @@ public enum SoundType
     ButtonHover,
     Victory,
     Lose,
-    MenuOpen,
-    MenuClose,
+    ShowView,
+    HideView,
     JoinLobby,
     LeaveLobby,
     StartGame,
+    MainMenu,
 }

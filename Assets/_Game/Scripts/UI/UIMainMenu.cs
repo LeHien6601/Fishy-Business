@@ -28,10 +28,12 @@ public class UIMainMenu : UIView
     {
         base.Show();
         UIManager.Instance.ShowUI(EUIState.Footer);
+        SoundManager.PlayMusic(SoundType.MainMenu);
     }
 
     private async void QuickMatch()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         UIManager.Instance.ShowUI(EUIState.Loading);
         try
         {
@@ -66,15 +68,17 @@ public class UIMainMenu : UIView
     }
     private void CustomGame()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         UIManager.Instance.ShowUI(EUIState.CustomGame);
         UIManager.Instance.HideUI(EUIState.MainMenu);
     }
     private void Settings()
     {
-
+        SoundManager.Play2D(SoundType.ButtonClick);
     }
     private void Exit()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         Application.Quit();
     }
     private async void ShowMessage(string message, float duration = 2f)

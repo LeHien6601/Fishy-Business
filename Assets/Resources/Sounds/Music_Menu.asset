@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf9c12ed9067a7d45bfec7de438eb0ea, type: 3}
-  m_Name: SFX_Click
+  m_Name: Music_Menu
   m_EditorClassIdentifier: Assembly-CSharp-firstpass::SoundData
   clips:
-  - {fileID: 8300000, guid: 63056db6738be734f83ff072eef42089, type: 3}
-  minVolumeDB: -7.096815
-  maxVolumeDB: 1.5008297
-  minPitch: 0.5819671
-  maxPitch: 0.9057375
-  playbackMode: 0
-  soundGroup: SFX
-  soundType: Click
+  - {fileID: 8300000, guid: 323c4dd56f5dfeb4aae1e3105909ec9e, type: 3}
+  minVolumeDB: -3
+  maxVolumeDB: -3
+  minPitch: 0.8
+  maxPitch: 0.8
+  playbackMode: 1
+  soundGroup: Music
+  soundType: Menu
   sequenceIndex: 0

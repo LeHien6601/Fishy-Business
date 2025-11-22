@@ -72,17 +72,20 @@ public class UILobbyInfo : UIView
     }
     private void HandleClickBack()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
         UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
     }
     private void HandleClickEditName()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         _lobbyNameInput.interactable = true;
         _saveNameBtn.gameObject.SetActive(true);
         _editNameBtn.gameObject.SetActive(false);
     }
     private async void HandleClickSaveName()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         string newName = _lobbyNameInput.text.Trim();
         if (newName.Length < MIN_NAME_LENGTH)
         {

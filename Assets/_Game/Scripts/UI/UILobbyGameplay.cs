@@ -43,23 +43,28 @@ public class UILobbyGameplay : UIView
     }
     private void HandleClickContinue()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         Debug.Log("Continue button clicked");
         HideWithParams(true);
         EventSystem.current.SetSelectedGameObject(null);
     }
     private void HandleClickLobbyInfo()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
         UIManager.Instance.ShowUI(EUIState.LobbyInfo);
         EventSystem.current.SetSelectedGameObject(null);
     }
     private void HandleClickSettings()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
+        // Settings button logic here
         Debug.Log("Settings button clicked");
         EventSystem.current.SetSelectedGameObject(null);
     }
     private async void HandleClickLeaveLobby()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         await LobbyManager.Instance.LeaveLobbyAsync();
         Hide();
         UIManager.Instance.ShowUI(EUIState.MainMenu);
@@ -72,6 +77,7 @@ public class UILobbyGameplay : UIView
 
     private void HandleClickExitToDesktop()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         EventSystem.current.SetSelectedGameObject(null);
         Application.Quit();
     }

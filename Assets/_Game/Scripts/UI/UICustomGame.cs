@@ -114,6 +114,7 @@ public class UICustomGame : UIView
         _selectedLobbyCode = args.LobbyCode;
         _selectedRelayJoinCode = args.RelayJoinCode;
         Debug.Log($"Selected Lobby Code: {_selectedLobbyCode}, Relay Join Code: {_selectedRelayJoinCode}");
+        SoundManager.Play2D(SoundType.ButtonClick);
     }
     private async void HandleDeselectLobbyItem()
     {
@@ -127,11 +128,13 @@ public class UICustomGame : UIView
     #region Behaviors
     private void Back()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         UIManager.Instance.ShowUI(EUIState.MainMenu);
         UIManager.Instance.HideUI(EUIState.CustomGame, false);
     }
     private async void Create()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         UIManager.Instance.HideUI(EUIState.CustomGame, true);
         UIManager.Instance.ShowUI(EUIState.Loading);
         await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
@@ -142,6 +145,7 @@ public class UICustomGame : UIView
 
     private async void Join()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         if (!string.IsNullOrEmpty(_selectedLobbyCode))
         {
             UIManager.Instance.HideUI(EUIState.CustomGame, true);

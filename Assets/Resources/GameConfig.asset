@@ -53,3 +53,24 @@ MonoBehaviour:
   - {fileID: -303042909, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
   - {fileID: 1140658246, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
   - {fileID: -465588323, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
+  soundMappings:
+  - soundType: 1
+    soundData: {fileID: 11400000, guid: 7f41892a3da71bf43bca1ec9a0066506, type: 2}
+  - soundType: 2
+    soundData: {fileID: 0}
+  - soundType: 3
+    soundData: {fileID: 0}
+  - soundType: 4
+    soundData: {fileID: 0}
+  - soundType: 5
+    soundData: {fileID: 11400000, guid: 54802559715d0564aa6ab6b326797066, type: 2}
+  - soundType: 6
+    soundData: {fileID: 11400000, guid: 1e29a07c99e18fe498fada5b932a0e01, type: 2}
+  - soundType: 7
+    soundData: {fileID: 0}
+  - soundType: 8
+    soundData: {fileID: 0}
+  - soundType: 9
+    soundData: {fileID: 0}
+  - soundType: 10
+    soundData: {fileID: 11400000, guid: a310783ccace95540983bdb5953f6fc0, type: 2}

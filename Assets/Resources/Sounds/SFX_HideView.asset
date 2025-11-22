@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf9c12ed9067a7d45bfec7de438eb0ea, type: 3}
-  m_Name: SFX_Click
+  m_Name: SFX_HideView
   m_EditorClassIdentifier: Assembly-CSharp-firstpass::SoundData
   clips:
-  - {fileID: 8300000, guid: 63056db6738be734f83ff072eef42089, type: 3}
-  minVolumeDB: -7.096815
-  maxVolumeDB: 1.5008297
-  minPitch: 0.5819671
-  maxPitch: 0.9057375
-  playbackMode: 0
+  - {fileID: 8300000, guid: 55c6b658bd028d8459ec826f57c31538, type: 3}
+  minVolumeDB: 0.80341625
+  maxVolumeDB: 9.803416
+  minPitch: 0.35439062
+  maxPitch: 0.40314662
+  playbackMode: 1
   soundGroup: SFX
-  soundType: Click
+  soundType: HideView
   sequenceIndex: 0

@@ -42,6 +42,7 @@ public class UIFooter : UIView
     private void HandleClickPlayerInfo()
     {
         Debug.Log("Footer: Player Info Button Clicked");
+        SoundManager.Play2D(SoundType.ButtonClick);
         UIManager.Instance.ShowUI(EUIState.PlayerInfo);
     }
     private void HandleUpdatedPlayerInfo(PlayerInfoManager.ChangedPlayerInfoEventArgs args)
