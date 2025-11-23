@@ -22,10 +22,12 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     public void TriggerStartGame(ulong id)
     {
         OnStartGame?.Invoke(id);
+        SoundManager.PlayMusic(SoundType.Gameplay);
     }
     public void TriggerEndGame(ulong id)
     {
         OnEndGame?.Invoke(id);
+        SoundManager.PlayMusic(SoundType.Lobby, 2f);
     }
     //Server-Start game
     public void HandleStartGame(Dictionary<ulong, PlayerRole> playerRoleMap)

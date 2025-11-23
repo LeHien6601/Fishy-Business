@@ -75,6 +75,7 @@ public class UIMainMenu : UIView
     private void Settings()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
+        UIManager.Instance.ShowUI(EUIState.Settings);
     }
     private void Exit()
     {

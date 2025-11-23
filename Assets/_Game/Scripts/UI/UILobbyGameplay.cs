@@ -58,8 +58,7 @@ public class UILobbyGameplay : UIView
     private void HandleClickSettings()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
-        // Settings button logic here
-        Debug.Log("Settings button clicked");
+        UIManager.Instance.ShowUI(EUIState.Settings);
         EventSystem.current.SetSelectedGameObject(null);
     }
     private async void HandleClickLeaveLobby()

@@ -77,7 +77,7 @@ public class GameManager : SingletonMonoNet<GameManager>
         if (clientId != NetworkManager.Singleton.LocalClientId) return;
         HandlePlayerJoinNetworkServerRpc(clientId, PlayerInfoManager.Instance.PlayerName, AuthenticationService.Instance.PlayerId);
         _currentGameState = EGameState.InGame;
-        SoundManager.StopMusic();
+        SoundManager.PlayMusic(SoundType.Lobby);
     }
 
     /// <summary>

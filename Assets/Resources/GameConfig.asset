@@ -32,7 +32,7 @@ MonoBehaviour:
     View: {fileID: 6240974990313755145, guid: 233b82f291cd2e449ab4294095a947a6, type: 3}
     SortingOrder: 6
   - State: 7
-    View: {fileID: 5435338139581658603, guid: 7a1ebec2e5bbcf64e814a320d4b7cb05, type: 3}
+    View: {fileID: 5435338139581658603, guid: ce70aeb12668e97499d2d578d66aa98f, type: 3}
     SortingOrder: 3
   - State: 8
     View: {fileID: 200893462852294572, guid: 152187fe978b0fe4db45bfbbd6649af9, type: 3}
@@ -43,6 +43,9 @@ MonoBehaviour:
   - State: 10
     View: {fileID: 8171707745913130471, guid: ff27057bfd20e0a43a1ae96b5b23df7d, type: 3}
     SortingOrder: 0
+  - State: 11
+    View: {fileID: -2218289635160984058, guid: 7a1ebec2e5bbcf64e814a320d4b7cb05, type: 3}
+    SortingOrder: 3
   playerIcons:
   - {fileID: -197385056, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
   - {fileID: -1626465430, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
@@ -62,9 +65,9 @@ MonoBehaviour:
   - soundType: 2
     soundData: {fileID: 0}
   - soundType: 3
-    soundData: {fileID: 0}
+    soundData: {fileID: 11400000, guid: e0ce0f76b3b50cd408e633ba96e5ec07, type: 2}
   - soundType: 4
-    soundData: {fileID: 0}
+    soundData: {fileID: 11400000, guid: 87c1b554b4407784eb4c07c5be94e8fd, type: 2}
   - soundType: 5
     soundData: {fileID: 11400000, guid: 54802559715d0564aa6ab6b326797066, type: 2}
   - soundType: 6
@@ -77,3 +80,9 @@ MonoBehaviour:
     soundData: {fileID: 0}
   - soundType: 10
     soundData: {fileID: 11400000, guid: a310783ccace95540983bdb5953f6fc0, type: 2}
+  - soundType: 11
+    soundData: {fileID: 11400000, guid: a392b9290288c494e919a57a0c97d74e, type: 2}
+  - soundType: 12
+    soundData: {fileID: 11400000, guid: 9b57e937f8482454f92eac495a757c2f, type: 2}
+  - soundType: 13
+    soundData: {fileID: 11400000, guid: 473d90269c93071478dc3cb91b55234b, type: 2}
