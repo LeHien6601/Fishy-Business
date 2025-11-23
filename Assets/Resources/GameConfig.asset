@@ -32,7 +32,7 @@ MonoBehaviour:
     View: {fileID: 6240974990313755145, guid: 233b82f291cd2e449ab4294095a947a6, type: 3}
     SortingOrder: 6
   - State: 7
-    View: {fileID: 5435338139581658603, guid: 7a1ebec2e5bbcf64e814a320d4b7cb05, type: 3}
+    View: {fileID: 5435338139581658603, guid: ce70aeb12668e97499d2d578d66aa98f, type: 3}
     SortingOrder: 3
   - State: 8
     View: {fileID: 200893462852294572, guid: 152187fe978b0fe4db45bfbbd6649af9, type: 3}
@@ -43,6 +43,9 @@ MonoBehaviour:
   - State: 10
     View: {fileID: 8171707745913130471, guid: ff27057bfd20e0a43a1ae96b5b23df7d, type: 3}
     SortingOrder: 0
+  - State: 11
+    View: {fileID: -2218289635160984058, guid: 7a1ebec2e5bbcf64e814a320d4b7cb05, type: 3}
+    SortingOrder: 3
   playerIcons:
   - {fileID: -197385056, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
   - {fileID: -1626465430, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}

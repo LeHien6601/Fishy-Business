@@ -152,6 +152,11 @@ MonoBehaviour:
   initial2DPoolSize: 10
   initial3DPoolSize: 10
   maxPoolSize: 50
+  sfxMixerGroupName: SFX
+  musicMixerGroupName: Music
+  globalMixerGroup: {fileID: 24300002, guid: b757b40492b67c74aaa411955783e3da, type: 2}
+  musicMixer: {fileID: 6784966432330702018, guid: b757b40492b67c74aaa411955783e3da, type: 2}
+  sfxMixer: {fileID: -1459294269007520242, guid: b757b40492b67c74aaa411955783e3da, type: 2}
 --- !u!4 &148909765
 Transform:
   m_ObjectHideFlags: 0
@@ -321,7 +326,7 @@ AudioSource:
   m_GameObject: {fileID: 452831836}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 6784966432330702018, guid: b757b40492b67c74aaa411955783e3da, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
