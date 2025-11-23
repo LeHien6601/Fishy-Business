@@ -19,4 +19,5 @@ public class Constant
     public const int MAX_PLAYERS = 8;
     public const float TURN_INTERVAL = 30f;
     public const float RESTART_INTERVAL = 5f;
+    public const float START_GAME_COUNTDOWN = 5f;
 }

@@ -34,6 +34,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private const float _deckStackSpace = 0.001f;
     private PlayerState _localPlayerState = PlayerState.NONE;
     private IEnumerator _countDownTurnRoutine;
+    private int _playerStartGameCount = 0;
 
     // API - transfer visual effects/ sound effects to another class to handle
     public event UnityAction<Vector3> BombEvent = delegate { };
@@ -61,8 +62,12 @@ public class NetworkBoardManager : NetworkBehaviour
         _tressureIndex = Random.Range(0, 3);
 
         await Task.Delay(1000); // wait for a moment to ensure all clients are ready
+        _playerStartGameCount = 0;
         StartGameClientRpc();
-
+        while (_playerStartGameCount < NetworkManager.Singleton.ConnectedClients.Count)
+        {
+            await Task.Yield();
+        }
         GameplayManager.Instance.HandleStartGame(_playerAndHolderMap.ToDictionary(
             kvp => kvp.Key, kvp => kvp.Value.PlayerRole));
 
@@ -74,9 +79,10 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void StartGameClientRpc()
     {
+        Debug.Log("START GAME ON CLIENT");
         // spawn board, facing towards local player
         _boardCore.GenerateBoard();
-        if (_playerOrders.Contains(NetworkManager.Singleton.LocalClientId))
+        if (_playerAndHolderMap.TryGetValue(NetworkManager.Singleton.LocalClientId, out CardHolder _))
         {
             Vector3 direction = transform.position - _playerAndHolderMap[NetworkManager.Singleton.LocalClientId].transform.position;
             direction.y = 0;
@@ -84,12 +90,20 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         // spawn deck,
         _cardsInDeck.Clear();
+
         for (int i = 0; i < _cardDatabase.TotalCount(); i++)
         {
             var card = Instantiate(_cardPrefab, _deckPlace.position + _deckStackSpace * i * Vector3.up, Quaternion.identity, _deckPlace);
             card.transform.localRotation = Quaternion.identity;
             _cardsInDeck.Push(card);
         }
+        Debug.Log("START GAME ON CLIENT END");
+        CountPlayerStartGameRpc();
+    }
+    [Rpc(SendTo.Server)]
+    private void CountPlayerStartGameRpc()
+    {
+        _playerStartGameCount++;
     }
 
     private void DealCards(NetworkList<ulong> playerOrders)
@@ -292,6 +306,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void PlayCardOtherClientRpc(CardData arg0, ulong senderId, ClientRpcParams clientRpcParams)
     {
+        if (!_playerAndHolderMap.TryGetValue(senderId, out CardHolder _)) return;
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
         _placingCard = card;
@@ -851,6 +866,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private void NextTurnClientRpc(ulong nextPlayerId)
     {
         _inTurnPlayer = nextPlayerId;
+        if (!_playerAndHolderMap.TryGetValue(nextPlayerId, out CardHolder _)) return;
         CardHolder inTurnHolder = _playerAndHolderMap[nextPlayerId];
         if (NetworkManager.Singleton.LocalClientId == nextPlayerId)
         {

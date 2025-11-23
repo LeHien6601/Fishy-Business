@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
-using UnityEngine.Events;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
@@ -33,11 +32,11 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     {
         foreach (var pair in playerRoleMap)
         {
-            UpdatePlayRoleClientRpc(pair.Key, pair.Value);
+            UpdatePlayerRoleClientRpc(pair.Key, pair.Value);
         }
     }
     [ClientRpc]
-    private void UpdatePlayRoleClientRpc(ulong cliendId, PlayerRole role)
+    private void UpdatePlayerRoleClientRpc(ulong cliendId, PlayerRole role)
     {
         if (cliendId != NetworkManager.Singleton.LocalClientId) return;
         _playerRole = role;
