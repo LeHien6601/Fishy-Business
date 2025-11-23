@@ -450,13 +450,13 @@ public class LobbyManager : SingletonMono<LobbyManager>
     {
         if (!isHost) return;
         float timer = 0f;
-        while (timer < 3f)
+        while (timer < 1f)
         {
             timer += Time.deltaTime;
             await Task.Yield();
             if (currentLobby.Data[Constant.KEY_START_GAME].Value == "true")
             {
-                //await LobbyService.Instance.RemovePlayerAsync(currentLobby.Id, player.Id);
+                await LobbyService.Instance.RemovePlayerAsync(currentLobby.Id, player.Id);
                 return;
             }
         }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -58,7 +59,7 @@ public class UICustomGame : UIView
         while (true)
         {
             yield return LobbyManager.Instance.QueryLobbiesAsync();
-            yield return Utils.GetWaitForSeconds(10f);
+            yield return Utils.GetWaitForSeconds(2f);
         }
     }
     private void HandleChangeLobbyList(LobbyManager.UpdatedLoobyListEventArgs args)
@@ -104,6 +105,10 @@ public class UICustomGame : UIView
         for (int i = 0; i < lobbyList.Count; i++)
         {
             _lobbyItems[i].SetLobbyInfo(lobbyList[i]);
+        }
+        if (!lobbyList.Any(l => l.Data[Constant.KEY_LOBBY_CODE].Value == _selectedLobbyCode))
+        {
+            _joinBtn.interactable = false;
         }
     }
 
