@@ -86,3 +86,9 @@ MonoBehaviour:
     soundData: {fileID: 11400000, guid: 9b57e937f8482454f92eac495a757c2f, type: 2}
   - soundType: 13
     soundData: {fileID: 11400000, guid: 473d90269c93071478dc3cb91b55234b, type: 2}
+  - soundType: 14
+    soundData: {fileID: 11400000, guid: d11ed864af065a54487d355a5f638349, type: 2}
+  - soundType: 15
+    soundData: {fileID: 11400000, guid: b8c8108a31cb9224494853ebe1e7014c, type: 2}
+  - soundType: 16
+    soundData: {fileID: 11400000, guid: 053b662e88a551042beec9bf5837b4d7, type: 2}

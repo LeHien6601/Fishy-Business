@@ -14,4 +14,7 @@ public enum SoundType
     DealCard,
     Lobby,
     Gameplay,
+    CoinAppear,
+    CoinDisappear,
+    BombExplode,
 }

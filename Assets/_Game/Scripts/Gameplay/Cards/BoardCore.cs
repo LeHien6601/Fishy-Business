@@ -328,6 +328,7 @@ public class BoardCore : MonoBehaviour
         card.Refresh();
         card.SetMaterial(_highlightMaterial);
         card.gameObject.SetActive(false);
+        SoundManager.Play2D(SoundType.BombExplode);
     }
 
     public void ShowThisGoalCard(Vector2Int slot, Transform showTarget, bool isTressure, bool revealCardData)

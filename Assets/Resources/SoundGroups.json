@@ -11,7 +11,10 @@
                 "Victory",
                 "Lose",
                 "JoinLobby",
-                "DealCard"
+                "DealCard",
+                "CoinAppear",
+                "CoinDisappear",
+                "BombExplode"
             ]
         },
         {

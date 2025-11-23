@@ -307,6 +307,7 @@ public class CardHolder : MonoBehaviour
     }
     public void SetTool(ToolType toolType, bool isRepair)
     {
+        SoundManager.Play2D(isRepair ? SoundType.CoinAppear : SoundType.CoinDisappear);
         switch (toolType)
         {
             case ToolType.Cart:
