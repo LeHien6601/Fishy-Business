@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DG.Tweening;
 using HHDCore;
+using TMPro;
 using UnityEngine;
 
 public class UIEndGame : UIView
@@ -9,6 +11,7 @@ public class UIEndGame : UIView
     [Header("References")]
     [SerializeField] private CustomLayout _layout;
     [SerializeField] private List<UIPlayerEndGame> _uiPlayers = new();
+    [SerializeField] private TextMeshProUGUI _loseTMP;
     #endregion
 
     #region View behavior
@@ -23,8 +26,9 @@ public class UIEndGame : UIView
     #endregion
 
     #region Setter
-    public void UpdateData(List<LobbyManager.PlayerInfo> playerInfos)
+    public async void UpdateData(List<LobbyManager.PlayerInfo> playerInfos)
     {
+        _loseTMP.gameObject.SetActive(false);
         for (int i = 0; i < _uiPlayers.Count; i++)
         {
             if (i < playerInfos.Count)
@@ -38,6 +42,20 @@ public class UIEndGame : UIView
             }
         }
         _layout.UpdateLayoutFitType();
+        if (playerInfos.Count == 0)
+        {
+            SoundManager.Play2D(SoundType.Lose);
+            _loseTMP.gameObject.SetActive(true);
+            _loseTMP.rectTransform.localScale = Vector3.zero;
+            _loseTMP.rectTransform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+            _loseTMP.rectTransform.DOShakePosition(2f, 10f, 20, 90f, false, true);
+            await Task.Delay(2500);
+            _loseTMP.rectTransform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack);
+        }
+        else
+        {
+            SoundManager.Play2D(SoundType.Victory);
+        }
     }
     #endregion
 }

@@ -46,7 +46,7 @@ public class SoundDatabaseEditor : EditorWindow
     {
         selectedTab = GUILayout.Toolbar(selectedTab, tabNames, GUILayout.Height(30));
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-    switch (selectedTab)
+        switch (selectedTab)
         {
             case 0: DrawSoundGroupsTab(); break;
             case 1: DrawAllSoundsTab(); break;
@@ -186,7 +186,7 @@ public class SoundDatabaseEditor : EditorWindow
         }
 
         // Start scrollable list
-        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+        // scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
         if (allSoundDatas != null)
         {
@@ -210,7 +210,7 @@ public class SoundDatabaseEditor : EditorWindow
                         AssetDatabase.DeleteAsset(path);
                         RefreshSoundDataList();
                         EditorGUILayout.EndVertical();
-                        EditorGUILayout.EndScrollView();
+                        // EditorGUILayout.EndScrollView();
                         return; // Early exit to avoid invalid index access
                     }
                 }
@@ -283,7 +283,7 @@ public class SoundDatabaseEditor : EditorWindow
             }
         }
 
-        EditorGUILayout.EndScrollView();
+        // EditorGUILayout.EndScrollView();
 
         // === Bottom Button: Always Visible ===
         EditorGUILayout.Space(10);

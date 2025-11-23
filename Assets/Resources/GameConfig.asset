@@ -65,9 +65,9 @@ MonoBehaviour:
   - soundType: 2
     soundData: {fileID: 0}
   - soundType: 3
-    soundData: {fileID: 0}
+    soundData: {fileID: 11400000, guid: e0ce0f76b3b50cd408e633ba96e5ec07, type: 2}
   - soundType: 4
-    soundData: {fileID: 0}
+    soundData: {fileID: 11400000, guid: 87c1b554b4407784eb4c07c5be94e8fd, type: 2}
   - soundType: 5
     soundData: {fileID: 11400000, guid: 54802559715d0564aa6ab6b326797066, type: 2}
   - soundType: 6
