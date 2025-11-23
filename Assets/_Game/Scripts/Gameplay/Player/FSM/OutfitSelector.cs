@@ -38,6 +38,27 @@ public class OutfitSelector : NetworkBehaviour
         _currentOutfitId = outfitId;
         _outfitPair.Value = new(outfitId, variantId);
     }
+    public void OwnerChangeOutfit(int outfitId, bool next)
+    {
+        if (!IsOwner)
+            return;
+        _currentOutfitId = outfitId;
+        int variantCount = _container.GetChild(_currentOutfitId).childCount;
+        if (next)
+        {
+            int variantId = (_outfitPair.Value.VariantId + 1) % variantCount;
+            _outfitPair.Value = new(_currentOutfitId, variantId);
+        }
+        else
+        {
+            int variantId = (_outfitPair.Value.VariantId - 1) % variantCount;
+            if (variantId < 0)
+            {
+                variantId = variantCount - 1;
+            }
+            _outfitPair.Value = new(_currentOutfitId, variantId);
+        }
+    }
 
 #if UNITY_EDITOR
     void Update()

@@ -13,7 +13,6 @@ public class UIManager : SingletonMono<UIManager>
     {
         _uiViewPrefabs = GameConfig.Instance.uiViewPrefabs;
     }
-
     void Update()
     {
         if (GameManager.Instance.CurrentGameState != GameManager.EGameState.InGame) return;
@@ -109,7 +108,8 @@ public enum EUIState
     Loading,
     PlayerInfo,
     EndGame,
-    InGame
+    InGame,
+    CustomPlayer
 }
 [Serializable]
 public struct UIViewState
