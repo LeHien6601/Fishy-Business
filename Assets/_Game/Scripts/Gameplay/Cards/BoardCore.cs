@@ -179,7 +179,7 @@ public class BoardCore : MonoBehaviour
     }
 
     // Open Empty Goal
-    public void OpenHiddenGoalCard(GoalTracer tracer, bool isTreasure)
+    public void OpenHiddenGoalCard(GoalTracer tracer, bool isTreasure, bool ok = true)
     {
         Card card = _board[tracer.GoalSlot.x, tracer.GoalSlot.y];
         Quaternion rotate = cardPrefab.transform.localRotation;
@@ -187,21 +187,21 @@ public class BoardCore : MonoBehaviour
         card.SetData(isTreasure ? _goalTreasureCardSO : _goalEmtyCardSO, CardLocation.OnBoard);
         if(isTreasure)
         {
-            HightLightPathToTreasure(tracer.Path);
+            HightLightPathToTreasure(tracer.Path, ok);
         }
     }
 
-    public void HightLightPathToTreasure(List<Vector2Int> path)
+    public void HightLightPathToTreasure(List<Vector2Int> path, bool ok)
     {
         Debug.Log($"Goal reachable via path: {string.Join(" -> ", path)}");
-        StartCoroutine(HightLightPathRoutine(path));
+        StartCoroutine(HightLightPathRoutine(path, ok));
     }
     
-    private IEnumerator HightLightPathRoutine(List<Vector2Int> path)
+    private IEnumerator HightLightPathRoutine(List<Vector2Int> path, bool ok)
     {
         foreach(var slot in path)
         {
-            _board[slot.x, slot.y].Highlight(true);
+            _board[slot.x, slot.y].Highlight(ok);
             yield return Utils.GetWaitForSeconds(0.2f);
         }
     }
