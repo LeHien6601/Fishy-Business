@@ -497,16 +497,57 @@ public class NetworkBoardManager : NetworkBehaviour
         foreach (var tracer in tracers) // 3 tracers at most
         {
             bool isTreasure = tracer.GoalSlot.x / 2 == _tressureIndex;
-            RevealGoalCardClientRpc(tracer, isTreasure);
+
             if (isTreasure)
             {
                 isEndGame = true;
+                foreach (ulong playerId in NetworkManager.Singleton.ConnectedClientsIds)
+                {
+                    // if is Cat
+                    if (_playerOrders.Contains(playerId) && _playerAndHolderMap[playerId].PlayerRole == PlayerRole.Cat)
+                    {
+                        RevealGoalCardClientRpc(tracer, isDog: false, isTreasure, new() // set on clients
+                        {
+                            Send = new ClientRpcSendParams
+                            {
+                                TargetClientIds = new[] { playerId }
+                            }
+                        });
+
+                    }
+                    else
+                    {
+                        RevealGoalCardClientRpc(tracer, isDog: true, isTreasure, new() // set on clients
+                        {
+                            Send = new ClientRpcSendParams
+                            {
+                                TargetClientIds = new[] { playerId }
+                            }
+                        });
+                    }
+                }
+            }
+            else
+            {
+                RevealGoalCardClientRpc(tracer, isTreasure);
             }
         }
         if (isEndGame)
             ServerEndBoardGame(isDogWin: true);
         else
             ServerDrawNewCardThenEndTurn();
+    }
+    [ClientRpc]
+    private void RevealGoalCardClientRpc(GoalTracer tracer, bool isDog, bool isTreasure, ClientRpcParams clientRpcParams)
+    {
+        _boardCore.OpenHiddenGoalCard(tracer, isTreasure, isDog);
+        if (isTreasure)
+        {
+            foreach (var holder in _cardHolders)
+            {
+                holder.IsTurn = false;
+            }
+        }
     }
 
     [ClientRpc]
