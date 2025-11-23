@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 using HHDCore;
 using UnityEngine.Audio;
+using System.Threading.Tasks;
 
 public class SoundManager : SingletonMono<SoundManager>
 {
@@ -189,7 +190,7 @@ public class SoundManager : SingletonMono<SoundManager>
     /// <summary>
     /// Play music (looping, 2D)
     /// </summary>
-    public static void PlayMusic(SoundType type)
+    public static async void PlayMusic(SoundType type, float delay = 0f)
     {
         if (Instance == null || Instance.musicSource == null) return;
 
@@ -198,7 +199,7 @@ public class SoundManager : SingletonMono<SoundManager>
             Debug.LogWarning($"No SoundData for music: {type}");
             return;
         }
-
+        await Task.Delay((int)(delay * 1000));
         var clip = data.GetNextClip();
         if (clip == null || (Instance.musicSource.clip == clip && Instance.musicSource.isPlaying)) return;
         Instance.musicSource.outputAudioMixerGroup = Instance.musicMixer;

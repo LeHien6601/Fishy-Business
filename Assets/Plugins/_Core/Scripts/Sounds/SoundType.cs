@@ -12,4 +12,6 @@ public enum SoundType
     StartGame,
     MainMenu,
     DealCard,
+    Lobby,
+    Gameplay,
 }
