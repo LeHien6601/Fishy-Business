@@ -10,7 +10,8 @@
                 "StartGame",
                 "Victory",
                 "Lose",
-                "JoinLobby"
+                "JoinLobby",
+                "DealCard"
             ]
         },
         {

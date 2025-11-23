@@ -80,3 +80,5 @@ MonoBehaviour:
     soundData: {fileID: 0}
   - soundType: 10
     soundData: {fileID: 11400000, guid: a310783ccace95540983bdb5953f6fc0, type: 2}
+  - soundType: 11
+    soundData: {fileID: 11400000, guid: a392b9290288c494e919a57a0c97d74e, type: 2}

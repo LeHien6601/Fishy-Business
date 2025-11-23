@@ -11,4 +11,5 @@ public enum SoundType
     LeaveLobby,
     StartGame,
     MainMenu,
+    DealCard,
 }

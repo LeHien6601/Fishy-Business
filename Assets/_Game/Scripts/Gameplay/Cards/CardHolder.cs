@@ -93,8 +93,9 @@ public class CardHolder : MonoBehaviour
 
         card.transform.DOMove(_beforeFaceSlot.transform.position, AddCardDuration);
         card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration);
-
+                
         this.WaitThenExecute(AddCardDuration, () => UpdateCardPositions());
+        SoundManager.Play2D(SoundType.DealCard);
     }
 
     /// <summary>
@@ -109,6 +110,7 @@ public class CardHolder : MonoBehaviour
         handCards.Remove(card);
         card.Location = CardLocation.Discarded; // hoặc OnBoard nếu chơi ra bàn
         UpdateCardPositions();
+        SoundManager.Play2D(SoundType.DealCard);
         return card;
     }
 
@@ -119,6 +121,7 @@ public class CardHolder : MonoBehaviour
         handCards.Remove(card);
         card.Location = cardLocation;
         UpdateCardPositions();
+        SoundManager.Play2D(SoundType.DealCard);
         return card;
     }
 
@@ -186,6 +189,8 @@ public class CardHolder : MonoBehaviour
         Vector3 endPos = t.position + t.up * 0.1f;
         t.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
         card.Highlight(true); //yellow highlight
+        
+        SoundManager.Play2D(SoundType.DealCard);
     }
 
 
