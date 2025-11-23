@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class CardHolder : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class CardHolder : MonoBehaviour
         }
     }
     public bool IsTurn = false;
-    
+
     private bool _cart = true;
     public bool Cart
     {
@@ -42,11 +43,12 @@ public class CardHolder : MonoBehaviour
         set
         {
             _cart = value;
-            if (_cartCoin != null)
-                _cartCoin.SetActive(value);
+            // if (_cartCoin != null)
+            //     _cartCoin.SetActive(value);
         }
     }
     [SerializeField] private GameObject _cartCoin;
+    private Vector3 _initScaleCoin;
 
     private bool _hat = true;
     public bool Hat
@@ -55,8 +57,8 @@ public class CardHolder : MonoBehaviour
         set
         {
             _hat = value;
-            if (_hatCoin != null)
-                _hatCoin.SetActive(value);
+            // if (_hatCoin != null)
+            //     _hatCoin.SetActive(value);
         }
     }
     [SerializeField] private GameObject _hatCoin;
@@ -68,12 +70,17 @@ public class CardHolder : MonoBehaviour
         set
         {
             _shovel = value;
-            if (_shovelCoin != null)
-                _shovelCoin.SetActive(value);
+            // if (_shovelCoin != null)
+            //     _shovelCoin.SetActive(value);
         }
     }
     [SerializeField] private GameObject _shovelCoin;
     public PlayerRole PlayerRole;
+
+    void Awake()
+    {
+        _initScaleCoin = _hatCoin.transform.localScale;
+    }
 
     #region CARDS
 
@@ -292,6 +299,71 @@ public class CardHolder : MonoBehaviour
             ToolType.HatShovel => Hat && Shovel,
             _ => false,
         };
+    }
+    public void SetTool(ToolType toolType, bool isRepair)
+    {
+        switch (toolType)
+        {
+            case ToolType.Cart:
+                if (Cart != isRepair)
+                    AnimationForTool(_cartCoin, isRepair);
+                Cart = isRepair;
+                break;
+            case ToolType.Hat:
+                if (Hat != isRepair)
+                    AnimationForTool(_hatCoin, isRepair);
+                Hat = isRepair;
+                break;
+            case ToolType.Shovel:
+                if (Shovel != isRepair)
+                    AnimationForTool(_shovelCoin, isRepair);
+                Shovel = isRepair;
+                break;
+            case ToolType.CartHat:
+                if (Cart != isRepair)
+                    AnimationForTool(_cartCoin, isRepair);
+                if (Hat != isRepair)
+                    AnimationForTool(_hatCoin, isRepair);
+                Cart = Hat = isRepair;
+                break;
+            case ToolType.CartShovel:
+                if (Cart != isRepair)
+                    AnimationForTool(_cartCoin, isRepair);
+                if (Shovel != isRepair)
+                    AnimationForTool(_shovelCoin, isRepair);
+                Cart = Shovel = isRepair;
+                break;
+            case ToolType.HatShovel:
+                if (Hat != isRepair)
+                    AnimationForTool(_hatCoin, isRepair);
+                if (Shovel != isRepair)
+                    AnimationForTool(_shovelCoin, isRepair);
+                Hat = Shovel = isRepair;
+                break;
+        }
+    }
+    private void AnimationForTool(GameObject gameObject, bool isRepair)
+    {
+        if(gameObject == null) return;
+        Sequence sequence = DOTween.Sequence();
+        if (isRepair)
+        {
+            gameObject.transform.localScale = Vector2.zero;
+            gameObject.SetActive(true);
+            sequence.Append(gameObject.transform.DOScale(_initScaleCoin * 2, 0.1f));
+            sequence.Append(gameObject.transform.DOScale(_initScaleCoin, 0.4f));
+        }
+        else
+        {
+            gameObject.transform.localScale = _initScaleCoin;
+            sequence.Append(gameObject.transform.DOScale(_initScaleCoin * 2, 0.1f));
+            sequence.Append(gameObject.transform.DOScale(0f, 0.4f));
+            sequence.OnComplete(() =>
+            {
+                gameObject.SetActive(false);
+            });
+
+        }
     }
     public bool HasAllTools() => Cart && Hat && Shovel;
     public bool LacksATool() => !Cart || !Hat || !Shovel;

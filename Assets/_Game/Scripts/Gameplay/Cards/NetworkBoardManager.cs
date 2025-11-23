@@ -739,27 +739,28 @@ public class NetworkBoardManager : NetworkBehaviour
         // @TODO: visualize using coins 
         bool isRepair = _placingCard.ActionCardType == ActionCardType.FixTool;
         CardHolder holder = _playerAndHolderMap[tagetPlayer];
-        switch (_placingCard.ToolType)
-        {
-            case ToolType.Cart:
-                holder.Cart = isRepair;
-                break;
-            case ToolType.Hat:
-                holder.Hat = isRepair;
-                break;
-            case ToolType.Shovel:
-                holder.Shovel = isRepair;
-                break;
-            case ToolType.CartHat:
-                holder.Cart = holder.Hat = isRepair;
-                break;
-            case ToolType.CartShovel:
-                holder.Cart = holder.Shovel = isRepair;
-                break;
-            case ToolType.HatShovel:
-                holder.Hat = holder.Shovel = isRepair;
-                break;
-        }
+        holder.SetTool(_placingCard.ToolType, isRepair);
+        // switch (_placingCard.ToolType)
+        // {
+        //     case ToolType.Cart:
+        //         holder.Cart = isRepair;
+        //         break;
+        //     case ToolType.Hat:
+        //         holder.Hat = isRepair;
+        //         break;
+        //     case ToolType.Shovel:
+        //         holder.Shovel = isRepair;
+        //         break;
+        //     case ToolType.CartHat:
+        //         holder.Cart = holder.Hat = isRepair;
+        //         break;
+        //     case ToolType.CartShovel:
+        //         holder.Cart = holder.Shovel = isRepair;
+        //         break;
+        //     case ToolType.HatShovel:
+        //         holder.Hat = holder.Shovel = isRepair;
+        //         break;
+        // }
         Destroy(_placingCard.gameObject);
         _placingCard = null;
         _targerPlayer = null;
