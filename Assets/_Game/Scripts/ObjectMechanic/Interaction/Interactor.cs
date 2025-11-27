@@ -19,6 +19,7 @@ public class Interactor : MonoBehaviour
 {
     [SerializeField] private PlayerController _host;
     [SerializeField] private InputReaderSO _inputReader;
+    [SerializeField] private InteractionDialogue _interactionDialogue;
     [SerializeField] private List<GameObject> _potentialInteractions = new(); //To store the objects the player could potentially interact with
 
     private void OnEnable()
@@ -37,6 +38,8 @@ public class Interactor : MonoBehaviour
         {
             Debug.Log($"Interactor: Entered trigger with {other.gameObject.name}");
             _potentialInteractions.Add(other.gameObject);
+            _interactionDialogue.Show();
+            // _interactionDialogue.SetDialogue("Hold [F]");
         }
     }
 
@@ -45,6 +48,11 @@ public class Interactor : MonoBehaviour
         if (other.gameObject.layer == Constant.INTERACTABLE_LAYER)
         {
             _potentialInteractions.Remove(other.gameObject);
+            if (_potentialInteractions.Count == 0)
+                _interactionDialogue.ClearDialogue();
+            else
+                _interactionDialogue.Show();
+            // _interactionDialogue.SetDialogue("Hold [F]");
         }
     }
 
@@ -57,5 +65,10 @@ public class Interactor : MonoBehaviour
         IInteractable i = _potentialInteractions[0].GetComponent<IInteractable>(); ;
         _potentialInteractions.RemoveAt(0);
         i.Interact(_host);
+        if (_potentialInteractions.Count == 0)
+            _interactionDialogue.ClearDialogue();
+        else
+            _interactionDialogue.Show();
+        // _interactionDialogue.SetDialogue("Hold [F]");
     }
 }
