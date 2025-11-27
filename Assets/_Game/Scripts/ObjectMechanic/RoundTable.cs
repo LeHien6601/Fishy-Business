@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ public class RoundTable : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI _countdownTMP;
 
     private NetworkVariable<bool> _gameplaying = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private Coroutine _startGameCoroutine;
     public override void OnNetworkSpawn()
     {
         if (IsHost || IsServer)
@@ -64,6 +66,7 @@ public class RoundTable : NetworkBehaviour
         if (args.OldClientId == NetworkManager.Singleton.LocalClientId)
         {
             _startBtn.gameObject.SetActive(false);
+            Debug.Log("enter seat");
         }
         if (args.NewClientId == NetworkManager.Singleton.LocalClientId)
         {
@@ -76,37 +79,40 @@ public class RoundTable : NetworkBehaviour
         if (newValue)
         {
             _startBtn.gameObject.SetActive(false);
+            Debug.Log("game play " + previousValue + " " + newValue);
             HandleCountdownTimer();
         }
-        // else if (PlayerOrders.Contains(NetworkManager.Singleton.LocalClientId))
-        // {
-        //     _startBtn.gameObject.SetActive(true);
-        //     Debug.Log("HandleChangeGameState" + PlayerOrders.Count + " " + newValue);
-        // }
-        // Debug.Log("end");
+        else
+        {
+            _startBtn.gameObject.SetActive(true);
+            _countdownTMP.gameObject.SetActive(false);
+        }
     }
     private async void HandleCountdownTimer()
     {
         _countdownTMP.gameObject.SetActive(true);
         _countdownTMP.text = "GAME STARTS IN " + Constant.START_GAME_COUNTDOWN.ToString("F0") +"S";
         float timer = Constant.START_GAME_COUNTDOWN;
-        while (timer > 0)
+        while (timer > 0 && _gameplaying.Value)
         {
             await Task.Yield();
             timer -= Time.deltaTime;
             _countdownTMP.text = "GAME STARTS IN " + Mathf.Ceil(timer).ToString("F0") +"S";
         }
-        _countdownTMP.gameObject.SetActive(false);
+        if (_countdownTMP && _countdownTMP.gameObject) _countdownTMP.gameObject.SetActive(false);
     }
 
-    private void HandlePlayerLeaveLobby(string obj)
+    private void HandlePlayerLeaveLobby(string authId)
     {
-        GameManager.Instance.GetNetIdByAuthId(obj, out ulong playerId);
-        foreach (var seat in _seats)
+        if (GameManager.Instance.GetNetIdByAuthId(authId, out ulong playerId))
         {
-            if (seat && seat.GetOccupyingClientId() == playerId)
+            foreach (var seat in _seats)
             {
-                seat.ServerEmptySeat();
+                if (seat && seat.GetOccupyingClientId() == playerId)
+                {
+                    Debug.Log(authId + " " + playerId);
+                    seat.ServerEmptySeat();
+                }
             }
         }
         ResetServerRpc();
@@ -159,13 +165,28 @@ public class RoundTable : NetworkBehaviour
                 occupiedCount++;
             }
         }
-        this.WaitThenExecute(5f, () =>
+        // this.WaitThenExecute(5f, () =>
+        // {
+        //     ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
+        //     _boardManager.ServerStartGameLogic(PlayerOrders);
+        // });
+        if (_startGameCoroutine != null)
         {
-            ArrangeSeatsClientRpc(_netSeats.ToArray(), occupiedCount);
-            _boardManager.ServerStartGameLogic(PlayerOrders);
-        });
-        
+            StopCoroutine(_startGameCoroutine);
+        }
+        _startGameCoroutine = StartCoroutine(StartGameAfterDelay(_netSeats.ToArray(), occupiedCount, PlayerOrders));
     }
+    private IEnumerator StartGameAfterDelay(NetworkObjectReference[] netSeats, int occupiedCount, NetworkList<ulong> playerOrders)
+    {
+        yield return new WaitForSeconds(5f);
+        if (!_gameplaying.Value)
+        {
+            yield break;
+        }
+        ArrangeSeatsClientRpc(netSeats, occupiedCount);
+        _boardManager.ServerStartGameLogic(playerOrders); 
+    }
+
 
     /// <summary>
     /// handle seat arrangement animation on all clients locally

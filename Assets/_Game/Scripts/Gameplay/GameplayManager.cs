@@ -61,6 +61,11 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     }
 
     //Server-End game
+    public void TriggerResetGame()
+    {
+        if (!IsHost) return;
+        OnResetGame?.Invoke();
+    }
     public async void HandleEndGame(List<ulong> winnerIds, List<ulong> playerIds)
     {
         _winnerInfos.Clear();

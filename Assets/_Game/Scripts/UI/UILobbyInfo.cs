@@ -10,6 +10,7 @@ public class UILobbyInfo : UIView
 {
     [Header("References")]
     [SerializeField] private Button _backButton;
+    [SerializeField] private Button _resetButton;
     [SerializeField] private List<UILobbyMember> _uiMembers = new();
     [SerializeField] private Button _editNameBtn;
     [SerializeField] private Button _saveNameBtn;
@@ -31,6 +32,7 @@ public class UILobbyInfo : UIView
         UpdateUI();
         LobbyManager.Instance.OnUpdatedCurrentLobby += HandleUpdateLobby;
         _backButton.onClick.AddListener(HandleClickBack);
+        _resetButton.onClick.AddListener(HandleClickReset);
         _editNameBtn.onClick.AddListener(HandleClickEditName);
         _saveNameBtn.onClick.AddListener(HandleClickSaveName);
     }
@@ -38,6 +40,7 @@ public class UILobbyInfo : UIView
     {
         LobbyManager.Instance.OnUpdatedCurrentLobby -= HandleUpdateLobby;
         _backButton.onClick.RemoveListener(HandleClickBack);
+        _resetButton.onClick.RemoveListener(HandleClickReset);
         _editNameBtn.onClick.RemoveListener(HandleClickEditName);
         _saveNameBtn.onClick.RemoveListener(HandleClickSaveName);
     }
@@ -69,12 +72,21 @@ public class UILobbyInfo : UIView
                 _uiMembers[i].ResetMemberData();
             }
         }
+        _resetButton.interactable = LobbyManager.Instance.isHost 
+            && LobbyManager.Instance.currentLobby.Data[Constant.KEY_START_GAME].Value == "true";
     }
     private void HandleClickBack()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
         UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
+    }
+    private void HandleClickReset()
+    {
+        SoundManager.Play2D(SoundType.ButtonClick);
+        Hide();
+        UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
+        GameplayManager.Instance.TriggerResetGame();
     }
     private void HandleClickEditName()
     {
