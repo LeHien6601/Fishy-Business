@@ -32,7 +32,7 @@ public class Locker : MonoBehaviour, IInteractable
         //start changing outift
         _player = actor;
         UIManager.Instance.ShowUI(EUIState.CustomPlayer);
-        CameraController.SwitchCamMode(CameraMode.FirstPerson);
+        CameraController.SwitchCamMode(CameraMode.CustomPlayer);
         actor.DeactivateInput();
         SwapInput();
         // @@TODO: UI, Camera
