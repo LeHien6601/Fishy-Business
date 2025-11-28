@@ -18,6 +18,7 @@ public class Locker : MonoBehaviour, IInteractable
         _player.OwnerActivateInput();
         _inputReaderSO.Move -= HandleInput;
         _inputReaderSO.Interact -= Exit;
+        UIManager.Instance.HideUI(EUIState.CustomPlayer);
         CameraController.SwitchCamMode(CameraMode.ThirdPerson);
     }
 
@@ -30,6 +31,8 @@ public class Locker : MonoBehaviour, IInteractable
     {
         //start changing outift
         _player = actor;
+        UIManager.Instance.ShowUI(EUIState.CustomPlayer);
+        CameraController.SwitchCamMode(CameraMode.CustomPlayer);
         actor.DeactivateInput();
         SwapInput();
         // @@TODO: UI, Camera

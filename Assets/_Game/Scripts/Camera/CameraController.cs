@@ -8,6 +8,7 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField] private CinemachineCamera _3rdPersonCamera;
     [SerializeField] private CinemachineCamera _1stPersonCamera;
+    [SerializeField] private CinemachineCamera _customPlayerCamera;
     [SerializeField] private CinemachineInputAxisController _cinemachineInputAxisController;
     public static event UnityAction<CameraMode> OnCameraModeSwitched;
     private static CameraMode _cameraMode;
@@ -18,6 +19,7 @@ public class CameraController : MonoBehaviour
     [Header("Listen to:")]
     [SerializeField] private TransformEventChannelSO _targetTransformChannel;
     [SerializeField] private TransformEventChannelSO _headBoneTransformChannel;
+
 
     void OnEnable()
     {
@@ -44,8 +46,7 @@ public class CameraController : MonoBehaviour
         {
             _3rdPersonCamera.Priority = 10;
             _1stPersonCamera.Priority = 0;
-            // _3rdPersonCamera.enabled = true;
-            // _1stPersonCamera.enabled = false;
+            _customPlayerCamera.Priority = 0;
             _3rdPersonCamera.transform.rotation = _3rdPersonCamera.Follow.rotation;
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -58,8 +59,7 @@ public class CameraController : MonoBehaviour
             }
             _1stPersonCamera.Priority = 10;
             _3rdPersonCamera.Priority = 0;
-            // _3rdPersonCamera.enabled = false;
-            // _1stPersonCamera.enabled = true;
+            _customPlayerCamera.Priority = 0;
             _cinemachineInputAxisController.enabled = false;
             Cursor.lockState = CursorLockMode.None;
         }
@@ -67,10 +67,16 @@ public class CameraController : MonoBehaviour
         {
             _1stPersonCamera.Priority = 10;
             _3rdPersonCamera.Priority = 0;
-            // _3rdPersonCamera.enabled = false;
-            // _1stPersonCamera.enabled = true;
+            _customPlayerCamera.Priority = 0;
             _cinemachineInputAxisController.enabled = true;
             Cursor.lockState = CursorLockMode.Locked;
+        }
+        else if (mode == CameraMode.CustomPlayer)
+        {
+            _customPlayerCamera.Priority = 10;
+            _3rdPersonCamera.Priority = 0;
+            _1stPersonCamera.Priority = 0;
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 
@@ -118,5 +124,7 @@ public enum CameraMode
 {
     ThirdPerson,
     FirstPerson,
-    FirstPersonWithFreeLook
+    FirstPersonWithFreeLook,
+    CustomPlayer,
+
 }
