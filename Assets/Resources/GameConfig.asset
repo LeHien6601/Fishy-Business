@@ -21,7 +21,7 @@ MonoBehaviour:
     SortingOrder: 0
   - State: 3
     View: {fileID: -6230636468975272045, guid: 852d9e7640a289843b1f6936edc8ada1, type: 3}
-    SortingOrder: 0
+    SortingOrder: 5
   - State: 4
     View: {fileID: 392927606908382715, guid: 56be211ffc6ee6547b239f46e793e6ec, type: 3}
     SortingOrder: 1
@@ -30,19 +30,19 @@ MonoBehaviour:
     SortingOrder: 2
   - State: 6
     View: {fileID: 6240974990313755145, guid: 233b82f291cd2e449ab4294095a947a6, type: 3}
-    SortingOrder: 6
+    SortingOrder: 7
   - State: 7
     View: {fileID: 5435338139581658603, guid: ce70aeb12668e97499d2d578d66aa98f, type: 3}
     SortingOrder: 3
   - State: 8
     View: {fileID: 200893462852294572, guid: 152187fe978b0fe4db45bfbbd6649af9, type: 3}
-    SortingOrder: 5
+    SortingOrder: 6
   - State: 9
     View: {fileID: 4587145308734755930, guid: 4782929860534d6489fe83fea1bb9c5e, type: 3}
-    SortingOrder: 4
+    SortingOrder: 1
   - State: 10
     View: {fileID: 8171707745913130471, guid: ff27057bfd20e0a43a1ae96b5b23df7d, type: 3}
-    SortingOrder: 0
+    SortingOrder: 2
   - State: 11
     View: {fileID: -2218289635160984058, guid: 7a1ebec2e5bbcf64e814a320d4b7cb05, type: 3}
     SortingOrder: 3
