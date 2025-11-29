@@ -11,13 +11,14 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using HHDCore;
-
 public class LobbyManager : SingletonMono<LobbyManager>
 {
     #region Properties
     public string RelayJoinCode { get; private set; }
     public Lobby currentLobby { get; private set; }
     public bool isHost { get; private set; }
+    private bool _initServices = false;
+    public bool InitServices => _initServices;
 
     public event Action OnJoinedLobby;
     public event Action OnLeftLobby;
@@ -70,6 +71,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
             {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
             }
+            _initServices = true;
             Debug.Log("Authenticated: " + AuthenticationService.Instance.PlayerId);
             UIManager.Instance.ShowUI(EUIState.MainMenu);
         }

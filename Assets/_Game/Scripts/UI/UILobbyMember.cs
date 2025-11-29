@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UILobbyMember : MonoBehaviour, IPointerClickHandler
+public class UILobbyMember : MonoBehaviour
 {
     #region Properties
     [Header("References")]
@@ -19,6 +19,8 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
     [SerializeField] private TextMeshProUGUI _kickTMP;
     [SerializeField] private Button _yesBTN;
     [SerializeField] private Button _noBTN;
+    [SerializeField] private UILobbyMemberVoiceButton _voiceChatButton;
+    [SerializeField] private Button _kickBTN;
 
     private bool _isMine = false;
     private string _id;
@@ -29,11 +31,13 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
     {
         _yesBTN.onClick.AddListener(HandleClickYes);
         _noBTN.onClick.AddListener(HandleClickNo);
+        _kickBTN.onClick.AddListener(HandleClickKickButton);
     }
     void OnDisable()
     {
         _yesBTN.onClick.RemoveListener(HandleClickYes);
         _noBTN.onClick.RemoveListener(HandleClickNo);
+        _kickBTN.onClick.RemoveListener(HandleClickKickButton);
     }
     #endregion
 
@@ -53,6 +57,12 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
         _avaContainerRect.gameObject.SetActive(true);
         _mineRect.gameObject.SetActive(_isMine);
         _soundRect.gameObject.SetActive(!_isMine);
+        if (!_isMine)
+        {
+            _voiceChatButton.SetSliderValue(VivoxManager.Instance.GetVoiceChatVolumnByAuthId(id));
+        }
+        _voiceChatButton.OnVoiceChatVolumeChanged += HandleVoiceChatVolumnUpdated;
+        _kickBTN.gameObject.SetActive(NetworkManager.Singleton.IsHost && !_isMine && !_emptyTMP.gameObject.activeSelf);
     }
     public void ResetMemberData()
     {
@@ -63,14 +73,13 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
         _avaContainerRect.gameObject.SetActive(false);
         _mineRect.gameObject.SetActive(false);
         _soundRect.gameObject.SetActive(false);
+        _voiceChatButton.OnVoiceChatVolumeChanged += HandleVoiceChatVolumnUpdated;
+        _kickBTN.gameObject.SetActive(false);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void HandleClickKickButton()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
-        if (!NetworkManager.Singleton.IsHost) return;
-        if (_isMine) return;
-        if (_emptyTMP.gameObject.activeSelf) return;
         ToggleKickContainer();
     }
 
@@ -90,6 +99,10 @@ public class UILobbyMember : MonoBehaviour, IPointerClickHandler
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         ToggleKickContainer();
+    }
+    private void HandleVoiceChatVolumnUpdated(UILobbyMemberVoiceButton.VoiceChatVolumnChangedEventArgs args)
+    {
+        VivoxManager.Instance.UpdatePlayerVoiceChatVolume(_id, args.NewVolume);
     }
     #endregion
 }
