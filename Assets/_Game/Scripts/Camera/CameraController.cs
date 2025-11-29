@@ -1,4 +1,3 @@
-using System;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,9 +8,11 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineCamera _3rdPersonCamera;
     [SerializeField] private CinemachineCamera _1stPersonCamera;
     [SerializeField] private CinemachineCamera _customPlayerCamera;
+    [SerializeField] private CinemachineCamera _sceneViewCamera;
     [SerializeField] private CinemachineInputAxisController _cinemachineInputAxisController;
     public static event UnityAction<CameraMode> OnCameraModeSwitched;
     private static CameraMode _cameraMode;
+    private static CameraMode _previousMode;
     private Transform _headBoneTransform;
 
     [SerializeField] private Quaternion _headBoneOffset = Quaternion.Euler(0, 0, 0);
@@ -41,42 +42,39 @@ public class CameraController : MonoBehaviour
 
     private void OnSwitchCamMode(CameraMode mode)
     {
+        _previousMode = _cameraMode;
         _cameraMode = mode;
-        if (mode == CameraMode.ThirdPerson)
+        ResetPriorities();
+        switch (mode)
         {
-            _3rdPersonCamera.Priority = 10;
-            _1stPersonCamera.Priority = 0;
-            _customPlayerCamera.Priority = 0;
-            _3rdPersonCamera.transform.rotation = _3rdPersonCamera.Follow.rotation;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else if (mode == CameraMode.FirstPerson)
-        {
-            if (_1stPersonCamera.TryGetComponent<CinemachinePanTilt>(out var pan))
-            {
-                pan.PanAxis.Value = pan.PanAxis.Center;
-                pan.TiltAxis.Value = pan.TiltAxis.Center;
-            }
-            _1stPersonCamera.Priority = 10;
-            _3rdPersonCamera.Priority = 0;
-            _customPlayerCamera.Priority = 0;
-            _cinemachineInputAxisController.enabled = false;
-            Cursor.lockState = CursorLockMode.None;
-        }
-        else if (mode == CameraMode.FirstPersonWithFreeLook)
-        {
-            _1stPersonCamera.Priority = 10;
-            _3rdPersonCamera.Priority = 0;
-            _customPlayerCamera.Priority = 0;
-            _cinemachineInputAxisController.enabled = true;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else if (mode == CameraMode.CustomPlayer)
-        {
-            _customPlayerCamera.Priority = 10;
-            _3rdPersonCamera.Priority = 0;
-            _1stPersonCamera.Priority = 0;
-            Cursor.lockState = CursorLockMode.None;
+            case CameraMode.ThirdPerson:
+                _3rdPersonCamera.Priority = 10;
+                _3rdPersonCamera.transform.rotation = _3rdPersonCamera.Follow.rotation;
+                Cursor.lockState = CursorLockMode.Locked;
+                break;
+            case CameraMode.FirstPerson:
+                _1stPersonCamera.Priority = 10;
+                if (_1stPersonCamera.TryGetComponent<CinemachinePanTilt>(out var pan))
+                {
+                    pan.PanAxis.Value = pan.PanAxis.Center;
+                    pan.TiltAxis.Value = pan.TiltAxis.Center;
+                }
+                _cinemachineInputAxisController.enabled = false;
+                Cursor.lockState = CursorLockMode.None;
+                break;
+            case CameraMode.FirstPersonWithFreeLook:
+                _1stPersonCamera.Priority = 10;
+                _cinemachineInputAxisController.enabled = true;
+                Cursor.lockState = CursorLockMode.Locked;
+                break;
+            case CameraMode.CustomPlayer:
+                _customPlayerCamera.Priority = 10;
+                Cursor.lockState = CursorLockMode.None;
+                break;
+            case CameraMode.SceneView:
+                _sceneViewCamera.Priority = 10;
+                Cursor.lockState = CursorLockMode.None;
+                break;
         }
     }
 
@@ -106,12 +104,23 @@ public class CameraController : MonoBehaviour
         }
     }
 
-
+    private void ResetPriorities()
+    {
+        _3rdPersonCamera.Priority = 0;
+        _1stPersonCamera.Priority = 0;
+        _customPlayerCamera.Priority = 0;
+        _sceneViewCamera.Priority = 0;
+    }
 
     private void TrackTarget(Transform target)
     {
         _1stPersonCamera.Follow = target;
         _3rdPersonCamera.Follow = target;
+    }
+
+    public static void ToPreviousMode()
+    {
+        SwitchCamMode(_previousMode);
     }
 
     public static void SwitchCamMode(CameraMode mode)
@@ -126,5 +135,5 @@ public enum CameraMode
     FirstPerson,
     FirstPersonWithFreeLook,
     CustomPlayer,
-
+    SceneView,
 }
