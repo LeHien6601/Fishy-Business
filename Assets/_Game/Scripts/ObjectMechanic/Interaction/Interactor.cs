@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 
 
@@ -19,7 +18,6 @@ public class Interactor : MonoBehaviour
 {
     [SerializeField] private PlayerController _host;
     [SerializeField] private InputReaderSO _inputReader;
-    [SerializeField] private InteractionDialogue _interactionDialogue;
     [SerializeField] private List<GameObject> _potentialInteractions = new(); //To store the objects the player could potentially interact with
 
     private void OnEnable()
@@ -38,8 +36,7 @@ public class Interactor : MonoBehaviour
         {
             Debug.Log($"Interactor: Entered trigger with {other.gameObject.name}");
             _potentialInteractions.Add(other.gameObject);
-            _interactionDialogue.Show();
-            // _interactionDialogue.SetDialogue("Hold [F]");
+            SystemDialogue.SetDialogue("Hold [F] to interact with " + other.gameObject.name);
         }
     }
 
@@ -49,10 +46,9 @@ public class Interactor : MonoBehaviour
         {
             _potentialInteractions.Remove(other.gameObject);
             if (_potentialInteractions.Count == 0)
-                _interactionDialogue.ClearDialogue();
+                SystemDialogue.ClearDialogue();
             else
-                _interactionDialogue.Show();
-            // _interactionDialogue.SetDialogue("Hold [F]");
+                SystemDialogue.SetDialogue("Hold [F] to interact with " + _potentialInteractions[0].name);
         }
     }
 
@@ -66,9 +62,8 @@ public class Interactor : MonoBehaviour
         _potentialInteractions.RemoveAt(0);
         i.Interact(_host);
         if (_potentialInteractions.Count == 0)
-            _interactionDialogue.ClearDialogue();
+            SystemDialogue.ClearDialogue();
         else
-            _interactionDialogue.Show();
-        // _interactionDialogue.SetDialogue("Hold [F]");
+            SystemDialogue.SetDialogue("Hold [F] to interact with " + _potentialInteractions[0].name);
     }
 }
