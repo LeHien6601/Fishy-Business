@@ -317,38 +317,74 @@ public class CardHolder : MonoBehaviour
         {
             case ToolType.Cart:
                 if (Cart != isRepair)
+                {
                     AnimationForTool(_cartCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
+                }
                 Cart = isRepair;
                 break;
             case ToolType.Hat:
                 if (Hat != isRepair)
+                {
                     AnimationForTool(_hatCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);
+                }
                 Hat = isRepair;
                 break;
             case ToolType.Shovel:
                 if (Shovel != isRepair)
+                {
                     AnimationForTool(_shovelCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);
+                }
                 Shovel = isRepair;
                 break;
             case ToolType.CartHat:
                 if (Cart != isRepair)
+                {
                     AnimationForTool(_cartCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
+                }
                 if (Hat != isRepair)
+                {
                     AnimationForTool(_hatCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);
+                }
                 Cart = Hat = isRepair;
                 break;
             case ToolType.CartShovel:
                 if (Cart != isRepair)
+                {
                     AnimationForTool(_cartCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
+                }
                 if (Shovel != isRepair)
+                {
                     AnimationForTool(_shovelCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);
+                }
                 Cart = Shovel = isRepair;
                 break;
             case ToolType.HatShovel:
                 if (Hat != isRepair)
+                {
                     AnimationForTool(_hatCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair? 
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);  
+                }
                 if (Shovel != isRepair)
+                {
                     AnimationForTool(_shovelCoin, isRepair);
+                    GameplayManager.Instance.TriggerActionCard(isRepair? 
+                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);  
+                }
                 Hat = Shovel = isRepair;
                 break;
         }

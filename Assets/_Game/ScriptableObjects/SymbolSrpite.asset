@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e71af3c4e905022448444fc7f9dbae8b, type: 3}
+  m_Name: SymbolSrpite
+  m_EditorClassIdentifier: Assembly-CSharp::SymbolSpriteSO
+  Bomb: {fileID: 21300000, guid: da73b70db20fa2c48a95188a6f0bab3a, type: 3}
+  Map: {fileID: 21300000, guid: 4e68cab871216f241b4cdeaf8a796f68, type: 3}
+  BreakCart: {fileID: 21300000, guid: 35b2ad1f4b25f62418f27053231da165, type: 3}
+  BreakHat: {fileID: 21300000, guid: 10b72a50dcf62524aa24f6a4f25617f3, type: 3}
+  BreakShovel: {fileID: 21300000, guid: 405e152a69909924ba5d2d6e8dd0a2e5, type: 3}
+  FixCart: {fileID: 21300000, guid: b8ba50cb39d7f6d4abf9bf6fc29c89e2, type: 3}
+  FixHat: {fileID: 21300000, guid: f0ef2c95ec5720949b28937898b5ae71, type: 3}
+  FixShovel: {fileID: 21300000, guid: ff2ca5d3240676c41bc3fe0afc64898b, type: 3}

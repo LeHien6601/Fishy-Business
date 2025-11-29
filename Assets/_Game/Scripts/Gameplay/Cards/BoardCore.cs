@@ -201,7 +201,7 @@ public class BoardCore : MonoBehaviour
     {
         foreach(var slot in path)
         {
-            _board[slot.x, slot.y].Highlight(ok);
+            _board[slot.x, slot.y].HightLightForPath(ok);
             yield return Utils.GetWaitForSeconds(0.2f);
         }
     }

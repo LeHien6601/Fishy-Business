@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
+using UnityEditor;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
@@ -13,6 +14,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     public event Action<ulong> OnEndGame;
     public event Action<StartedNewTurnEventArgs> OnStartedNewTurn;
     public event Action OnResetGame;
+    public event Action<ActionCardType, ToolType> OnUseActionCard;
     public struct StartedNewTurnEventArgs
     {
         public ulong ClientId;
@@ -100,6 +102,10 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         {
             ClientId = cliendId
         });
+    }
+    public void TriggerActionCard(ActionCardType actionCardType, ToolType toolType)
+    {
+        OnUseActionCard?.Invoke(actionCardType, toolType);
     }
     #endregion
 

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Unity.Collections;
 using UnityEngine.Events;
+using Unity.Mathematics;
 
 
 [SelectionBase]
@@ -90,7 +91,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     {
         if (_meshRenderer != null)
             _meshRenderer.material = material;
-        
+
         if (_symbol)
         {
             _symbol.gameObject.SetActive(false);
@@ -152,6 +153,18 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         _outliner.gameObject.SetActive(false);
     }
 
+    public void HightLightForPath(bool ok)
+    {
+        _outliner.gameObject.SetActive(false);
+        Material material = new Material(_meshRenderer.material);
+        Color color = ok ? new Color(1.0f, 0.5490196f, 0f) : new Color(0.2f, 0.2f, 0.2f);
+        material.EnableKeyword("_EMISSION");
+        material.SetColor("_EmissionColor", color);
+        
+        _meshRenderer.material = material;
+        Debug.Log("New HightLight: " + color);
+    }
+
     // --- these pointer handlers downhere only send the events, delegate actual logic to BoardManager ---
 
     public void OnPointerClick(PointerEventData eventData)
@@ -171,14 +184,14 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
             {
                 OnDiscardCard.Invoke(this);
             }
-            if(_symbol)
+            if (_symbol)
             {
                 _symbol.gameObject.SetActive(false);
             }
         }
         OffHighlight(); // turn of if any
     }
-    
+
 
     public void OnPointerExit(PointerEventData eventData)
     {

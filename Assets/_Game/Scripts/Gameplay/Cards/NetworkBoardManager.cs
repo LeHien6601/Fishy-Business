@@ -639,6 +639,8 @@ public class NetworkBoardManager : NetworkBehaviour
                                     showTarget: requester.BeforeFaceSlot(),
                                     isTressure: checkResult,
                                     revealCardData: NetworkManager.Singleton.LocalClientId == requesterId);
+        
+        GameplayManager.Instance.TriggerActionCard(ActionCardType.CheckGold, ToolType.None);
     }
     #endregion
 
@@ -667,6 +669,7 @@ public class NetworkBoardManager : NetworkBehaviour
         BombEvent.Invoke(wp);
         _boardCore.BombThisPath(slot);
         // @TODO: add some visuals
+        GameplayManager.Instance.TriggerActionCard(ActionCardType.Bomb, ToolType.None);
     }
 
     #endregion
