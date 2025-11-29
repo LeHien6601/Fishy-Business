@@ -28,8 +28,7 @@ public class UIEndGame : UIView
         UpdateData(GameplayManager.Instance.GetWinnerInfos());
         base.Show();
         SpawnVFX();
-        // await Task.Delay((int)(1000 * Constant.RESTART_INTERVAL));
-        await Task.Delay((int)(1000 * 500));
+        await Task.Delay((int)(1000 * Constant.RESTART_INTERVAL));
         Hide();
         UIManager.Instance.HideUI(EUIState.InGame);
     }
