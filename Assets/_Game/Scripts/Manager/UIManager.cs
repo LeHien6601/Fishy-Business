@@ -31,11 +31,13 @@ public class UIManager : SingletonMono<UIManager>
             {
                 HideUI(EUIState.LobbyGameplay, true);
                 Cursor.lockState = CursorLockMode.Locked;
+                CameraController.ToPreviousMode();
             }
             else
             {
-                Cursor.lockState = CursorLockMode.None;
                 ShowUI(EUIState.LobbyGameplay);
+                Cursor.lockState = CursorLockMode.None;
+                CameraController.SwitchCamMode(CameraMode.SceneView);
             }
         }
     }

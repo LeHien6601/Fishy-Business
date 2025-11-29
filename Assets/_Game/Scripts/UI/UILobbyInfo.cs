@@ -79,13 +79,13 @@ public class UILobbyInfo : UIView
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
-        UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
+        // UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
     }
     private void HandleClickReset()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
-        UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
+        // UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
         GameplayManager.Instance.TriggerResetGame();
     }
     private void HandleClickEditName()

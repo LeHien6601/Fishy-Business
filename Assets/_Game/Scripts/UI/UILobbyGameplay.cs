@@ -47,11 +47,13 @@ public class UILobbyGameplay : UIView
         Debug.Log("Continue button clicked");
         HideWithParams(true);
         EventSystem.current.SetSelectedGameObject(null);
+        Cursor.lockState = CursorLockMode.Locked;
+        CameraController.ToPreviousMode();
     }
     private void HandleClickLobbyInfo()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
-        Hide();
+        // Hide();
         UIManager.Instance.ShowUI(EUIState.LobbyInfo);
         EventSystem.current.SetSelectedGameObject(null);
     }

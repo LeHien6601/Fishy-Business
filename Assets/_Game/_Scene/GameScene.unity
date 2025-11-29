@@ -5188,6 +5188,10 @@ PrefabInstance:
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 300084846}
+    - target: {fileID: 6676774706781259488, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

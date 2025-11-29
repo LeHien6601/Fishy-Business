@@ -294,8 +294,8 @@ public class SoundManager : SingletonMono<SoundManager>
             return;
         }
 
-        float musicVol = PlayerPrefs.GetFloat(MUSIC_VOLUME_PARAM, 1f);
-        float sfxVol = PlayerPrefs.GetFloat(SFX_VOLUME_PARAM, 1f);
+        float musicVol = PlayerPrefs.GetFloat(MUSIC_VOLUME_PARAM, 0.5f);
+        float sfxVol = PlayerPrefs.GetFloat(SFX_VOLUME_PARAM, 0.5f);
 
         SetMusicVolume(musicVol);
         SetSFXVolume(sfxVol);
