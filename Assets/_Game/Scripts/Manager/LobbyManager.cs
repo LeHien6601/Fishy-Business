@@ -407,6 +407,12 @@ public class LobbyManager : SingletonMono<LobbyManager>
             Debug.LogException(e);
         }
     }
+
+    async void OnApplicationQuit()
+    {
+        if (currentLobby == null) return;
+        await LeaveLobbyAsync();
+    }
     #endregion
 
     #region Event Handlers
