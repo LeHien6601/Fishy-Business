@@ -66,7 +66,6 @@ public class RoundTable : NetworkBehaviour
         if (args.OldClientId == NetworkManager.Singleton.LocalClientId)
         {
             _startBtn.gameObject.SetActive(false);
-            Debug.Log("enter seat");
         }
         if (args.NewClientId == NetworkManager.Singleton.LocalClientId)
         {
@@ -79,7 +78,6 @@ public class RoundTable : NetworkBehaviour
         if (newValue)
         {
             _startBtn.gameObject.SetActive(false);
-            Debug.Log("game play " + previousValue + " " + newValue);
             HandleCountdownTimer();
         }
         else
@@ -102,15 +100,15 @@ public class RoundTable : NetworkBehaviour
         if (_countdownTMP && _countdownTMP.gameObject) _countdownTMP.gameObject.SetActive(false);
     }
 
-    private void HandlePlayerLeaveLobby(string authId)
+    private void HandlePlayerLeaveLobby(LobbyManager.PlayerLeftLobbyEventArgs args)
     {
-        if (GameManager.Instance.GetNetIdByAuthId(authId, out ulong playerId))
+        if (GameManager.Instance.GetNetIdByAuthId(args.AuthId, out ulong playerId))
         {
             foreach (var seat in _seats)
             {
                 if (seat && seat.GetOccupyingClientId() == playerId)
                 {
-                    Debug.Log(authId + " " + playerId);
+                    Debug.Log(args.AuthId + " " + playerId);
                     seat.ServerEmptySeat();
                 }
             }

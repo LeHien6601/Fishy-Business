@@ -26,10 +26,11 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public event Action<UpdateCurrentLobbyEventArgs> OnUpdatedCurrentLobby;
     public event Action<UpdatedLoobyListEventArgs> OnUpdatedLobbyList;
     public event Action<Player> OnPlayerJoinedLobby;
-    public event Action<string> OnPlayerLeftLobby;
+    public event Action<PlayerLeftLobbyEventArgs> OnPlayerLeftLobby;
     private Coroutine _heartbeatCoroutine;
     private Coroutine _pollLobbyCoroutine;
     private HashSet<string> _currentPlayerIds = new();
+    private Dictionary<string, string> _playerIdMapToName = new();
     #endregion
 
     #region Structs
@@ -44,6 +45,11 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public struct UpdatedLoobyListEventArgs
     {
         public List<Lobby> LobbyList;
+    }
+    public struct PlayerLeftLobbyEventArgs
+    {
+        public string AuthId;
+        public string Name;
     }
     [Serializable]
     public struct PlayerInfo : INetworkSerializable
@@ -126,9 +132,10 @@ public class LobbyManager : SingletonMono<LobbyManager>
 
             currentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, Constant.MAX_PLAYERS, createOptions);
             isHost = true;
-            Debug.Log($"Lobby created: {currentLobby.Id}, Code: {currentLobby.LobbyCode}");
             _currentPlayerIds.Clear();
             _currentPlayerIds.Add(AuthenticationService.Instance.PlayerId);
+            _playerIdMapToName.Clear();
+            _playerIdMapToName[AuthenticationService.Instance.PlayerId] = PlayerInfoManager.Instance.PlayerName;
             // Start Relay and heartbeats
             currentLobby = await RelayManager.Instance.SetupRelay(currentLobby);
             Debug.Log("Relay Join Code: " + currentLobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value);
@@ -190,7 +197,6 @@ public class LobbyManager : SingletonMono<LobbyManager>
     {
         try
         {
-            Debug.Log($"Attempting to join lobby with code: {lobbyCode} {playerName} {iconId}");
             var joinOptions = new JoinLobbyByCodeOptions
             {
                 Player = GetPlayerData(playerName, iconId)
@@ -247,7 +253,6 @@ public class LobbyManager : SingletonMono<LobbyManager>
                 }
             };
             await LobbyService.Instance.UpdatePlayerAsync(currentLobby.Id, AuthenticationService.Instance.PlayerId, updateOptions);
-            Debug.Log("Player data updated");
             OnUpdatedCurrentLobby?.Invoke(new UpdateCurrentLobbyEventArgs() { Lobby = currentLobby });
         }
         catch (LobbyServiceException e)
@@ -282,7 +287,6 @@ public class LobbyManager : SingletonMono<LobbyManager>
                     StopCoroutine(_pollLobbyCoroutine);
                     _pollLobbyCoroutine = null;
                 }
-                Debug.Log("Left lobby");
                 OnLeftLobby?.Invoke();
             }
         }
@@ -432,6 +436,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
         if (currentLobby == null) return;
         await UpdatePlayerDataAsync(args.NewPlayerName, args.NewPlayerIconId);
     }
+
     private void HandleUpdatedLobby(UpdateCurrentLobbyEventArgs args)
     {
         if (!isHost) return;
@@ -447,12 +452,20 @@ public class LobbyManager : SingletonMono<LobbyManager>
         foreach (var oldId in previousPlayerIds)
         {
             if (currentPlayers.Contains(oldId)) continue;
-            OnPlayerLeftLobby?.Invoke(oldId);
-            Debug.Log($"Player left lobby: {oldId}");
+            OnPlayerLeftLobby?.Invoke(new()
+            {
+                AuthId = oldId,
+                Name = _playerIdMapToName.TryGetValue(oldId, out string playerName) ? playerName : "Anonymous"
+            });
+            Debug.Log($"Player left lobby: {oldId} " + (_playerIdMapToName.TryGetValue(oldId, out string displayName) ? displayName : "Anonymous"));
         }
         _currentPlayerIds.Clear();
-        foreach (var id in currentPlayers)
-            _currentPlayerIds.Add(id);
+        _playerIdMapToName.Clear();
+        foreach (var player in args.Lobby.Players)
+        {
+            _currentPlayerIds.Add(player.Id);
+            _playerIdMapToName[player.Id] = player.Data[Constant.KEY_PLAYER_NAME].Value;
+        }
     }
     private async void HandlePlayerJoinLobby(Player player)
     {

@@ -112,7 +112,8 @@ public enum EUIState
     EndGame,
     InGame,
     CustomPlayer,
-    Settings
+    Settings,
+    Notification
 }
 [Serializable]
 public struct UIViewState
