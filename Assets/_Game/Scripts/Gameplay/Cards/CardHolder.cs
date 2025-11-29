@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -19,6 +20,10 @@ public class CardHolder : MonoBehaviour
     [SerializeField] private Vector3 _othersCoinContainerPosition;
     [SerializeField] private Vector3 _myCoinContainerPosition;
     [SerializeField] private Transform _coinContainer;
+
+    [Header("VFX")]
+    [SerializeField] private ParticleSystem _repairCoinVFX;
+    [SerializeField] private ParticleSystem _destroyCoinVFX;
 
     private readonly List<Card> handCards = new();
     public int CardCount => handCards.Count;
@@ -351,6 +356,7 @@ public class CardHolder : MonoBehaviour
     private void AnimationForTool(GameObject gameObject, bool isRepair)
     {
         if(gameObject == null) return;
+        SpawnVFX(gameObject.transform, isRepair);
         Sequence sequence = DOTween.Sequence();
         if (isRepair)
         {
@@ -371,6 +377,17 @@ public class CardHolder : MonoBehaviour
 
         }
     }
+    private void SpawnVFX(Transform transform, bool isRepair)
+    {
+        if(transform == null) return;
+        var vfx = Instantiate(isRepair? _repairCoinVFX : _destroyCoinVFX);
+        vfx.transform.position = transform.position;
+        this.WaitThenExecute(2f, () =>
+        {
+            Destroy(vfx.gameObject);
+        });
+    }
+    
     public bool HasAllTools() => Cart && Hat && Shovel;
     public bool LacksATool() => !Cart || !Hat || !Shovel;
     #endregion

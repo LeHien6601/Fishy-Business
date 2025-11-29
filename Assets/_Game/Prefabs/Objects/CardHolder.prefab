@@ -54,6 +54,8 @@ MonoBehaviour:
   _othersCoinContainerPosition: {x: 0, y: 0.08, z: 0.32}
   _myCoinContainerPosition: {x: 0, y: 0.31, z: 0.5}
   _coinContainer: {fileID: 838760903683621613}
+  _repairCoinVFX: {fileID: 19889964, guid: 4724bf0abed03044f851072a0f55e5a4, type: 3}
+  _destroyCoinVFX: {fileID: 8194992990867289333, guid: 6abc2b794d04af3458ed7f79df6174ce, type: 3}
   IsTurn: 0
   _cartCoin: {fileID: 3433239789444642856}
   _hatCoin: {fileID: 3893222623970488631}
