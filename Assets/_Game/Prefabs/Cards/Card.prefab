@@ -321,8 +321,8 @@ MonoBehaviour:
   _meshRenderer: {fileID: 5990605564472442173}
   _outliner: {fileID: 6755534967359586269}
   _symbol: {fileID: 6949455853512262614}
-  _redHighlight: {fileID: 2100000, guid: ecc0e3ec54000d842b89d01c1e18c5f8, type: 2}
-  _yellowHighlight: {fileID: 2100000, guid: 7bbed188dd80a8c40a170f008cdefa19, type: 2}
+  _redHighlight: {fileID: 2100000, guid: ae70ef9e5f395ac4daf8fc915ac594fb, type: 2}
+  _yellowHighlight: {fileID: 2100000, guid: 471e813603652984ba16e88fbc826b6b, type: 2}
   _holder: {fileID: 0}
   Location: 0
   CardType: 0
@@ -417,7 +417,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae70ef9e5f395ac4daf8fc915ac594fb, type: 2}
+  - {fileID: 2100000, guid: 471e813603652984ba16e88fbc826b6b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
