@@ -9,9 +9,9 @@ using UnityEngine;
 public class ObjectFader : MonoBehaviour
 {
     private Camera _camera;
-    [SerializeField] private LayerMask _layerMask;
+    [SerializeField] private int _layerMask = 1 << Constant.DEFAULT_LAYER;
     [SerializeField] private Transform _target;
-    [SerializeField][Range(0, 1f)] private float _fadedAlpha = 0.33f;
+    [SerializeField][Range(0, 1f)] private float _fadedAlpha = 0f;
     [SerializeField] private bool _retainShadows = true;
     [SerializeField] private Vector3 _targetPositionOffset = Vector3.up;
     [SerializeField] private float _fadeSpeed = 3f;
@@ -19,11 +19,12 @@ public class ObjectFader : MonoBehaviour
     [Header("Read Only Data")]
     [SerializeField] private List<FadingObject> _objectsBlockingView = new();
     private readonly Dictionary<FadingObject, Coroutine> _runningCoroutines = new();
-    private readonly RaycastHit[] _hits = new RaycastHit[10];
+    private readonly RaycastHit[] _hits = new RaycastHit[5];
 
     private void OnEnable()
     {
         _camera = Camera.main;
+        _target = this.transform;
         StartCoroutine(CheckForObjects());
     }
 
@@ -67,6 +68,7 @@ public class ObjectFader : MonoBehaviour
 
             ClearHits();
 
+            yield return null;
             yield return null;
         }
     }

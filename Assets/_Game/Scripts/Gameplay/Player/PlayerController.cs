@@ -31,6 +31,7 @@ public class PlayerController : NetworkBehaviour
         }
         base.OnNetworkSpawn();
         Animator animator = GetComponent<Animator>();
+        gameObject.GetOrAdd<ObjectFader>();
         _idleState = new IdleState(animator);
         _moveState = new MoveState(this, animator, _moveSpeed);
         _attackState = new AttackState(animator);

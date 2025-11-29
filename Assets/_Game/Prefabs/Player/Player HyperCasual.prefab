@@ -9995,7 +9995,6 @@ GameObject:
   - component: {fileID: 3012120539260267637}
   - component: {fileID: 2456619566170784310}
   - component: {fileID: 1004971538994156037}
-  - component: {fileID: 6396489047399267898}
   - component: {fileID: 5118189560863492180}
   - component: {fileID: 5780716407972793401}
   m_Layer: 6
@@ -10057,7 +10056,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1013939895
+  GlobalObjectIdHash: 2612088225
   InScenePlacedSourceGlobalObjectIdHash: 2612088225
   DeferredDespawnTick: 0
   Ownership: 1
@@ -10173,27 +10172,6 @@ NavMeshAgent:
   m_BaseOffset: -0.05
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &6396489047399267898
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4217522123942159585}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46dec59a34aca7c48833320fc05e495d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _layerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  _target: {fileID: 6917190293077928722}
-  _fadedAlpha: 0
-  _retainShadows: 1
-  _targetPositionOffset: {x: 0, y: 1, z: 0}
-  _fadeSpeed: 3
-  _objectsBlockingView: []
 --- !u!114 &5118189560863492180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10989,7 +10967,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _host: {fileID: 2456619566170784310}
-  _inputReader: {fileID: 11400000, guid: 7543db976c2277c4392ef15374043ce0, type: 2}
   _potentialInteractions: []
 --- !u!1 &4560894694509368065
 GameObject:
