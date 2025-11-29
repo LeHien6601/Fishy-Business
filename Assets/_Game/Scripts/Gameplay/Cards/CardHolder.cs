@@ -105,7 +105,7 @@ public class CardHolder : MonoBehaviour
 
         card.transform.DOMove(_beforeFaceSlot.transform.position, AddCardDuration);
         card.transform.DORotateQuaternion(_beforeFaceSlot.transform.rotation, AddCardDuration);
-                
+
         this.WaitThenExecute(AddCardDuration, () => UpdateCardPositions());
         SoundManager.Play2D(SoundType.DealCard);
     }
@@ -201,7 +201,7 @@ public class CardHolder : MonoBehaviour
         Vector3 endPos = t.position + t.up * 0.1f;
         t.DOMove(endPos, AnimationDuration).SetEase(Ease.OutBack);
         card.Highlight(true); //yellow highlight
-        
+
         SoundManager.Play2D(SoundType.DealCard);
     }
 
@@ -355,7 +355,7 @@ public class CardHolder : MonoBehaviour
     }
     private void AnimationForTool(GameObject gameObject, bool isRepair)
     {
-        if(gameObject == null) return;
+        if (gameObject == null) return;
         SpawnVFX(gameObject.transform, isRepair);
         Sequence sequence = DOTween.Sequence();
         if (isRepair)
@@ -379,15 +379,18 @@ public class CardHolder : MonoBehaviour
     }
     private void SpawnVFX(Transform transform, bool isRepair)
     {
-        if(transform == null) return;
-        var vfx = Instantiate(isRepair? _repairCoinVFX : _destroyCoinVFX);
+        if (transform == null) return;
+        var vfx = Instantiate(isRepair ? _repairCoinVFX : _destroyCoinVFX);
         vfx.transform.position = transform.position;
         this.WaitThenExecute(2f, () =>
         {
-            Destroy(vfx.gameObject);
+            if (vfx != null || vfx.gameObject != null)
+            {
+                Destroy(vfx.gameObject);
+            }
         });
     }
-    
+
     public bool HasAllTools() => Cart && Hat && Shovel;
     public bool LacksATool() => !Cart || !Hat || !Shovel;
     #endregion

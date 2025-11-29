@@ -25,7 +25,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner)
         {
-            _interactor.enabled = false;
+            _interactor.gameObject.SetActive(false);
             // Agent.enabled = false;
             return;
         }
