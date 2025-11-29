@@ -40,6 +40,7 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Move += HandleMove;
         _inputReader.Attack += HandleAttack;
         _inputReader.Interact += HandleInteract;
+        _inputReader.Interact += _interactor.Interact;
         GameplayManager.Instance.OnStartGame += OnStartGame;
         GameplayManager.Instance.OnEndGame += OnEndGame;
 
@@ -56,7 +57,7 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Move -= HandleMove;
         _inputReader.Attack -= HandleAttack;
         _inputReader.Interact -= HandleInteract;
-
+        _inputReader.Interact -= _interactor.Interact;
         GameplayManager.Instance.OnStartGame -= OnStartGame;
         GameplayManager.Instance.OnEndGame -= OnEndGame;
     }

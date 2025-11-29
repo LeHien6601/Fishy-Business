@@ -17,18 +17,7 @@ public interface IInteractable
 public class Interactor : MonoBehaviour
 {
     [SerializeField] private PlayerController _host;
-    [SerializeField] private InputReaderSO _inputReader;
     [SerializeField] private List<GameObject> _potentialInteractions = new(); //To store the objects the player could potentially interact with
-
-    private void OnEnable()
-    {
-        _inputReader.Interact += Interact;
-    }
-
-    private void OnDisable()
-    {
-        _inputReader.Interact -= Interact;
-    }
 
     private void OnTriggerEnter(Collider other)
     {
