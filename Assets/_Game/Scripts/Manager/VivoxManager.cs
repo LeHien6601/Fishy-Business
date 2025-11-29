@@ -5,7 +5,7 @@ using Unity.Services.Vivox;
 using HHDCore;
 public class VivoxManager : SingletonMono<VivoxManager>
 {
-    private string currentChannel;
+    private string _currentChannel;
 
     private async void Start()
     {
@@ -38,6 +38,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
         }
     }
 
+#region Event Handler
     private async void HandleJoinedLobby()
     {
         await LoginAsync();
@@ -54,6 +55,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
         await LeaveChannelAsync();
     }
 
+#endregion
     private async Task LoginAsync()
     {
         if (VivoxService.Instance.IsLoggedIn)
@@ -72,15 +74,13 @@ public class VivoxManager : SingletonMono<VivoxManager>
 
     private async Task JoinChannelAsync()
     {
-        Debug.Log("JoinChannelAsync");
         string channelName = $"lobby_{LobbyManager.Instance.currentLobby.Id}";
-        if (currentChannel == channelName)
+        if (_currentChannel == channelName)
             return;
-        Debug.Log("try");
         try
         {
             await VivoxService.Instance.JoinGroupChannelAsync(channelName, ChatCapability.AudioOnly);
-            currentChannel = channelName;
+            _currentChannel = channelName;
             Debug.Log($"Joined Vivox channel: {channelName}");
         }
         catch (Exception e)
@@ -91,14 +91,14 @@ public class VivoxManager : SingletonMono<VivoxManager>
 
     private async Task LeaveChannelAsync()
     {
-        if (string.IsNullOrEmpty(currentChannel))
+        if (string.IsNullOrEmpty(_currentChannel))
             return;
 
         try
         {
-            await VivoxService.Instance.LeaveChannelAsync(currentChannel);
+            await VivoxService.Instance.LeaveChannelAsync(_currentChannel);
             Debug.Log("Left Vivox channel");
-            currentChannel = null;
+            _currentChannel = null;
         }
         catch (Exception e)
         {
@@ -115,4 +115,33 @@ public class VivoxManager : SingletonMono<VivoxManager>
             Debug.Log("Vivox Logged Out");
         }
     }
+
+    public void UpdatePlayerVoiceChatVolume(string authId, int volume)
+    {
+        foreach (var channel in VivoxService.Instance.ActiveChannels)
+        {
+            if (channel.Key != _currentChannel) continue;
+            foreach (var player in channel.Value)
+            {
+                if (player.PlayerId != authId) continue;
+                player.SetLocalVolume(volume);  
+                break;            
+            }
+        }
+    }
+
+    public int GetVoiceChatVolumnByAuthId(string authId)
+    {
+        foreach (var channel in VivoxService.Instance.ActiveChannels)
+        {
+            if (channel.Key != _currentChannel) continue;
+            foreach (var player in channel.Value)
+            {
+                if (player.PlayerId != authId) continue;
+                return player.LocalVolume;             
+            }
+        }
+        return 0;
+    }
+
 }

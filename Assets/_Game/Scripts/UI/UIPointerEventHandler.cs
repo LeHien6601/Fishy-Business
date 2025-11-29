@@ -1,17 +1,21 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class UIPointerEventHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private bool _isHovered = false;
-    public bool IsHovered => _isHovered;
+    private bool _isHoveredd = false;
+    public bool IsHovered => _isHoveredd;
+    public event Action<bool> OnPointerHover;
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _isHovered = true;
+        _isHoveredd = true;
+        OnPointerHover?.Invoke(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        _isHovered = false;
+        _isHoveredd = false;
+        OnPointerHover?.Invoke(false);
     }
 }
