@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5529e297d654f504a8be09e50c334bc6, type: 3}
+  m_Name: LyreDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::MusicNotesDatabaseSO
+  _noteAudioClips:
+  - {fileID: 8300000, guid: 4d4ca139edc3fe64ea9bcae1a0fb525d, type: 3}
+  - {fileID: 8300000, guid: c7824a3edcd3be0409cbb66684613334, type: 3}
+  - {fileID: 8300000, guid: 99386f29ec10e3b40843759644d2b9b2, type: 3}
+  - {fileID: 8300000, guid: 2edce09c96b194e47935db2dce86d304, type: 3}
+  - {fileID: 8300000, guid: 8ab6d6159cf3ae94583b3803dcb7f88e, type: 3}
+  - {fileID: 8300000, guid: 7a6aed880363fbb4687b2dc866fbaac6, type: 3}
+  - {fileID: 8300000, guid: 0b212d763ccc4f242a816e50cbd3f717, type: 3}
+  - {fileID: 8300000, guid: 6e278baaec3cfd14aa3981be5c99cc89, type: 3}
+  - {fileID: 8300000, guid: 46736f49f15b6ea479e7c9bde965ff91, type: 3}
+  - {fileID: 8300000, guid: 99a85228f9e15184b9556180958eb6a7, type: 3}
+  - {fileID: 8300000, guid: 30bbca0b4a1867c40b6af0485c6ac500, type: 3}
+  - {fileID: 8300000, guid: 8782b3f7ea77f644f986f571fd7412f2, type: 3}
+  - {fileID: 8300000, guid: 3073cab4e90ff8242817e44fc5ef990e, type: 3}
+  - {fileID: 8300000, guid: d51b8a9761df88941bd83788afcabf38, type: 3}
+  - {fileID: 8300000, guid: bdbbf94bfdd895e439e06b002f7b9f13, type: 3}
+  - {fileID: 8300000, guid: c4595fbfbd0f0af46963ffa6b059a1dd, type: 3}
+  - {fileID: 8300000, guid: 0663bc5467212774d86cc7f656345ab9, type: 3}
+  - {fileID: 8300000, guid: c898dc3a22b77834daa2183b004e83ab, type: 3}
+  - {fileID: 8300000, guid: 6d459dacf87baa4409d05428fb564c78, type: 3}
+  - {fileID: 8300000, guid: ec4debe408367d5419f8ed927fa6413f, type: 3}
+  - {fileID: 8300000, guid: 9e9f9825450085c4dbb1ce4902093661, type: 3}
