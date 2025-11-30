@@ -304,22 +304,5 @@ public class RoundTable : NetworkBehaviour
             }
         }
     }
-
-
-#if UNITY_EDITOR
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.L)) //fast testing
-        {
-            StartBoardGameServerRpc();
-        }
-        if (Input.GetKeyDown(KeyCode.R)) //fast testing
-        {
-            ResetServerRpc();
-        }
-
-    }
-#endif
-
 }
 
