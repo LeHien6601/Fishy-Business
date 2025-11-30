@@ -1,9 +1,49 @@
 fileFormatVersion: 2
 guid: f76aec0e780b7a946873595aa1af01e4
 ModelImporter:
-  serializedVersion: 22200
+  serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: brass.001
+    second: {fileID: 2100000, guid: 5ae5213288cf3e64dbde010191d1246a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: decoration
+    second: {fileID: 2100000, guid: e1bc696c5824f8043b3e5bf8771f227e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: decoration_2
+    second: {fileID: 2100000, guid: 9fabc8552a52916448d66ee80b44fc68, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: hat_red
+    second: {fileID: 2100000, guid: ab726322b6cba0544900d0ad5ae6fb6e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lights
+    second: {fileID: 2100000, guid: 28fddd0c8693f8f4b8c026f87e8d7b97, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mistletoe
+    second: {fileID: 2100000, guid: 093cbddabac89dc4a8956d9ebe9ac5ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tree
+    second: {fileID: 2100000, guid: b7bf2efc6d771b343bea20a4d88fac24, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wood.001
+    second: {fileID: 2100000, guid: f53bf441dec280944a1075319ab66cf6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -56,6 +96,9 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
