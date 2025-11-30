@@ -23441,6 +23441,18 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 8083795896119709367, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1215493670
+      objectReference: {fileID: 0}
+    - target: {fileID: 8083795896119709367, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8083795896119709367, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 4189244092
+      objectReference: {fileID: 0}
     - target: {fileID: 8652399028517396065, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647

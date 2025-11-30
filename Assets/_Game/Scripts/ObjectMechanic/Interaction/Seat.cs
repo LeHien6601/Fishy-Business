@@ -70,6 +70,7 @@ public class Seat : NetworkBehaviour, IInteractable
         {
             _localOccupant.Sit(this);
             OnLocalSeatChanged?.Invoke(true);
+            SystemDialogue.SetDialogue("Hold [F] to exit", 1f);
         }
     }
 
