@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Seat : NetworkBehaviour, IInteractable
 {
@@ -14,6 +15,7 @@ public class Seat : NetworkBehaviour, IInteractable
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
+    public event UnityAction<bool> OnLocalSeatChanged;
     public event Action<PlayerEnterSeatEventArg> OnPlayerEnterSeat;
     public struct PlayerEnterSeatEventArg : INetworkSerializable
     {
@@ -67,11 +69,13 @@ public class Seat : NetworkBehaviour, IInteractable
         if (requesterId == NetworkManager.Singleton.LocalClientId && _localOccupant != null)
         {
             _localOccupant.Sit(this);
+            OnLocalSeatChanged?.Invoke(true);
         }
     }
 
     public void OnExitSeat()
     {
+        OnLocalSeatChanged?.Invoke(false);
         ExitSeatServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 
@@ -93,7 +97,7 @@ public class Seat : NetworkBehaviour, IInteractable
     private void OnOccupyingClientChanged(ulong oldClientId, ulong newClientId)
     {
         bool isEnterSeat = newClientId == ulong.MaxValue;
-        gameObject.layer =  isEnterSeat?
+        gameObject.layer = isEnterSeat ?
             Constant.INTERACTABLE_LAYER : Constant.IGNORE_LAYER;
         OnPlayerEnterSeat?.Invoke(new PlayerEnterSeatEventArg()
         {
