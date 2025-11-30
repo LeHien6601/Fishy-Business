@@ -1,8 +1,13 @@
+using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class InstrumentInput : MonoBehaviour
 {
+    [SerializeField] private bool _useUIButtons = false;
+    [SerializeField] private Transform _buttonContainer;
+    [SerializeField] private GameObject _buttonPrefab;
     // A mapping of your 21 note indices (0-20) to Unity KeyCodes
     private readonly KeyCode[] NoteKeyMap = new KeyCode[]
     {
@@ -15,6 +20,24 @@ public class InstrumentInput : MonoBehaviour
     };
 
     public event UnityAction<int> OnNotePlayed;
+
+    private List<Transform> _buttons;
+
+    void OnEnable()
+    {
+        if (_useUIButtons && _buttons == null)
+        {
+            _buttons = new List<Transform>();
+            for (int i = 0; i < 21; i++)
+            {
+                GameObject buttonObj = Instantiate(_buttonPrefab, _buttonContainer);
+                buttonObj.name = $"NoteButton_{i}";
+                _buttons.Add(buttonObj.transform);
+            }
+        }
+        _buttonContainer.transform.localScale = Vector3.zero;
+        _buttonContainer.transform.DOScale(1f, 1f).SetEase(Ease.OutBack);
+    }
 
     /// <summary>
     /// Returns the KeyCode corresponding to the given note index (0-20).
@@ -43,6 +66,11 @@ public class InstrumentInput : MonoBehaviour
             {
                 // Invoke the event with the note index (i)
                 OnNotePlayed?.Invoke(i);
+                if (_useUIButtons)
+                {
+                    _buttons[i].localScale = Vector3.one;
+                    _buttons[i].DOScale(0.8f, 0.05f).SetLoops(2, LoopType.Yoyo);
+                }
             }
         }
     }
