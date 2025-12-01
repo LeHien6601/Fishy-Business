@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public class PlayerController : NetworkBehaviour
 {
+    [SerializeField] private float _gravity = -9.81f;
     [SerializeField] private Interactor _interactor;
     [SerializeField] private InputReaderSO _inputReader;
     [SerializeField] private Transform _headBone;
@@ -12,11 +13,15 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private TransformEventChannelSO _targetTransformChannel;
 
     [SerializeField] private float _moveSpeed = 5f;
+    public CharacterController CharacterController;
     public NavMeshAgent Agent;
     public Vector3 MoveDirection { get; private set; }
+    public Vector3 Movement;
+    public Vector3 PreviousMovement;
     private IState _currentState;
     private IdleState _idleState;
     private MoveState _moveState;
+    private JumpState _jumpState;
     private AttackState _attackState;
     private SitState _sitState;
     public bool CanInteract { get => _interactor.enabled; set => _interactor.enabled = value; }
@@ -32,8 +37,9 @@ public class PlayerController : NetworkBehaviour
         base.OnNetworkSpawn();
         Animator animator = GetComponent<Animator>();
         gameObject.GetOrAdd<ObjectFader>();
-        _idleState = new IdleState(animator);
+        _idleState = new IdleState(this, animator);
         _moveState = new MoveState(this, animator, _moveSpeed);
+        _jumpState = new JumpState(this, animator);
         _attackState = new AttackState(animator);
         _sitState = new SitState(this, animator);
         _currentState = _idleState;
@@ -77,10 +83,9 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleMove(Vector2 arg0)
     {
-        if (_currentState == _attackState || _currentState == _sitState)
-            return;
         MoveDirection = new Vector3(arg0.x, 0, arg0.y).normalized;
-        Debug.Log("Move");
+        if (_currentState == _attackState || _currentState == _sitState || _currentState == _jumpState)
+            return;
         if (MoveDirection == Vector3.zero)
         {
             ToState(_idleState);
@@ -110,7 +115,35 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner)
             return;
+        PreviousMovement = Movement;
+        ApplyGravity();
         _currentState.OnTick();
+        CharacterController.Move(Movement * Time.deltaTime);
+    }
+
+    void ApplyGravity()
+    {
+        if (CharacterController.isGrounded)
+        {
+            Movement.y = -1f;
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                ToState(_jumpState);
+                return;
+            }
+            if (_currentState == _jumpState && CharacterController.velocity.y <= 0)
+            {
+                if (MoveDirection == Vector3.zero)
+                    ToState(_idleState);
+                else
+                    ToState(_moveState);
+            }
+        }
+        else
+        {
+            float newY = Movement.y + _gravity * Time.deltaTime;
+            Movement.y = (PreviousMovement.y + newY) * 0.5f;
+        }
     }
 
     private void ToState(IState newState)
@@ -129,7 +162,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     // called by animation event
-    private void BackToIdle() => ToState(_idleState);
+    public void BackToIdle() => ToState(_idleState);
 
     public void OwnerActivateInput()
     {

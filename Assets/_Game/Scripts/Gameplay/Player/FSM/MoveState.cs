@@ -26,12 +26,14 @@ public class MoveState : IState
     public void OnExit()
     {
         _animator.SetBool(_animBoolHash, false);
+        _host.Movement = Vector3.zero;
         // _host.DustVfx.Stop();
     }
 
     public void OnTick()
     {
-        MoveWithCameraDirection();
+        // MoveWithCameraDirection();
+        MoveWithCharacterController();
         // _host.transform.forward = _host.MoveDirection;
         // _host.transform.position = Vector3.MoveTowards(_host.transform.position, _host.transform.position + _host.MoveDirection, Time.deltaTime * _moveSpeed);
     }
@@ -62,5 +64,19 @@ public class MoveState : IState
         Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
         _host.transform.position += _moveSpeed * Time.deltaTime * targetDirection;
+    }
+
+    private void MoveWithCharacterController()
+    {
+        float _targetRotation = Mathf.Atan2(_host.MoveDirection.x, _host.MoveDirection.z) * Mathf.Rad2Deg +
+               Camera.main.transform.eulerAngles.y;
+
+        // rotate to face input direction relative to camera position
+        _host.transform.rotation = Quaternion.Euler(0.0f, _targetRotation, 0.0f);
+
+        Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+
+        _host.Movement = _moveSpeed * targetDirection;
+        // _host.CharacterController.Move(_moveSpeed * Time.deltaTime * targetDirection);
     }
 }
