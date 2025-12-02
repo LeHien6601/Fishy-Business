@@ -5,16 +5,17 @@ using UnityEngine.AI;
 
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField] private float _gravity = -9.81f;
     [SerializeField] private Interactor _interactor;
     [SerializeField] private InputReaderSO _inputReader;
     [SerializeField] private Transform _headBone;
     [SerializeField] private TransformEventChannelSO _headBoneTransformChannel;
     [SerializeField] private TransformEventChannelSO _targetTransformChannel;
 
+    [SerializeField] private float _gravity = -9.81f;
+    [SerializeField] private float _initJumpVelocity = 20f;
     [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _onAirSpeed = 10f;
     public CharacterController CharacterController;
-    public NavMeshAgent Agent;
     public Vector3 MoveDirection { get; private set; }
     public Vector3 Movement;
     public Vector3 PreviousMovement;
@@ -31,7 +32,6 @@ public class PlayerController : NetworkBehaviour
         if (!IsOwner)
         {
             _interactor.gameObject.SetActive(false);
-            // Agent.enabled = false;
             return;
         }
         base.OnNetworkSpawn();
@@ -39,7 +39,7 @@ public class PlayerController : NetworkBehaviour
         gameObject.GetOrAdd<ObjectFader>();
         _idleState = new IdleState(this, animator);
         _moveState = new MoveState(this, animator, _moveSpeed);
-        _jumpState = new JumpState(this, animator);
+        _jumpState = new JumpState(this, animator, _onAirSpeed, _initJumpVelocity);
         _attackState = new AttackState(animator);
         _sitState = new SitState(this, animator);
         _currentState = _idleState;
@@ -116,6 +116,8 @@ public class PlayerController : NetworkBehaviour
         if (!IsOwner)
             return;
         PreviousMovement = Movement;
+        if (_currentState == _sitState)
+            return;
         ApplyGravity();
         _currentState.OnTick();
         CharacterController.Move(Movement * Time.deltaTime);

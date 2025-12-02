@@ -21,8 +21,6 @@ public class SitState : IState
 
     public virtual void OnEnter()
     {
-        // ReparentHandler.Instance.RequestReparentServerRpc(_host.NetworkObjectId, _seat.NetworkObjectId);
-        _host.Agent.enabled = false;
         _host.CanInteract = false;
         _animator.Play(_animHash);
         _animator.transform.SetPositionAndRotation(_seat.SitPosition(), _seat.SitRotation());
@@ -32,10 +30,7 @@ public class SitState : IState
     public virtual void OnExit()
     {
         _seat.OnExitSeat();
-        _host.Agent.enabled = true;
         _host.CanInteract = true;
-        // _host.transform.SetParent(null);
-        // ReparentHandler.Instance.RequestReparentServerRpc(_host.NetworkObjectId);
         CameraController.SwitchCamMode(CameraMode.ThirdPerson);
     }
 
