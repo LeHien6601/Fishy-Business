@@ -78,7 +78,6 @@ public class NetworkBoardManager : NetworkBehaviour
         DealCards(playerOrders);
         await Task.Delay(1000); // wait for a moment before starting first turn
         _currentGameMode.StartGame(this);
-        // NextTurnClientRpc(_playerOrders[Random.Range(0, _playerOrders.Count)]);
     }
 
     [ClientRpc]
@@ -116,7 +115,7 @@ public class NetworkBoardManager : NetworkBehaviour
     public void StartNextTurn()
     {
         if (_turnOrder == null || _turnOrder.Count == 0) return;
-        _inTurnPlayer = _turnOrder[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _turnOrder.Count]; // Or mode-specific index
+        _inTurnPlayer = _turnOrder[(_turnOrder.IndexOf(_inTurnPlayer) + 1) % _turnOrder.Count]; // Or mode-specific index
         _currentGameMode.HandlePlayerTurnStart(this, _inTurnPlayer);
     }
 
@@ -555,8 +554,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         else
         {
-            _currentGameMode.HandlePlayerActionComplete(this);
-            // ServerDrawNewCardThenEndTurn();
+            ServerDrawNewCardThenEndTurn();
         }
     }
     [ClientRpc]
@@ -826,6 +824,7 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!IsServer)
             return;
+        _currentGameMode.HandlePlayerActionComplete(this);
         StopCountDown();
         int id = _masterDeck.Count - _cardsInDeck.Count;
         if (id >= 0 && id < _masterDeck.Count) // check before sending RPC to save bandwidth
@@ -833,14 +832,10 @@ public class NetworkBoardManager : NetworkBehaviour
             DrawNewCardClientRpc(_masterDeck[id], receiver: _inTurnPlayer);
         }
         // wait for a short moment then end turn
-        _inTurnPlayer = _playerOrders[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _playerOrders.Count];
+        // _inTurnPlayer = _turnOrder[(_turnOrder.IndexOf(_inTurnPlayer) + 1) % _turnOrder.Count];
         this.WaitThenExecute(_waitBetweenPlayerTurns, () =>
         {
-            if (!_currentGameMode.CheckEndGameConditions(this, out bool isDogWin))
-            {
-                StartNextTurn();
-            }
-            else
+            if (_currentGameMode.CheckEndGameConditions(this, out bool isDogWin))
             {
                 _currentGameMode.EndGame(this, isDogWin);
             }
@@ -1048,28 +1043,6 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         NextTurnClientRpc(playerId);
     }
-    public void RequestDrawCardForPlayer(ulong playerId)
-    {
-        if (!IsServer) return;
-        int deckIndex = _masterDeck.Count - _cardsInDeck.Count;
-        if (deckIndex < _masterDeck.Count)
-        {
-            DrawNewCardClientRpc(_masterDeck[deckIndex], playerId);
-        }
-    }
-
-    public void RequestEndCurrentTurn()
-    {
-        if (!IsServer) return;
-        ServerDrawNewCardThenEndTurn();   // or whatever the next step is
-    }
-
-    public void RequestStartPhase(GamePhase phase)
-    {
-        SetCurrentPhase(phase);
-        _currentGameMode?.StartPhase(this, phase);
-    }
-
     public bool CheckForOutOfCards()
     {
         bool isOutOfCards = true;

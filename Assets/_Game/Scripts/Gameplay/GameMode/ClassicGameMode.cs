@@ -31,7 +31,7 @@ public class ClassicGameMode : GameMode
     public override void HandlePlayerActionComplete(NetworkBoardManager manager)
     {
         // Classic: Draw card, then next turn
-        manager.RequestEndCurrentTurn();
+        manager.StartNextTurn();
     }
 
     public override bool CheckEndGameConditions(NetworkBoardManager manager, out bool isDogWin)
