@@ -824,7 +824,6 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!IsServer)
             return;
-        _currentGameMode.HandlePlayerActionComplete(this);
         StopCountDown();
         int id = _masterDeck.Count - _cardsInDeck.Count;
         if (id >= 0 && id < _masterDeck.Count) // check before sending RPC to save bandwidth
@@ -840,6 +839,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 _currentGameMode.EndGame(this, isDogWin);
             }
         });
+        _currentGameMode.HandlePlayerActionComplete(this);
     }
 
     [ClientRpc]
