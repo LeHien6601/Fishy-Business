@@ -36,7 +36,7 @@ public class ClassicGameMode : GameMode
 
     public override bool CheckEndGameConditions(NetworkBoardManager manager, out bool isDogWin)
     {
-        isDogWin = false;
+        isDogWin = true;
         // Classic: Check for out of cards or goal reached (moved from NetworkBoardManager)
         if (manager.CheckForOutOfCards())
         {
