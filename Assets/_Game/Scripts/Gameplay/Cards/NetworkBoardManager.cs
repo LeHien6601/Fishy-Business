@@ -589,7 +589,6 @@ public class NetworkBoardManager : NetworkBehaviour
     #region DISCARD CARD FROM HAND T0 DISCARD PILE
     private void DiscardCardFromHand(Card card)
     {
-        StopCountDown();
         card.Holder.IsTurn = false;
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_discardPile.transform);
@@ -827,7 +826,7 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!IsServer)
             return;
-
+        StopCountDown();
         int id = _masterDeck.Count - _cardsInDeck.Count;
         if (id >= 0 && id < _masterDeck.Count) // check before sending RPC to save bandwidth
         {
@@ -880,7 +879,6 @@ public class NetworkBoardManager : NetworkBehaviour
         CardHolder inTurnHolder = _playerAndHolderMap[nextPlayerId];
         if (NetworkManager.Singleton.LocalClientId == nextPlayerId)
         {
-            Debug.Log("It's your turn!");
             inTurnHolder.IsTurn = true;
             StartCountDown();
         }
@@ -1043,6 +1041,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         return role;
     }
+    public NetworkList<ulong> GetPlayerOrders() => _playerOrders;
     #endregion
 
     public void RequestNextTurn(ulong playerId)
