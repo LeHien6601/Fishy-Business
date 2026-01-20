@@ -1,0 +1,90 @@
+classDiagram
+    direction LR
+
+    class SingletonMono~T~ {
+        <<generic>>
+    }
+
+    class LobbyManager {
+        + string RelayJoinCode
+        + Lobby currentLobby
+        + bool isHost
+        + bool InitServices
+
+        + CreateLobbyAsync(string)
+        + JoinLobbyByCodeAsync(string, string, int)
+        + QuickJoinAsync(string, int)
+        + LeaveLobbyAsync()
+        + KickPlayerAsync(string)
+        + QueryLobbiesAsync() List~Lobby~
+        + UpdateLobbyNameAsync(string)
+        + UpdatePlayerDataAsync(string, int)
+        + PollLobbyAsync()
+        + GetPlayerInfoFromPlayerId(string) PlayerInfo
+    }
+
+    class Lobby {
+        + string Id
+        + string LobbyCode
+        + List~Player~ Players
+        + Dictionary~string, DataObject~ Data
+    }
+
+    class Player {
+        + string Id
+        + Dictionary~string, PlayerDataObject~ Data
+    }
+
+    class PlayerInfo {
+        + string Name
+        + int IconId
+        + bool Found
+    }
+
+    class LobbyService {
+        <<Unity Service>>
+        + CreateLobbyAsync()
+        + JoinLobbyByCodeAsync()
+        + QuickJoinLobbyAsync()
+        + UpdateLobbyAsync()
+        + RemovePlayerAsync()
+        + GetLobbyAsync()
+        + QueryLobbiesAsync()
+        + SendHeartbeatPingAsync()
+    }
+
+    class RelayManager {
+        + SetupRelay(Lobby)
+        + JoinRelay(Lobby)
+    }
+
+    class AuthenticationService {
+        + PlayerId
+        + SignInAnonymouslyAsync()
+    }
+
+    class UIManager {
+        + ShowUI(EUIState)
+        + HideUI(EUIState)
+    }
+
+    class GameplayManager {
+        + OnStartGame
+        + OnEndGame
+    }
+
+    class GameManager {
+        + DespawnPlayerRpc()
+        + HandleLoadComplete()
+    }
+
+    LobbyManager --|> SingletonMono~LobbyManager~
+    LobbyManager --> Lobby
+    LobbyManager --> Player
+    LobbyManager --> PlayerInfo
+    LobbyManager --> LobbyService
+    LobbyManager --> RelayManager
+    LobbyManager --> AuthenticationService
+    LobbyManager --> UIManager
+    LobbyManager --> GameplayManager
+    LobbyManager --> GameManager

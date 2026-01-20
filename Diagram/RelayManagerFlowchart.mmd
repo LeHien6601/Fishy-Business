@@ -1,0 +1,14 @@
+flowchart TD
+    A[Host: SetupRelay] --> B[Create Relay Allocation]
+    B --> C[Get Relay Join Code]
+    C --> D[Update Lobby Data]
+    D --> E[Configure UnityTransport]
+    E --> F[Start Netcode Host]
+    F --> G[Refresh Lobby Data]
+    G --> H[Relay Ready]
+
+    I[Client: JoinRelay] --> J[Read Join Code from Lobby]
+    J --> K[Join Relay Allocation]
+    K --> L[Configure UnityTransport]
+    L --> M[Start Netcode Client]
+    M --> N[Connected via Relay]

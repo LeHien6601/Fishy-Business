@@ -1,0 +1,72 @@
+classDiagram
+    direction LR
+
+    class SingletonMono~T~ {
+        <<generic>>
+    }
+
+    class UIManager {
+        - List~UIViewState~ _uiViewPrefabs
+        - List~UIViewState~ _uiViewStates
+        + Start()
+        + Update()
+        + ShowUI(EUIState, object)
+        + HideUI(EUIState, object)
+        - GetSortingOrder(EUIState) int
+    }
+
+    class UIViewState {
+        + EUIState State
+        + UIView View
+        + int SortingOrder
+    }
+
+    class UIView {
+        + bool IsShowing
+        + GameObject gameObject
+        + Show()
+        + ShowWithParams(object)
+        + Hide()
+        + HideWithParams(object)
+        + SetSortingOrder(int)
+    }
+
+    class GameConfig {
+        + List~UIViewState~ uiViewPrefabs
+        + Instance
+    }
+
+    class GameManager {
+        + EGameState CurrentGameState
+        + Instance
+    }
+
+    class CameraController {
+        + SwitchCamMode(CameraMode)
+        + ToPreviousMode()
+    }
+
+    class EUIState {
+        <<enumeration>>
+        None
+        MainMenu
+        CustomGame
+        LobbyInfo
+        LobbyGameplay
+        Footer
+        Loading
+        PlayerInfo
+        EndGame
+        InGame
+        CustomPlayer
+        Settings
+        Notification
+    }
+
+    UIManager --|> SingletonMono~UIManager~
+    UIManager o-- UIViewState
+    UIViewState --> UIView
+    UIManager --> GameConfig
+    UIManager --> GameManager
+    UIManager --> CameraController
+    UIViewState --> EUIState

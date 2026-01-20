@@ -1,0 +1,52 @@
+classDiagram
+    direction LR
+
+    class Card {
+        + CardData CardData
+        + CardInforSO CardInforSO
+        + CardLocation Location
+
+        + CardType CardType
+        + PathCardType PathCardType
+        + ActionCardType ActionCardType
+        + ToolType ToolType
+        + bool[] Connections
+
+        + CardHolder Holder
+
+        + SetData(CardInforSO, CardLocation)
+        + SetData(CardData, CardInforSO, CardLocation)
+        + SetMaterial(Material)
+        + Refresh()
+        + Rotate()
+        + GetRealRotation()
+
+        + Highlight(bool)
+        + OffHighlight()
+        + HightLightForPath(bool)
+
+        + OnPlayCard
+        + OnHoverCard
+        + OnExitHoverCard
+        + OnDiscardCard
+    }
+
+    class CardInforSO {
+        + CardType
+        + PathCardType
+        + ActionCardType
+        + ToolType
+        + bool[] Connections
+        + Material material
+        + Sprite Symbol
+    }
+
+    class CardHolder {
+        + IsMine
+        + IsTurn
+        + IsTheSelectingCard()
+        + UnSelectCard()
+    }
+
+    Card --> CardInforSO
+    Card --> CardHolder

@@ -1,0 +1,7 @@
+flowchart TD
+    A[BombThisPath] --> B{Slot in OnBoardPaths?}
+    B -->|No| C[Warning]
+    B -->|Yes| D[Remove from Paths]
+    D --> E[Reset Card]
+    E --> F[Hide Slot]
+    F --> G[Play Bomb Sound]

@@ -1,0 +1,12 @@
+flowchart TD
+    A[Check Slot] --> B[Check 4 Directions]
+
+    B --> C{Neighbor Inside Board?}
+    C -->|No| B
+
+    C -->|Yes| D{Neighbor is Path Card?}
+    D -->|No| B
+
+    D -->|Yes| E{Connections Match?}
+    E -->|Mismatch| X[Invalid Slot]
+    E -->|At Least One Match| F[Valid Slot]

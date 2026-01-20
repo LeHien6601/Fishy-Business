@@ -1,0 +1,47 @@
+classDiagram
+    direction LR
+
+    class SingletonMono~T~ {
+        <<generic>>
+    }
+
+    class RelayManager {
+        + SetupRelay(Lobby) Lobby
+        + JoinRelay(Lobby)
+    }
+
+    class RelayService {
+        <<Unity Service>>
+        + CreateAllocationAsync(int)
+        + GetJoinCodeAsync(Guid)
+        + JoinAllocationAsync(string)
+    }
+
+    class LobbyService {
+        <<Unity Service>>
+        + UpdateLobbyAsync(string, UpdateLobbyOptions)
+        + GetLobbyAsync(string)
+    }
+
+    class Lobby {
+        + string Id
+        + string LobbyCode
+        + Dictionary~string, DataObject~ Data
+    }
+
+    class UnityTransport {
+        + SetRelayServerData(...)
+    }
+
+    class NetworkManager {
+        + StartHost()
+        + StartClient()
+        + Singleton
+    }
+
+    RelayManager --|> SingletonMono~RelayManager~
+    RelayManager --> RelayService
+    RelayManager --> LobbyService
+    RelayManager --> Lobby
+    RelayManager --> UnityTransport
+    RelayManager --> NetworkManager

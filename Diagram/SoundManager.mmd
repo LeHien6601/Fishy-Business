@@ -1,0 +1,65 @@
+classDiagram
+    direction LR
+
+    class SingletonMono~T~ {
+        <<generic>>
+    }
+
+    class SoundManager {
+        - AudioSource musicSource
+        - Dictionary~SoundType, SoundData~ soundMap
+
+        - Queue~AudioSource~ pool2D
+        - Queue~AudioSource~ pool3D
+        - List~AudioSource~ active2DSources
+        - List~AudioSource~ active3DSources
+
+        + Awake()
+        + Update()
+
+        - InitializePools()
+        - CreatePooledSource(bool)
+        - GetSource(bool)
+        - ReturnToPool(AudioSource)
+
+        + Play(SoundType, Vector3, float)
+        + Play2D(SoundType, float)
+        + PlayMusic(SoundType, float)
+        + StopMusic()
+
+        - InternalPlay(SoundType, Vector3, bool)
+        - DelayedPlay(SoundType, Vector3, bool, float)
+
+        + SetMusicVolume(float)
+        + SetSFXVolume(float)
+        + GetMusicVolume() float
+        + GetSFXVolume() float
+    }
+
+    class SoundData {
+        + GetNextClip() AudioClip
+        + GetRandomVolume() float
+        + GetRandomPitch() float
+    }
+
+    class AudioSource {
+        + Play()
+        + Stop()
+        + bool isPlaying
+        + AudioClip clip
+        + float spatialBlend
+    }
+
+    class AudioMixerGroup {
+        + audioMixer
+    }
+
+    class GameConfig {
+        + soundMappings
+    }
+
+    SoundManager --|> SingletonMono~SoundManager~
+    SoundManager --> SoundData
+    SoundManager --> AudioSource
+    SoundManager --> AudioMixerGroup
+    SoundManager --> GameConfig

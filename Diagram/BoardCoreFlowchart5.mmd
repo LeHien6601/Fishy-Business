@@ -1,0 +1,16 @@
+flowchart TD
+    A[Start BFS from StartPos]
+    A --> B[Queue + Visited]
+
+    B --> C[Dequeue Current]
+    C --> D{Is GoalPos?}
+
+    D -->|Yes| E[Reconstruct Path]
+    E --> F[Create GoalTracer]
+
+    C --> G{Is Path Card & Not DeadEnd?}
+    G -->|No| B
+
+    G -->|Yes| H[Check 4 Directions]
+    H --> I{Connections Match?}
+    I -->|Yes| J[Enqueue Neighbor]

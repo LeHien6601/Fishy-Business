@@ -1,0 +1,12 @@
+flowchart TD
+    A[PlacePathCardAt] --> B{Has Rotation?}
+
+    B -->|No| C[Use Current Rotation]
+    B -->|Yes| D[Apply Given Rotation]
+
+    C --> E[Move Card to Slot]
+    D --> E
+
+    E --> F[Destroy Placeholder]
+    F --> G[Replace Board Slot]
+    G --> H[Add to OnBoardPaths]

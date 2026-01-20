@@ -1,0 +1,8 @@
+flowchart TD
+    A[Rotate] --> B{Connections Valid?}
+    B -->|No| C[Return]
+
+    B -->|Yes| D[Rotate Transform 180° Y]
+    D --> E[Swap Connections]
+    E --> F[0 <-> 2]
+    E --> G[1 <-> 3]

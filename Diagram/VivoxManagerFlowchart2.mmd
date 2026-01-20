@@ -1,0 +1,10 @@
+flowchart TD
+    A["UpdatePlayerVoiceChatVolume(authId, volume)"]
+    --> B["Iterate ActiveChannels"]
+    --> C{Is Current Channel?}
+    --> D{PlayerId Match?}
+    --> E["SetLocalVolume(volume)"]
+
+    F["GetVoiceChatVolumeByAuthId"]
+    --> G["Find Player in Channel"]
+    --> H["Return LocalVolume"]

@@ -1,0 +1,44 @@
+classDiagram
+    direction LR
+
+    class BoardCore {
+        - Vector2 cardSize
+        - int _rows = 5
+        - int _cols = 9
+        - Card[,] _board
+
+        + Vector2Int StartPos
+        + List~Vector2Int~ GoalPos
+        + List~Vector2Int~ ValidSlots
+        + List~Vector2Int~ OnBoardPaths
+
+        + GenerateBoard()
+        + PlacePathCardAt(Card, Vector2Int)
+        + PlacePathCardAt(Card, Vector2Int, Quaternion)
+        + DropCardOntoBoard(Card)
+
+        + GetValidSlotsForCard(Card)
+        + ClearValidSlots()
+        + IsValidSlot(Card, Vector2Int)
+
+        + GetPathsToHiddenGoals()
+        + OpenHiddenGoalCard(GoalTracer, bool)
+        + BombThisPath(Vector2Int)
+    }
+
+    class Card {
+        + CardType
+        + PathCardType
+        + bool[] Connections
+        + SetData()
+        + Refresh()
+        + HighlightForPath()
+    }
+
+    class GoalTracer {
+        + Vector2Int GoalSlot
+        + List~Vector2Int~ Path
+    }
+
+    BoardCore --> Card
+    BoardCore --> GoalTracer

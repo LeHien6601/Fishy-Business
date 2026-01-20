@@ -1,0 +1,14 @@
+flowchart TD
+    A[Pointer Event] --> B{Is Mine & Is Turn?}
+    B -->|No| X[Ignore]
+
+    B -->|Yes| C{Location == PlayerHand}
+
+    C -->|Left Click| D{Is Selected?}
+    D -->|Yes| E[OnPlayCard]
+    D -->|No| X
+
+    C -->|Right Click| F[OnDiscardCard]
+
+    C -->|Hover Enter| G[OnHoverCard]
+    C -->|Hover Exit| H[OnExitHoverCard]

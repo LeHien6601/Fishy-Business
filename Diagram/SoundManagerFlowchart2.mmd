@@ -1,0 +1,13 @@
+flowchart LR
+    A[InitializePools] --> B[Create 2D AudioSources]
+    A --> C[Create 3D AudioSources]
+
+    D[Request Source] --> E{Pool Available?}
+    E -- Yes --> F[Reuse AudioSource]
+    E -- No --> G{Below Max Pool?}
+    G -- Yes --> H[Create New Source]
+    G -- No --> I[Steal Oldest Active Source]
+
+    J[Audio Finished] --> K[ReturnToPool]
+    K --> L[Disable Source]
+    L --> M[Enqueue Back to Pool]

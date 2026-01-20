@@ -1,0 +1,20 @@
+flowchart TD
+    A[Start] --> B[Wait for Lobby Services Init]
+    B --> C[Initialize Vivox]
+
+    C --> D{Lobby Event}
+
+    D -->|OnJoinedLobby| E[Login Vivox]
+    E --> F[Join Lobby Voice Channel]
+
+    D -->|OnLeftLobby| G[Leave Voice Channel]
+    D -->|OnKickedFromLobby| G
+
+    G --> H[Channel Cleared]
+
+    I[Application Quit] --> J[Leave Channel]
+    J --> K[Logout Vivox]
+
+    Lobby -->|Lobby.Id| ChannelName["lobby_{LobbyId}"]
+    ChannelName --> VivoxGroupChannel
+    VivoxGroupChannel --> Players

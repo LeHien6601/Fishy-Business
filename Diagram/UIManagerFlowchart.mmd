@@ -1,0 +1,14 @@
+flowchart TD
+    A[Update] --> B{GameState == InGame?}
+    B -- No --> X[Return]
+    B -- Yes --> C{Press ESC?}
+    C -- No --> X
+    C -- Yes --> D{LobbyGameplay UI Showing?}
+
+    D -- Yes --> E[Hide LobbyGameplay UI]
+    E --> F[Cursor Locked]
+    F --> G[Camera To Previous Mode]
+
+    D -- No --> H[Show LobbyGameplay UI]
+    H --> I[Cursor Unlocked]
+    I --> J[Switch Camera to SceneView]

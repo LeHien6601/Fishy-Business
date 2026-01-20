@@ -1,0 +1,35 @@
+flowchart TD
+    A[Start] --> B[Generate Random Player Info]
+    B --> C[Load Lobby Scene]
+    C --> D[Subscribe Lobby Updates]
+
+    D --> E{Host Starts Game?}
+    E -- Yes --> F[StartGame]
+    F --> G[Register OnLoadComplete]
+    G --> H[Load GameScene for all clients]
+
+    H --> I[Client finishes loading GameScene]
+    I --> J[HandleLoadComplete]
+
+    J -->|Host| K[SpawnPlayerRpc-clientId]
+    K --> L[Spawn NetworkObject]
+    L --> M[Assign PlayerNameDisplay]
+
+    J -->|Host| N[HandlePlayerJoinNetworkClientRpc]
+
+    N -->|Client| O[Send Name + AuthId]
+    O --> P[HandlePlayerJoinNetworkServerRpc]
+    P --> Q[Map NetId ↔ AuthId]
+    Q --> R[Update Name Display]
+
+    R --> S[Set GameState = InGame]
+    S --> T[Show Notification UI]
+
+    D --> U[OnUpdatedCurrentLobby]
+    U --> V[Sync Lobby Player Names]
+    V --> W[HandleUpdatePlayerDataServerRpc]
+
+    X[Leave / Kick / Return Lobby] --> Y[Load Lobby Scene]
+    Y --> Z[Clear Spawned Players]
+    Z --> AA[Hide InGame UI]
+    AA --> AB[GameState = MainMenu]

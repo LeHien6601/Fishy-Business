@@ -1,0 +1,12 @@
+flowchart TD
+    A[GenerateBoard] --> B[Loop Rows & Cols]
+    B --> C[Instantiate Card Prefab]
+    C --> D{Slot Type}
+
+    D -->|StartPos| E[Set Start Card]
+    D -->|GoalPos| F[Set Hidden Goal Card + Rotate]
+    D -->|Normal Slot| G[Deactivate + Highlight Material]
+
+    E --> H[Store in Board Array]
+    F --> H
+    G --> H

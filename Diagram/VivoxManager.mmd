@@ -1,0 +1,47 @@
+classDiagram
+    direction LR
+
+    class SingletonMono~T~ {
+        <<generic>>
+    }
+
+    class VivoxManager {
+        - string _currentChannel
+
+        + Start()
+        + InitializeAsync()
+
+        - HandleJoinedLobby()
+        - HandleLeftLobby()
+        - HandleKickedFromLobby(KickedFromLobbyEventArgs)
+
+        - LoginAsync()
+        - JoinChannelAsync()
+        - LeaveChannelAsync()
+
+        + UpdatePlayerVoiceChatVolume(string, int)
+        + GetVoiceChatVolumnByAuthId(string) int
+    }
+
+    class VivoxService {
+        <<Unity Service>>
+        + InitializeAsync()
+        + LoginAsync()
+        + LogoutAsync()
+        + JoinGroupChannelAsync(string, ChatCapability)
+        + LeaveChannelAsync(string)
+        + ActiveChannels
+        + bool IsLoggedIn
+    }
+
+    class LobbyManager {
+        + currentLobby
+        + InitServices
+        + OnJoinedLobby
+        + OnLeftLobby
+        + OnKickedFromLobby
+    }
+
+    VivoxManager --|> SingletonMono~VivoxManager~
+    VivoxManager --> VivoxService
+    VivoxManager --> LobbyManager

@@ -1,0 +1,7 @@
+flowchart TD
+    A[OpenHiddenGoalCard] --> B[Reveal Goal Card]
+    B --> C{Is Treasure?}
+
+    C -->|Yes| D[Highlight Path]
+    D --> E[Coroutine]
+    E --> F[Highlight Each Slot Sequentially using GoalTracer]

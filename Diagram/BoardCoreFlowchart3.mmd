@@ -1,0 +1,12 @@
+flowchart TD
+    A[GetValidSlotsForCard] --> B[Iterate Board]
+    B --> C{Slot Empty?}
+
+    C -->|No| B
+    C -->|Yes| D[IsValidSlot]
+
+    D --> E{Current Rotation OK?}
+    D --> F{Opposite Rotation OK?}
+
+    E -->|Yes| G[Add Slot]
+    F -->|Yes| G

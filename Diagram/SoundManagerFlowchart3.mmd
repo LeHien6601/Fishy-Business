@@ -1,0 +1,9 @@
+flowchart TD
+    A[SetMusicVolume / SetSFXVolume] --> B[Clamp 0..1]
+    B --> C[Convert to dB]
+    C --> D[Set AudioMixer Parameter]
+    D --> E[Save to PlayerPrefs]
+
+    F[Awake] --> G[LoadVolumes]
+    G --> H[Apply Music Volume]
+    G --> I[Apply SFX Volume]

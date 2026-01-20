@@ -1,0 +1,85 @@
+classDiagram
+    direction LR
+
+    class SingletonMonoNet~T~ {
+        <<generic>>
+    }
+
+    class GameManager {
+        - NetworkObject _playerPrefab
+        - Dictionary~ulong, PlayerNameDisplay~ _spawnedPlayerNames
+        - Dictionary~ulong, string~ _idMap
+        - EGameState _currentGameState
+
+        + EGameState CurrentGameState
+        + Start()
+        + StartGame()
+        + HandleLoadComplete(ulong, string, LoadSceneMode)
+
+        - HandlePlayerJoinNetworkClientRpc(ulong)
+        - HandlePlayerJoinNetworkServerRpc(ulong, string, string)
+        - HandleUpdateLobbyData(UpdateCurrentLobbyEventArgs)
+        - HandleUpdatePlayerDataServerRpc(ulong, string)
+
+        + GetAuthIdByNetId(ulong) string
+        + GetNetIdByAuthId(string, ulong&) bool
+
+        - SpawnPlayerRpc(ulong)
+        + DespawnPlayerRpc(ulong)
+    }
+
+    class PlayerNameDisplay {
+        + SetPlayerName(string)
+    }
+
+    class NetworkObject {
+        + SpawnAsPlayerObject(ulong, bool)
+        + Despawn(bool)
+    }
+
+    class NetworkManager {
+        + IsHost
+        + SceneManager
+        + Singleton
+    }
+
+    class NetworkSceneManager {
+        + LoadScene(string, LoadSceneMode)
+        + OnLoadComplete
+    }
+
+    class LobbyManager {
+        + OnUpdatedCurrentLobby
+    }
+
+    class PlayerInfoManager {
+        + PlayerName
+        + GenerateRandomPlayerInfo()
+        + Instance
+    }
+
+    class AuthenticationService {
+        + PlayerId
+    }
+
+    class UIManager {
+        + ShowUI(EUIState)
+        + HideUI(EUIState)
+    }
+
+    class EGameState {
+        <<enumeration>>
+        MainMenu
+        InGame
+    }
+
+    GameManager --|> SingletonMonoNet~GameManager~
+    GameManager --> NetworkObject
+    GameManager --> PlayerNameDisplay
+    GameManager --> NetworkManager
+    GameManager --> NetworkSceneManager
+    GameManager --> LobbyManager
+    GameManager --> PlayerInfoManager
+    GameManager --> AuthenticationService
+    GameManager --> UIManager
+    GameManager --> EGameState
