@@ -1,4 +1,3 @@
-using Unity.Netcode.Components;
 using UnityEngine;
 
 public class MoveState : IState
@@ -8,6 +7,7 @@ public class MoveState : IState
     private readonly float _moveSpeed;
     private static readonly int _animBoolHash = Animator.StringToHash("IsMoving");
     private readonly Camera mainCamera;
+    private readonly float _rotationSpeed = 1000f;
     public MoveState(PlayerController host, Animator animator, float moveSpeed)
     {
         _host = host;
@@ -26,14 +26,14 @@ public class MoveState : IState
     public void OnExit()
     {
         _animator.SetBool(_animBoolHash, false);
+        _host.Movement = Vector3.zero;
         // _host.DustVfx.Stop();
     }
 
     public void OnTick()
     {
-        MoveWithCameraDirection();
-        // _host.transform.forward = _host.MoveDirection;
-        // _host.transform.position = Vector3.MoveTowards(_host.transform.position, _host.transform.position + _host.MoveDirection, Time.deltaTime * _moveSpeed);
+        // MoveWithCameraDirection();
+        MoveWithCharacterController();
     }
 
 
@@ -62,5 +62,18 @@ public class MoveState : IState
         Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
         _host.transform.position += _moveSpeed * Time.deltaTime * targetDirection;
+    }
+
+    private void MoveWithCharacterController()
+    {
+        // rotate to face input direction relative to camera position
+        float _targetAngle = Mathf.Atan2(_host.MoveDirection.x, _host.MoveDirection.z) * Mathf.Rad2Deg + mainCamera.transform.eulerAngles.y;
+        Quaternion desiredRotation = Quaternion.Euler(0.0f, _targetAngle, 0.0f);
+        _host.transform.rotation = Quaternion.RotateTowards(_host.transform.rotation, desiredRotation, _rotationSpeed * Time.deltaTime);
+        Vector3 targetDirection = desiredRotation * Vector3.forward;
+
+        float preservedY = _host.Movement.y;
+        _host.Movement = 6 * targetDirection;
+        _host.Movement.y = preservedY;
     }
 }
