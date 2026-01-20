@@ -86,6 +86,7 @@ public class PhasedGameMode : GameMode
         // Process votes (e.g., eliminate player)
         // Then resume Night
         EndPhase(manager, GamePhase.DayVoting);
+        StartPhase(manager, GamePhase.Night);
         StartNightPhase(manager);
     }
 

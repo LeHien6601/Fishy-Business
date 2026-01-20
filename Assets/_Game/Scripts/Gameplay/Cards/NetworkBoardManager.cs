@@ -468,7 +468,6 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void ConfirmCardPlacementClientRpc(Vector2Int slot, Quaternion rot)
     {
-        StopCountDown();
         if (_placingCard)
         {
             _boardCore.PlacePathCardAt(_placingCard, slot, rot, () =>
@@ -590,7 +589,6 @@ public class NetworkBoardManager : NetworkBehaviour
     #region DISCARD CARD FROM HAND T0 DISCARD PILE
     private void DiscardCardFromHand(Card card)
     {
-        StopCountDown();
         card.Holder.IsTurn = false;
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_discardPile.transform);
@@ -828,7 +826,7 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!IsServer)
             return;
-
+        StopCountDown();
         int id = _masterDeck.Count - _cardsInDeck.Count;
         if (id >= 0 && id < _masterDeck.Count) // check before sending RPC to save bandwidth
         {
