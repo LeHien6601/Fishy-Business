@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3934401323
+  GlobalObjectIdHash: 1050455899
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _currentGameMode: {fileID: 11400000, guid: 84ec56b9655c2c148b16a4bdb9a0601c, type: 2}
+  _currentGameMode: {fileID: 11400000, guid: d821e80064b2a524a92bf21542e863fd, type: 2}
   _cardDatabase: {fileID: 11400000, guid: c1e037bebcff67e4285c77bea38013f9, type: 2}
   _cardPrefab: {fileID: 3435510238133078495, guid: 2aa5c57520b2f4d4f907f308b452428b, type: 3}
   _deckPlace: {fileID: 8691322792216704638}

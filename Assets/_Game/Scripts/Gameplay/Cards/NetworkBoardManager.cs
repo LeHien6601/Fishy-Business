@@ -468,6 +468,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void ConfirmCardPlacementClientRpc(Vector2Int slot, Quaternion rot)
     {
+        StopCountDown();
         if (_placingCard)
         {
             _boardCore.PlacePathCardAt(_placingCard, slot, rot, () =>
@@ -880,7 +881,6 @@ public class NetworkBoardManager : NetworkBehaviour
         CardHolder inTurnHolder = _playerAndHolderMap[nextPlayerId];
         if (NetworkManager.Singleton.LocalClientId == nextPlayerId)
         {
-            Debug.Log("It's your turn!");
             inTurnHolder.IsTurn = true;
             StartCountDown();
         }
@@ -1043,6 +1043,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         return role;
     }
+    public NetworkList<ulong> GetPlayerOrders() => _playerOrders;
     #endregion
 
     public void RequestNextTurn(ulong playerId)
