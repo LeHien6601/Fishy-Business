@@ -162,7 +162,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         material.SetColor("_EmissionColor", color);
         
         _meshRenderer.material = material;
-        Debug.Log("New HightLight: " + color);
     }
 
     // --- these pointer handlers downhere only send the events, delegate actual logic to BoardManager ---

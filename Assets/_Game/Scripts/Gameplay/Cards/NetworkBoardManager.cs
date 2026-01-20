@@ -9,6 +9,7 @@ using UnityEngine.Events;
 
 public class NetworkBoardManager : NetworkBehaviour
 {
+    [SerializeField] private GameMode _currentGameMode;
     [SerializeField] private CardDatabaseSO _cardDatabase;
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _deckPlace;
@@ -19,6 +20,8 @@ public class NetworkBoardManager : NetworkBehaviour
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
     private readonly List<CardData> _masterDeck = new(); // only server has the full deck data
     private int _tressureIndex = -1; // only server knows this, clients if want to know must send a rpc
+    private GamePhase _currentPhase = GamePhase.None;
+    private List<ulong> _turnOrder; // Current turn order (fixed or random per mode)
     private NetworkList<ulong> _playerOrders = new(); // sever only
     private ulong _inTurnPlayer = ulong.MaxValue;
     private const float _waitBetweenPlayerTurns = 1f;
@@ -50,17 +53,18 @@ public class NetworkBoardManager : NetworkBehaviour
     public async void ServerStartGameLogic(NetworkList<ulong> playerOrders)
     {
         if (!IsServer) return;
+        _playerOrders = playerOrders;
 
         // Perform server-only setup
-        _playerOrders = playerOrders;
         InitializeAndShuffleDeck();
 
         // Calculate count of cat and dog
-        AssignRoles(_playerOrders.Count);
+        AssignRoles(playerOrders.Count);
 
         // random goal tressure
         _tressureIndex = Random.Range(0, 3);
 
+        _currentGameMode.Initialize(this, playerOrders);
         await Task.Delay(1000); // wait for a moment to ensure all clients are ready
         _playerStartGameCount = 0;
         StartGameClientRpc();
@@ -73,7 +77,8 @@ public class NetworkBoardManager : NetworkBehaviour
 
         DealCards(playerOrders);
         await Task.Delay(1000); // wait for a moment before starting first turn
-        NextTurnClientRpc(_playerOrders[Random.Range(0, _playerOrders.Count)]);
+        _currentGameMode.StartGame(this);
+        // NextTurnClientRpc(_playerOrders[Random.Range(0, _playerOrders.Count)]);
     }
 
     [ClientRpc]
@@ -104,6 +109,15 @@ public class NetworkBoardManager : NetworkBehaviour
     private void CountPlayerStartGameRpc()
     {
         _playerStartGameCount++;
+    }
+
+    public void SetTurnOrder(List<ulong> order) => _turnOrder = order;
+    public void SetCurrentPhase(GamePhase phase) => _currentPhase = phase;
+    public void StartNextTurn()
+    {
+        if (_turnOrder == null || _turnOrder.Count == 0) return;
+        _inTurnPlayer = _turnOrder[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _turnOrder.Count]; // Or mode-specific index
+        _currentGameMode.HandlePlayerTurnStart(this, _inTurnPlayer);
     }
 
     private void DealCards(NetworkList<ulong> playerOrders)
@@ -204,6 +218,7 @@ public class NetworkBoardManager : NetworkBehaviour
         // Define number of cats based on total players
         var catCount = totalPlayer switch
         {
+            1 => 0,
             2 or 3 or 4 => 1,
             5 or 6 => 2,
             7 or 8 or 9 => 3,
@@ -262,6 +277,7 @@ public class NetworkBoardManager : NetworkBehaviour
         card.transform.SetParent(_boardCore.transform);
         PlayerState nextState = MatchStateWithCard(card);
         _boardCore.DropCardOntoBoard(card, onComplete: () => { _localPlayerState = nextState; });
+        // _currentGameMode.HandlePlayerActionComplete(this); // Instead of direct end turn
 
         static PlayerState MatchStateWithCard(Card card)
         {
@@ -533,9 +549,15 @@ public class NetworkBoardManager : NetworkBehaviour
             }
         }
         if (isEndGame)
-            ServerEndBoardGame(isDogWin: true);
+        {
+            _currentGameMode.EndGame(this, isDogWin: true);
+            // ServerEndBoardGame(isDogWin: true);
+        }
         else
-            ServerDrawNewCardThenEndTurn();
+        {
+            _currentGameMode.HandlePlayerActionComplete(this);
+            // ServerDrawNewCardThenEndTurn();
+        }
     }
     [ClientRpc]
     private void RevealGoalCardClientRpc(GoalTracer tracer, bool isDog, bool isTreasure, ClientRpcParams clientRpcParams)
@@ -739,31 +761,9 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void ApplyToolOnPlayerClientRpc(ulong tagetPlayer)
     {
-        // @TODO: visualize using coins 
         bool isRepair = _placingCard.ActionCardType == ActionCardType.FixTool;
         CardHolder holder = _playerAndHolderMap[tagetPlayer];
         holder.SetTool(_placingCard.ToolType, isRepair);
-        // switch (_placingCard.ToolType)
-        // {
-        //     case ToolType.Cart:
-        //         holder.Cart = isRepair;
-        //         break;
-        //     case ToolType.Hat:
-        //         holder.Hat = isRepair;
-        //         break;
-        //     case ToolType.Shovel:
-        //         holder.Shovel = isRepair;
-        //         break;
-        //     case ToolType.CartHat:
-        //         holder.Cart = holder.Hat = isRepair;
-        //         break;
-        //     case ToolType.CartShovel:
-        //         holder.Cart = holder.Shovel = isRepair;
-        //         break;
-        //     case ToolType.HatShovel:
-        //         holder.Hat = holder.Shovel = isRepair;
-        //         break;
-        // }
         Destroy(_placingCard.gameObject);
         _placingCard = null;
         _targerPlayer = null;
@@ -837,8 +837,14 @@ public class NetworkBoardManager : NetworkBehaviour
         _inTurnPlayer = _playerOrders[(_playerOrders.IndexOf(_inTurnPlayer) + 1) % _playerOrders.Count];
         this.WaitThenExecute(_waitBetweenPlayerTurns, () =>
         {
-            if (!ServerCheckForOutOfCards())
-                NextTurnClientRpc(_inTurnPlayer);
+            if (!_currentGameMode.CheckEndGameConditions(this, out bool isDogWin))
+            {
+                StartNextTurn();
+            }
+            else
+            {
+                _currentGameMode.EndGame(this, isDogWin);
+            }
         });
     }
 
@@ -976,25 +982,6 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #region Endgame step
 
-    private bool ServerCheckForOutOfCards()
-    {
-        bool isOutOfCards = true;
-        foreach (var holder in _cardHolders)
-        {
-            if (!holder.IsEmpty())
-            {
-                isOutOfCards = false;
-                break;
-            }
-        }
-        if (isOutOfCards)
-        {
-            Debug.Log("Endgame due to out of cards");
-            ServerEndBoardGame(isDogWin: false);
-        }
-        return isOutOfCards;
-    }
-
     private void ServerEndBoardGame(bool isDogWin)
     {
         if (!IsServer)
@@ -1011,7 +998,6 @@ public class NetworkBoardManager : NetworkBehaviour
             }
             players.Add(pair.Key);
         }
-        Debug.Log("winners:" + winners);
         GameplayManager.Instance.HandleEndGame(winners, players);
     }
 
@@ -1058,6 +1044,51 @@ public class NetworkBoardManager : NetworkBehaviour
         return role;
     }
     #endregion
+
+    public void RequestNextTurn(ulong playerId)
+    {
+        NextTurnClientRpc(playerId);
+    }
+    public void RequestDrawCardForPlayer(ulong playerId)
+    {
+        if (!IsServer) return;
+        int deckIndex = _masterDeck.Count - _cardsInDeck.Count;
+        if (deckIndex < _masterDeck.Count)
+        {
+            DrawNewCardClientRpc(_masterDeck[deckIndex], playerId);
+        }
+    }
+
+    public void RequestEndCurrentTurn()
+    {
+        if (!IsServer) return;
+        ServerDrawNewCardThenEndTurn();   // or whatever the next step is
+    }
+
+    public void RequestStartPhase(GamePhase phase)
+    {
+        SetCurrentPhase(phase);
+        _currentGameMode?.StartPhase(this, phase);
+    }
+
+    public bool CheckForOutOfCards()
+    {
+        bool isOutOfCards = true;
+        foreach (var holder in _cardHolders)
+        {
+            if (!holder.IsEmpty())
+            {
+                isOutOfCards = false;
+                break;
+            }
+        }
+        return isOutOfCards;
+    }
+
+    public void BroadcastGameEnd(bool dogsWin)
+    {
+        ServerEndBoardGame(dogsWin);
+    }
 }
 public enum PlayerState
 {
@@ -1067,6 +1098,3 @@ public enum PlayerState
     USING_TOOL,
     CHECKING_GOAL,
 }
-
-
-
