@@ -57,6 +57,9 @@ public enum ActionCardType
     FixTool,
     Bomb,
     CheckGold,
+    Binoculars,
+    Shield,
+    SwapGoal,
 }
 public enum ToolType
 {
