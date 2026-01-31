@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -7,18 +8,12 @@ using UnityEngine;
 public class PhasedGameMode : GameMode
 {
     [SerializeField] private float _dayDiscussionTime = 10f;
-    [SerializeField] private float _votingTime = 5f;
+    [SerializeField] private float _votingTime = 30f;
 
     private List<ulong> _currentNightOrder = new();
     private int _currentTurnIndex;
     
-    private List<VotingData> _currentVotingData = new();
-    public struct VotingData
-    {
-        public ulong FromPlayer;
-        public ulong ToPlayer;
-        public bool Skip;
-    }
+    
     
 
     public override void StartPhase(NetworkBoardManager manager, GamePhase phase)
@@ -37,6 +32,7 @@ public class PhasedGameMode : GameMode
     public override void EndPhase(NetworkBoardManager manager, GamePhase phase)
     {
         base.EndPhase(manager, phase);
+        GameplayManager.Instance.TriggerEndPhase(phase);
         Debug.Log("End phase " + phase.ToString());
     }
 
@@ -44,7 +40,6 @@ public class PhasedGameMode : GameMode
     {
         // Phased: Start with Night phase
         StartPhase(manager, GamePhase.Night);
-        _currentVotingData.Clear();
     }
 
     public override void StartGame(NetworkBoardManager manager)

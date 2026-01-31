@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
 using UnityEditor;
+using UnityEngine;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
@@ -25,8 +26,17 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     {
         public GamePhase Phase;
         public float Duration;
-        public List<object> AdditionalData;
     }
+    public event Action<GamePhase> OnEndPhase;
+    private List<VotingData> _currentVotingData = new();
+    [Serializable]
+    public struct VotingData
+    {
+        public ulong FromPlayer;
+        public ulong ToPlayer;
+        public bool Skip;
+    }
+    public event Action OnChangedVotingData;
 
     #region HANDLERS
     public void TriggerStartGame(ulong id)
@@ -40,18 +50,32 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         SoundManager.PlayMusic(SoundType.Lobby, 2f);
     }
     // Server trigger start phase
-    public void TriggerStartPhase(GamePhase phase, float duration, List<object> additional = null)
+    public void TriggerStartPhase(GamePhase phase, float duration)
     {
         TriggerStartPhaseClientRPC(phase, duration);
+    }
+    public void TriggerEndPhase(GamePhase phase)
+    {
+        TriggerEndPhaseClientRPC(phase);
     }
     [ClientRpc]
     private void TriggerStartPhaseClientRPC(GamePhase phase, float duration)
     {
+        if (phase == GamePhase.DayVoting) 
+        {
+            _currentVotingData.Clear();
+            UIManager.Instance.ShowUI(EUIState.InGameVoting);
+        }
         OnStartPhase?.Invoke(new StartPhaseEventArgs()
         {
             Phase = phase,
             Duration = duration
         });
+    }
+    [ClientRpc]
+    private void TriggerEndPhaseClientRPC(GamePhase phasen)
+    {
+        OnEndPhase?.Invoke(phasen);
     }
 
 
@@ -132,7 +156,25 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     {
         OnUseActionCard?.Invoke(actionCardType, toolType);
     }
+
+    public void TriggerVoting(ulong toPlayer, bool isSkip = false)
+    {
+        VotingClientRpc(NetworkManager.Singleton.LocalClientId, toPlayer, isSkip);
+    }
+
+    [ClientRpc]
+    private void VotingClientRpc(ulong from, ulong to, bool isSkip)
+    {
+        _currentVotingData.Add(new VotingData()
+        {
+            FromPlayer = from,
+            ToPlayer = to,
+            Skip = isSkip
+        });
+        OnChangedVotingData?.Invoke();
+    }
     #endregion
+
 
     #region GETTERS
     public List<LobbyManager.PlayerInfo> GetWinnerInfos() { return _winnerInfos; }
@@ -140,5 +182,6 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     {
         return _playerRole;
     }
+    public List<VotingData> GetVotingDatas() {return _currentVotingData;}
     #endregion
 }

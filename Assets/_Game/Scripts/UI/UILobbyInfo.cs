@@ -53,20 +53,19 @@ public class UILobbyInfo : UIView
         if (LobbyManager.Instance.currentLobby == null) return;
         Lobby lobby = LobbyManager.Instance.currentLobby;
         if (!_lobbyNameInput.interactable) _lobbyNameInput.text = lobby.Name;
-        int currentNumOfPlayer = LobbyManager.Instance.currentLobby.Players.Count;
+        int currentNumOfPlayer = lobby.Players.Count;
         string mineId = AuthenticationService.Instance.PlayerId;
-        Lobby currentLobby = LobbyManager.Instance.currentLobby;
         for (int i = 0; i < Constant.MAX_PLAYERS; i++)
         {
             if (i < currentNumOfPlayer)
             {
                 _uiMembers[i].SetMemberData(
-                    mineId == currentLobby.Players[i].Id,
-                    currentLobby.Players[i].Data[Constant.KEY_PLAYER_NAME].Value,
-                    currentLobby.Players[i].Data[Constant.KEY_PLAYER_ICON_ID].Value != null ?
+                    mineId == lobby.Players[i].Id,
+                    lobby.Players[i].Data[Constant.KEY_PLAYER_NAME].Value,
+                    lobby.Players[i].Data[Constant.KEY_PLAYER_ICON_ID].Value != null ?
                         GameConfig.Instance.GetPlayerIconById(
-                            int.Parse(currentLobby.Players[i].Data[Constant.KEY_PLAYER_ICON_ID].Value)) : null,
-                    currentLobby.Players[i].Id);
+                            int.Parse(lobby.Players[i].Data[Constant.KEY_PLAYER_ICON_ID].Value)) : null,
+                    lobby.Players[i].Id);
             }
             else {
                 _uiMembers[i].ResetMemberData();

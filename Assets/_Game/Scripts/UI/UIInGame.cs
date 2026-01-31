@@ -41,8 +41,8 @@ public class UIInGame : UIView
         _showTurn = false;
         _iconImage.sprite = isCat ? _catSprite : _dogSprite;
         _borderImage.color = isCat ? _catBorderColor : _dogBorderColor;
-        HidePhaseText();
-        HideTurnText();
+        HideRect(_phaseRect);
+        HideRect(_turnRect);
         base.Show();
     }
     public override void Hide()
@@ -54,7 +54,8 @@ public class UIInGame : UIView
     {
         GameplayManager.Instance.OnStartedNewTurn += HandleNewTurn;
         GameplayManager.Instance.OnUseActionCard += HandleUIActionCard;
-        GameplayManager.Instance.OnStartPhase += HandleNewPhase;
+        GameplayManager.Instance.OnStartPhase += HandleStartPhase;
+        GameplayManager.Instance.OnEndPhase += HandleEndPhase;
         _myTurnRect.localScale = Vector3.zero;
         _counterRect.localScale = Vector3.zero;
 
@@ -65,40 +66,43 @@ public class UIInGame : UIView
     {
         GameplayManager.Instance.OnStartedNewTurn -= HandleNewTurn;
         GameplayManager.Instance.OnStartedNewTurn -= HandleNewTurn;
-        GameplayManager.Instance.OnStartPhase -= HandleNewPhase;
+        GameplayManager.Instance.OnStartPhase -= HandleStartPhase;
+        GameplayManager.Instance.OnEndPhase -= HandleEndPhase;
     }
     private void HandleNewTurn(GameplayManager.StartedNewTurnEventArgs args)
     {
         if (args.ClientId == NetworkManager.Singleton.LocalClientId)
         {
             _isMyTurn = true;
-            _myTurnRect.localScale = Vector3.zero;
-            _myTurnRect.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
-            _counterRect.localScale = Vector3.zero;
-            _counterRect.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
+            ShowRect(_myTurnRect);
+            ShowRect(_counterRect);
             StopAllCoroutines();
             StartCoroutine(TimerCoroutine(Constant.TURN_INTERVAL));
         }
         else if (_isMyTurn)
         {
             _isMyTurn = false;
-            _myTurnRect.localScale = Vector2.one;
-            _myTurnRect.DOScale(0f, 0.2f).SetEase(Ease.InBack);
-            _counterRect.localScale = Vector2.one;
-            _counterRect.DOScale(0f, 0.2f).SetEase(Ease.InBack);
+            HideRect(_myTurnRect);
+            HideRect(_counterRect);
         }
         ShowTurnText(args.TurnNumber);
     }
-    private void HandleNewPhase(GameplayManager.StartPhaseEventArgs args)
+    private void HandleStartPhase(GameplayManager.StartPhaseEventArgs args)
     {
-        ShowPhaseText(GameMode.GetGamePhaseName(args.Phase));
+        if (args.Phase != GamePhase.DayVoting)
+            ShowPhaseText(GameMode.GetGamePhaseName(args.Phase));
+        HideRect(_myTurnRect);
         _showTurn = true;
         if (args.Phase != GamePhase.Night)
         {
             StopAllCoroutines();
             StartCoroutine(TimerCoroutine(args.Duration));
-            HideTurnText();
+            HideRect(_turnRect);
         }
+    }
+    private void HandleEndPhase(GamePhase phase)
+    {
+        if (phase == GamePhase.DayDiscussion) HideRect(_phaseRect);
     }
     private IEnumerator TimerCoroutine(float duration)
     {
@@ -198,18 +202,19 @@ public class UIInGame : UIView
         _phaseRect.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
         _phaseTMP.text = phaseName;
     }
-    private void HidePhaseText()
-    {
-        _phaseRect.DOScale(0f, 0.2f).SetEase(Ease.InBack);
-    }
     private void ShowTurnText(int turnNumber)
     {
         if (!_showTurn) return;
         _turnRect.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
         _turnTMP.text = $"Turn {turnNumber + 1}";
     }
-    private void HideTurnText()
+    private void ShowRect(RectTransform rect)
     {
-        _turnRect.DOScale(0f, 0.2f).SetEase(Ease.InBack);
+        rect.localScale = Vector2.zero;
+        rect.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
+    }
+    private void HideRect(RectTransform rect)
+    {
+        rect.DOScale(0f, 0.2f).SetEase(Ease.InBack);
     }
 }

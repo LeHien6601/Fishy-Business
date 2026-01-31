@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,15 +13,19 @@ public class UIVotingMember : MonoBehaviour
     [SerializeField] private RectTransform _mineRect;
     [SerializeField] private RectTransform _dataRect;
     [SerializeField] private RectTransform _voteRect;
+    [SerializeField] private RectTransform _voteCountRect;
     [SerializeField] private RectTransform _avaContainerRect;
     [SerializeField] private TextMeshProUGUI _voteTMP;
+    [SerializeField] private TextMeshProUGUI _voteCountTMP;
     [SerializeField] private Button _yesBTN;
     [SerializeField] private Button _noBTN;
     [SerializeField] private Button _voteBTN;
 
     private UIInGameVoting _uiInGameVoting;
+    private List<ulong> _votedMembers = new();
     private bool _isMine = false;
     private string _id;
+    private bool _locked = false;
     #endregion
 
     #region Cycle
@@ -60,6 +64,8 @@ public class UIVotingMember : MonoBehaviour
         _mineRect.gameObject.SetActive(_isMine);
 
         _voteBTN.gameObject.SetActive(true);
+        _voteCountRect.gameObject.SetActive(true);
+        _voteCountTMP.text = _votedMembers.Count.ToString();
     }
     public void ResetMemberData()
     {
@@ -70,6 +76,20 @@ public class UIVotingMember : MonoBehaviour
         _avaContainerRect.gameObject.SetActive(false);
         _mineRect.gameObject.SetActive(false);
         _voteBTN.gameObject.SetActive(false);
+        _voteCountRect.gameObject.SetActive(false);
+        _votedMembers.Clear();
+    }
+
+    public void TakeVote(ulong voteId)
+    {
+        _votedMembers.Add(voteId);
+        _voteCountTMP.text = _votedMembers.Count.ToString();
+    }
+
+    public void SetLock(bool isLocked)
+    {
+        _locked = isLocked;
+        _voteBTN.gameObject.SetActive(!isLocked);
     }
 
     public void HandleClickKickButton()
@@ -87,7 +107,8 @@ public class UIVotingMember : MonoBehaviour
     private void HandleClickYes()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
-        // call ui ingame voting trigger voting to the player of this ui
+        if (!_locked)
+            _uiInGameVoting.TriggerVoting(_id);
         ToggleVotingContainer();
     }
     private void HandleClickNo()

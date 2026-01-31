@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: PhasedGameMode
   m_EditorClassIdentifier: Assembly-CSharp::PhasedGameMode
   _dayDiscussionTime: 10
+  _votingTime: 30
