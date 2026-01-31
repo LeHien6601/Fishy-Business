@@ -213,6 +213,24 @@ public class BoardCore : MonoBehaviour
     }
 
 
+    public void SwapGoals(Vector2Int slotA, Vector2Int slotB)
+    {
+        Card goalA = _board[slotA.x, slotA.y];
+        Card goalB = _board[slotB.x, slotB.y];
+
+        Vector3 posA = goalA.transform.position;
+        Vector3 posB = goalB.transform.position;
+
+        Sequence swapSeq = DOTween.Sequence();
+        swapSeq.Append(goalA.transform.DOMove(posB, 0.5f).SetEase(Ease.InOutQuad));
+        swapSeq.Join(goalB.transform.DOMove(posA, 0.5f).SetEase(Ease.InOutQuad));
+        swapSeq.OnComplete(() =>
+        {
+            _board[slotA.x, slotA.y] = goalB;
+            _board[slotB.x, slotB.y] = goalA;
+        });
+    }
+
     public void DropCardOntoBoard(Card card, Action onComplete = null)
     {
         card.transform.DOScale(1f, FromHandToBoardDuration * 0.2f).SetEase(Ease.OutCubic);
