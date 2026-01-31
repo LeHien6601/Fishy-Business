@@ -15,6 +15,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [SerializeField] private Transform _deckPlace;
     [SerializeField] private Transform _discardPile;
     [SerializeField] private Transform _turnIndicator;
+    [SerializeField] private DayNightController _dayNightController;
     private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
@@ -1061,6 +1062,38 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         ServerEndBoardGame(dogsWin);
     }
+
+
+
+
+
+    #region Phased Game Functions
+    [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
+    public void CoverAllClientsRpc()
+    {
+        _dayNightController.Cover();
+    }
+
+
+    [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
+    public void UncoverAllClientsRpc()
+    {
+        _dayNightController.Uncover();
+    }
+
+    [ClientRpc]
+    public void UnCoverASpecificClientRpc(ClientRpcParams clientRpcParams)
+    {
+        _dayNightController.Uncover();
+    }
+
+    [ClientRpc]
+    public void CoverASpecificClientRpc(ClientRpcParams clientRpcParams)
+    {
+        _dayNightController.Cover();
+    }
+
+    #endregion
 }
 public enum PlayerState
 {

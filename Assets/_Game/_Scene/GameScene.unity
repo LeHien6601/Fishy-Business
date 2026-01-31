@@ -222,6 +222,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &4070338
 MeshFilter:
@@ -962,6 +963,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &72315640
 MeshFilter:
@@ -13406,14 +13408,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1073374899}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 0.8459119, a: 1}
   m_Intensity: 1
   m_Range: 40
   m_SpotAngle: 150
   m_InnerSpotAngle: 100
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 0
     m_Resolution: -1
@@ -14398,14 +14400,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1152185480}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 0
   m_Color: {r: 0.87058824, g: 0.80192363, b: 0, a: 1}
   m_Intensity: 30
   m_Range: 40
   m_SpotAngle: 150
   m_InnerSpotAngle: 100
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 0
     m_Resolution: -1
@@ -16078,14 +16080,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1258318598}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 0
   m_Color: {r: 0.87058824, g: 0.87032175, b: 0, a: 1}
   m_Intensity: 30
   m_Range: 40
   m_SpotAngle: 150
   m_InnerSpotAngle: 100
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 0
     m_Resolution: -1
@@ -24623,6 +24625,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1986227408
 MeshFilter:
@@ -26307,6 +26310,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &2124304838
 MeshFilter:
@@ -26632,6 +26636,14 @@ PrefabInstance:
       propertyPath: _cardDatabase
       value: 
       objectReference: {fileID: 11400000, guid: c1e037bebcff67e4285c77bea38013f9, type: 2}
+    - target: {fileID: 5961079652306323777, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: _currentGameMode
+      value: 
+      objectReference: {fileID: 11400000, guid: 84ec56b9655c2c148b16a4bdb9a0601c, type: 2}
+    - target: {fileID: 5961079652306323777, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: _dayNightController
+      value: 
+      objectReference: {fileID: 4665224665955478022}
     - target: {fileID: 6066733563922786630, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 0
@@ -26728,6 +26740,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6776649656666377973, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4665224665955478020}
+    - targetCorrespondingSourceObject: {fileID: 6066733563922786630, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4665224665955478022}
   m_SourcePrefab: {fileID: 100100000, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
 --- !u!1 &4665224665955478019 stripped
 GameObject:
@@ -26756,6 +26771,23 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2211200919588437516, guid: 0eee47b1ddfaeae4e9c40826ed21fdd1, type: 3}
+--- !u!1 &4665224665955478021 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6066733563922786630, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+  m_PrefabInstance: {fileID: 4665224665955478018}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4665224665955478022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4665224665955478021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f11bfead72ae84f96ff0dc21799508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayNightController
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

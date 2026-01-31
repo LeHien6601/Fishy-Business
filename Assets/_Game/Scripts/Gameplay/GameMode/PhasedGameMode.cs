@@ -16,6 +16,14 @@ public class PhasedGameMode : GameMode
     {
         base.StartPhase(manager, phase);
         Debug.Log("Start phase " + phase.ToString());
+        if (phase == GamePhase.Night)
+        {
+            manager.CoverAllClientsRpc();
+        }
+        else
+        {
+            manager.UncoverAllClientsRpc();
+        }
     }
     public override void EndPhase(NetworkBoardManager manager, GamePhase phase)
     {
@@ -47,7 +55,18 @@ public class PhasedGameMode : GameMode
 
     public override void HandlePlayerTurnStart(NetworkBoardManager manager, ulong playerId)
     {
+        manager.CoverAllClientsRpc();
+
         manager.RequestNextTurn(playerId);
+        
+        ClientRpcParams clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { playerId } // Send to specific player only
+            }
+        };
+        manager.UnCoverASpecificClientRpc(clientRpcParams);
     }
 
     public override void HandlePlayerActionComplete(NetworkBoardManager manager)
