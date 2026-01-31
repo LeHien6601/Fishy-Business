@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 610331144136008517}
   - component: {fileID: 6202731682590948880}
   m_Layer: 5
-  m_Name: VoteCountTMP
+  m_Name: SkipCountTMP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -972,6 +972,8 @@ MonoBehaviour:
   - {fileID: 4572161867721936955}
   - {fileID: 3636676517022008063}
   - {fileID: 6892311145103570346}
+  _skipBTN: {fileID: 6855173711786834197}
+  _skipCountTMP: {fileID: 6202731682590948880}
 --- !u!1 &2641265726225750430
 GameObject:
   m_ObjectHideFlags: 0
@@ -1057,7 +1059,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7991863526707829002}
   m_Layer: 5
-  m_Name: TopRightContainer (1)
+  m_Name: TopLeftContainer (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1395,7 +1397,7 @@ GameObject:
   m_Component:
   - component: {fileID: 946888248926689087}
   m_Layer: 5
-  m_Name: VoteCountContainer
+  m_Name: SkipCountContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

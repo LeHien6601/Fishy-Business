@@ -1,12 +1,16 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIInGameVoting : UIView
 {
     [Header("References")]
     [SerializeField] private List<UIVotingMember> _uiMembers = new();
+    [SerializeField] private Button _skipBTN;
+    [SerializeField] private TextMeshProUGUI _skipCountTMP;
     private Dictionary<ulong, UIVotingMember> _votingMemberDict = new();
 
     public override void Show()
@@ -22,11 +26,13 @@ public class UIInGameVoting : UIView
     {
         GameplayManager.Instance.OnChangedVotingData += UpdateUI;
         GameplayManager.Instance.OnEndPhase += HandleEndGamePhase;
+        _skipBTN.onClick.AddListener(TriggerSkip);
     }
     void OnDisable()
     {
         GameplayManager.Instance.OnChangedVotingData -= UpdateUI;
         GameplayManager.Instance.OnEndPhase -= HandleEndGamePhase;
+        _skipBTN.onClick.RemoveListener(TriggerSkip);
     }
     private void Initialize()
     {
@@ -36,6 +42,7 @@ public class UIInGameVoting : UIView
         string mineId = AuthenticationService.Instance.PlayerId;
         for (int i = 0; i < Constant.MAX_PLAYERS; i++)
         {
+            _uiMembers[i].ResetMemberData();
             if (i < currentNumOfPlayer)
             {
                 _uiMembers[i].SetUIInGameVoting(this);
@@ -50,19 +57,21 @@ public class UIInGameVoting : UIView
                 GameManager.Instance.GetNetIdByAuthId(lobby.Players[i].Id, out var id);
                 _votingMemberDict[id] = _uiMembers[i];
             }
-            else {
-                _uiMembers[i].ResetMemberData();
-            }
+            _skipBTN.interactable = true;
+            _skipCountTMP.text = "0";
         }
     }
     private void UpdateUI()
     {
         List<GameplayManager.VotingData> votingDatas = GameplayManager.Instance.GetVotingDatas();
         if (votingDatas == null) return;
+        int skipCount = 0;
         foreach (GameplayManager.VotingData votingData in votingDatas)
         {
-            _votingMemberDict[votingData.ToPlayer].TakeVote(votingData.FromPlayer);
+            if (votingData.Skip) skipCount++;
+            else _votingMemberDict[votingData.ToPlayer].TakeVote(votingData.FromPlayer);
         }
+        _skipCountTMP.text = skipCount.ToString();
     }
     public void TriggerVoting(string toAuthId)
     {
@@ -71,7 +80,18 @@ public class UIInGameVoting : UIView
             Debug.LogError("Missing player net id in GameManager dictionary!");
             return;
         }
+        _skipBTN.interactable = false;
         GameplayManager.Instance.TriggerVoting(netId);
+        foreach (var uiMember in _uiMembers)
+        {
+            uiMember.SetLock(true);
+        }
+    }
+    private void TriggerSkip()
+    {
+        SoundManager.Play2D(SoundType.ButtonClick);
+        _skipBTN.interactable = false;
+        GameplayManager.Instance.TriggerVoting(0, true);
         foreach (var uiMember in _uiMembers)
         {
             uiMember.SetLock(true);
