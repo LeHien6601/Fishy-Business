@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [CreateAssetMenu(fileName = "PhasedGameMode", menuName = "GameModes/Phased")]
 public class PhasedGameMode : GameMode
@@ -12,9 +15,9 @@ public class PhasedGameMode : GameMode
 
     private List<ulong> _currentNightOrder = new();
     private int _currentTurnIndex;
-    
-    
-    
+
+
+
 
     public override void StartPhase(NetworkBoardManager manager, GamePhase phase)
     {
@@ -51,6 +54,7 @@ public class PhasedGameMode : GameMode
     private void StartNightPhase(NetworkBoardManager manager)
     {
         _currentNightOrder = GetRandomTurnOrder(manager.GetPlayerOrders());
+        BanVotedPlayer();
         manager.SetTurnOrder(_currentNightOrder);
         _currentTurnIndex = 0;
         manager.SetCurrentPhase(GamePhase.Night);
@@ -58,6 +62,32 @@ public class PhasedGameMode : GameMode
 
         // manager.StartNextTurn(); // Start first turn in random order
         manager.StartNightPhase();  // Start first turn in random order
+    }
+
+    private void BanVotedPlayer()
+    {
+        List<GameplayManager.VotingData> votingDatas = GameplayManager.Instance.GetVotingDatas();
+        if (votingDatas == null || votingDatas.Count <= 0) return;
+        Dictionary<ulong, int> votesPerPlayer = new();
+        foreach (var voting in votingDatas)
+        {
+            if (voting.Skip) continue;
+            if (!votesPerPlayer.ContainsKey(voting.ToPlayer))
+                votesPerPlayer[voting.ToPlayer] = 0;
+            votesPerPlayer[voting.ToPlayer]++;
+        }
+        int maxVotes = votesPerPlayer.Values.Max();
+
+        var topPlayers = votesPerPlayer
+            .Where(kvp => kvp.Value == maxVotes)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        if (topPlayers.Count == 1)
+        {
+            ulong playerBan = topPlayers[0];
+            _currentNightOrder.Remove(playerBan);
+        }
     }
 
     public override void HandlePlayerTurnStart(NetworkBoardManager manager, ulong playerId)
