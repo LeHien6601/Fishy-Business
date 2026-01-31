@@ -126,7 +126,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
                 {
                     {Constant.KEY_HOST_ID, new DataObject(DataObject.VisibilityOptions.Member, AuthenticationService.Instance.PlayerId)},
                     {Constant.KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Public, "")},
-                    {Constant.KEY_START_GAME, new DataObject(DataObject.VisibilityOptions.Public, "false", DataObject.IndexOptions.S1)}
+                    {Constant.KEY_START_GAME, new DataObject(DataObject.VisibilityOptions.Public, "false", DataObject.IndexOptions.S1)},
+                    {Constant.KEY_GAME_MODE_ID, new DataObject(DataObject.VisibilityOptions.Public, "0")}
                 }
             };
 

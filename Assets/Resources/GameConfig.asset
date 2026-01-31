@@ -49,6 +49,9 @@ MonoBehaviour:
   - State: 12
     View: {fileID: 3351898482459886770, guid: b87470a0c0f8ce3449117d84b5da6d6b, type: 3}
     SortingOrder: 2
+  - State: 13
+    View: {fileID: 1011685208571591568, guid: 6619483401236f6469655427e9ddf987, type: 3}
+    SortingOrder: 0
   playerIcons:
   - {fileID: -197385056, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
   - {fileID: -1626465430, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
@@ -95,3 +98,6 @@ MonoBehaviour:
     soundData: {fileID: 11400000, guid: b8c8108a31cb9224494853ebe1e7014c, type: 2}
   - soundType: 16
     soundData: {fileID: 11400000, guid: 053b662e88a551042beec9bf5837b4d7, type: 2}
+  GameModes:
+  - {fileID: 11400000, guid: d821e80064b2a524a92bf21542e863fd, type: 2}
+  - {fileID: 11400000, guid: 84ec56b9655c2c148b16a4bdb9a0601c, type: 2}
