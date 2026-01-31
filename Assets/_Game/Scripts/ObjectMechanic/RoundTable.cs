@@ -139,7 +139,7 @@ public class RoundTable : NetworkBehaviour
     /// <summary>
     /// one player calls this and starts game across all clients
     /// </summary>
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void StartBoardGameServerRpc()
     {
         if (_gameplaying.Value)
@@ -251,7 +251,7 @@ public class RoundTable : NetworkBehaviour
     }
 
     [ContextMenu("Reset")]
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void ResetServerRpc()
     {
         if (!_gameplaying.Value)

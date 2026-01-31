@@ -95,7 +95,7 @@ public class InstrumentController : NetworkBehaviour
     }
 
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void SendNoteSequenceServerRpc(NetNote[] sequence, ulong senderId)
     {
         List<ulong> targets = NetworkManager.Singleton.ConnectedClientsIds.ToList();

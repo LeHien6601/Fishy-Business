@@ -296,7 +296,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void PlayCardServerRpc(CardData arg0, ulong senderId)
     {
         List<ulong> targets = NetworkManager.Singleton.ConnectedClientsIds.ToList();
@@ -364,7 +364,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+   [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MovePlacingCardServerRpc(Vector2Int slot, Quaternion quaternion)
     {
         MovePlacingCardClientRpc(slot, quaternion);
@@ -458,7 +458,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void ConfirmCardPlacementServerRpc(Vector2Int slot, Quaternion rot)
     {
         ConfirmCardPlacementClientRpc(slot, rot);
@@ -483,7 +483,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RotateCardServerRpc()
     {
         RotateCardClientRpc();
@@ -599,7 +599,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void DiscardCardFromHandServerRpc(ulong senderId)
     {
         ServerDrawNewCardThenEndTurn();
@@ -632,7 +632,7 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region CHECK GOAL
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void CheckThisGoalServerRpc(ulong requesterId, Vector2Int checkSlot)
     {
         // goal row = 0 2 4, divide by 2 is 0 1 2, exactly the indexes we want
@@ -664,7 +664,7 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region BOMB A PATH ON BOARD
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void BombThisPathServerRpc(Vector2Int slot)
     {
         if (!_boardCore.OnBoardPaths.Contains(slot))
@@ -726,7 +726,7 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void SwitchTargerPlayerServerRpc(ulong targetId)
     {
         SwitchTargerPlayerClientRpc(targetId);
@@ -745,7 +745,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #region TOOL FUNCTION ON A PLAYER
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void ApplyToolOnPlayerServerRpc(ulong targetPlayer)
     {
         if (_placingCard.ActionCardType == ActionCardType.BrokenTool || _placingCard.ActionCardType == ActionCardType.FixTool)
@@ -944,7 +944,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void DiscardPlacingCardServerRpc()
     {
         ServerDrawNewCardThenEndTurn();

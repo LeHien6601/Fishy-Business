@@ -86,7 +86,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     /// ServerRpc → Called by the client to register its name and Auth ID on the host.
     /// Host stores the mapping and updates the floating name UI.
     /// </summary>
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void HandlePlayerJoinNetworkServerRpc(ulong clientId, string name, string authId)
     {
         _idMap[clientId] = authId;
@@ -107,7 +107,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     /// <summary>
     /// ServerRpc used by HandleUpdateLobbyData to actually change the name display.
     /// </summary>
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void HandleUpdatePlayerDataServerRpc(ulong clientId, string name)
     {
         _spawnedPlayerNames[clientId].SetPlayerName(name);
