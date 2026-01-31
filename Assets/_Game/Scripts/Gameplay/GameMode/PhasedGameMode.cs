@@ -73,6 +73,7 @@ public class PhasedGameMode : GameMode
                 votesPerPlayer[toId] = 0;
             votesPerPlayer[toId]++;
         }
+        if(votesPerPlayer == null || votesPerPlayer.Count <= 0) return;
         int maxVotes = votesPerPlayer.Values.Max();
 
         var topPlayers = votesPerPlayer
@@ -83,6 +84,7 @@ public class PhasedGameMode : GameMode
         if (topPlayers.Count == 1)
         {
             ulong playerBan = topPlayers[0];
+            Debug.Log("Ban: " + playerBan);
             _currentNightOrder.Remove(playerBan);
         }
     }
