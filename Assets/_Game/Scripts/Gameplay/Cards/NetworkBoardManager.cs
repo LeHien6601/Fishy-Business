@@ -288,8 +288,11 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     ActionCardType.CheckGold => PlayerState.CHECKING_GOAL,
                     ActionCardType.Bomb => PlayerState.SELECTING_PLACE_TO_BOMB,
-                    ActionCardType.FixTool => PlayerState.USING_TOOL,
-                    ActionCardType.BrokenTool => PlayerState.USING_TOOL,
+                    ActionCardType.FixTool => PlayerState.SELECTING_TARGET_PLAYER,
+                    ActionCardType.BrokenTool => PlayerState.SELECTING_TARGET_PLAYER,
+                    ActionCardType.Binoculars => PlayerState.SELECTING_TARGET_PLAYER,
+                    ActionCardType.Shield => PlayerState.SELECTING_TARGET_PLAYER,
+                    // ActionCardType.SwapGoal
                     _ => PlayerState.NONE
                 };
             }
@@ -365,7 +368,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
     }
 
-   [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MovePlacingCardServerRpc(Vector2Int slot, Quaternion quaternion)
     {
         MovePlacingCardClientRpc(slot, quaternion);
@@ -428,20 +431,32 @@ public class NetworkBoardManager : NetworkBehaviour
                     BombThisPathServerRpc(_hoveringSlot.Value);
                 }
                 break;
-            case PlayerState.USING_TOOL:
+            case PlayerState.SELECTING_TARGET_PLAYER:
                 // ignore you if its a break tool type
-                if (_placingCard.ActionCardType == ActionCardType.BrokenTool)
-                    HoverTargetPlayer(ignore: (player) => player.IsMine || !player.HasTool(_placingCard.ToolType));
-                else if (_placingCard.ActionCardType == ActionCardType.FixTool)
-                    HoverTargetPlayer(ignore: (player) => player.HasTool(_placingCard.ToolType));
+                switch (_placingCard.ActionCardType)
+                {
+                    case ActionCardType.BrokenTool:
+                        HoverTargetPlayer(ignore: (player) => player.IsMine || !player.HasTool(_placingCard.ToolType));
+                        break;
+                    case ActionCardType.FixTool:
+                        HoverTargetPlayer(ignore: (player) => player.HasTool(_placingCard.ToolType));
+                        break;
+                    case ActionCardType.Binoculars:
+                        HoverTargetPlayer(ignore: (player) => false);
+                        break;
+                    case ActionCardType.Shield:
+                        HoverTargetPlayer(ignore: (player) => false);
+                        break;
+                }
 
                 if (!_targerPlayer.HasValue) return;
 
                 if (Input.GetMouseButtonDown(0))
                 {
                     _localPlayerState = PlayerState.NONE;
-                    ApplyToolOnPlayerServerRpc(_targerPlayer.Value);
+                    ApplyActionCardOnPlayerServerRpc(_targerPlayer.Value);
                 }
+
                 break;
             case PlayerState.CHECKING_GOAL:
                 HoverCardOnBoard(_boardCore.GoalPos);
@@ -659,7 +674,7 @@ public class NetworkBoardManager : NetworkBehaviour
                                     showTarget: requester.BeforeFaceSlot(),
                                     isTressure: checkResult,
                                     revealCardData: NetworkManager.Singleton.LocalClientId == requesterId);
-        
+
         GameplayManager.Instance.TriggerActionCard(ActionCardType.CheckGold, ToolType.None);
     }
     #endregion
@@ -747,13 +762,32 @@ public class NetworkBoardManager : NetworkBehaviour
     #region TOOL FUNCTION ON A PLAYER
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void ApplyToolOnPlayerServerRpc(ulong targetPlayer)
+    private void ApplyActionCardOnPlayerServerRpc(ulong targetPlayer)
     {
-        if (_placingCard.ActionCardType == ActionCardType.BrokenTool || _placingCard.ActionCardType == ActionCardType.FixTool)
+        switch (_placingCard.ActionCardType)
         {
-            ApplyToolOnPlayerClientRpc(targetPlayer);
-            this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
+            case ActionCardType.BrokenTool:
+            case ActionCardType.FixTool:
+                ApplyToolOnPlayerClientRpc(targetPlayer);
+                break;
+            case ActionCardType.Binoculars:
+                ApplyBinocularsToPlayerClientRpc(targetPlayer);
+                break;
+            case ActionCardType.Shield:
+                break;
+            case ActionCardType.SwapGoal:
+                break;
+            default:
+                Debug.LogWarning("Only tool cards that target players are handled here.");
+                return;
         }
+        DOVirtual.DelayedCall(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
+        // this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
+        // if (_placingCard.ActionCardType == ActionCardType.BrokenTool || _placingCard.ActionCardType == ActionCardType.FixTool)
+        // {
+        //     ApplyToolOnPlayerClientRpc(targetPlayer);
+        //     this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
+        // }
     }
 
     [ClientRpc]
@@ -767,6 +801,15 @@ public class NetworkBoardManager : NetworkBehaviour
         _targerPlayer = null;
     }
 
+    [ClientRpc]
+    private void ApplyBinocularsToPlayerClientRpc(ulong targetPlayerId, ClientRpcParams clientRpcParams = default)
+    {
+        CardHolder holder = _playerAndHolderMap[targetPlayerId];
+        holder.NightVision = true;
+        Destroy(_placingCard.gameObject);
+        _placingCard = null;
+        _targerPlayer = null;
+    }
     #endregion
 
     #region CONDITION CHECKING WHEN HOVERING CARD IN HAND
@@ -1071,6 +1114,11 @@ public class NetworkBoardManager : NetworkBehaviour
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
     public void CoverAllClientsRpc()
     {
+        CardHolder localHolder = _playerAndHolderMap[NetworkManager.Singleton.LocalClientId];
+        if (localHolder.NightVision)
+        {
+            return; // do not cover if has night vision
+        }
         _dayNightController.Cover();
     }
 
@@ -1078,6 +1126,8 @@ public class NetworkBoardManager : NetworkBehaviour
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
     public void UncoverAllClientsRpc()
     {
+        CardHolder localHolder = _playerAndHolderMap[NetworkManager.Singleton.LocalClientId];
+        localHolder.NightVision = false; // reset night vision after uncover
         _dayNightController.Uncover();
     }
 
@@ -1094,12 +1144,15 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
     #endregion
+
+
+
 }
 public enum PlayerState
 {
     NONE,
     PLACING_CARD,
     SELECTING_PLACE_TO_BOMB,
-    USING_TOOL,
+    SELECTING_TARGET_PLAYER,
     CHECKING_GOAL,
 }

@@ -52,6 +52,16 @@ public class CardHolder : MonoBehaviour
             //     _cartCoin.SetActive(value);
         }
     }
+
+    private bool _nightVision = false;
+    public bool NightVision
+    {
+        get { return _nightVision; }
+        set
+        {
+            _nightVision = value;
+        }
+    }
     [SerializeField] private GameObject _cartCoin;
     private Vector3 _initScaleCoin;
 
