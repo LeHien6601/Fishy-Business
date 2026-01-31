@@ -18,6 +18,14 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     public struct StartedNewTurnEventArgs
     {
         public ulong ClientId;
+        public int TurnNumber;
+    }
+    public event Action<StartPhaseEventArgs> OnStartPhase;
+    public struct StartPhaseEventArgs
+    {
+        public GamePhase Phase;
+        public float Duration;
+        public List<object> AdditionalData;
     }
 
     #region HANDLERS
@@ -30,6 +38,15 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     {
         OnEndGame?.Invoke(id);
         SoundManager.PlayMusic(SoundType.Lobby, 2f);
+    }
+    public void TriggerStartPhase(GamePhase phase, float duration, List<object> additionalData = null)
+    {
+        OnStartPhase?.Invoke(new StartPhaseEventArgs()
+        {
+            Phase = phase,
+            Duration = duration,
+            AdditionalData = additionalData
+        });
     }
     //Server-Start game
     public void HandleStartGame(Dictionary<ulong, PlayerRole> playerRoleMap)
@@ -96,11 +113,12 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         UIManager.Instance.ShowUI(EUIState.EndGame);
     }
 
-    public void HandleNewTurn(ulong cliendId)
+    public void HandleNewTurn(ulong cliendId, int turnNumber)
     {
         OnStartedNewTurn?.Invoke(new StartedNewTurnEventArgs()
         {
-            ClientId = cliendId
+            ClientId = cliendId,
+            TurnNumber = turnNumber
         });
     }
     public void TriggerActionCard(ActionCardType actionCardType, ToolType toolType)

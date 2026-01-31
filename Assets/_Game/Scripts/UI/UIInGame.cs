@@ -1,6 +1,6 @@
-using System;
 using System.Collections;
 using DG.Tweening;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +15,9 @@ public class UIInGame : UIView
     [SerializeField] private RectTransform _myTurnRect;
     [SerializeField] private RectTransform _clockRect;
     [SerializeField] private Image _clockFill;
+    [SerializeField] private TextMeshProUGUI _counterTMP;
+    [SerializeField] private TextMeshProUGUI _phaseTMP;
+    [SerializeField] private TextMeshProUGUI _turnTMP;
 
 
     [Header("Properties")]
@@ -45,6 +48,7 @@ public class UIInGame : UIView
     {
         GameplayManager.Instance.OnStartedNewTurn += HandleNewTurn;
         GameplayManager.Instance.OnUseActionCard += HandleUIActionCard;
+        GameplayManager.Instance.OnStartPhase += HandleNewPhase;
         _myTurnRect.localScale = Vector3.zero;
         _clockRect.localScale = Vector3.zero;
 
@@ -55,6 +59,7 @@ public class UIInGame : UIView
     {
         GameplayManager.Instance.OnStartedNewTurn -= HandleNewTurn;
         GameplayManager.Instance.OnStartedNewTurn -= HandleNewTurn;
+        GameplayManager.Instance.OnStartPhase -= HandleNewPhase;
     }
     private void HandleNewTurn(GameplayManager.StartedNewTurnEventArgs args)
     {
@@ -65,7 +70,8 @@ public class UIInGame : UIView
             _myTurnRect.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
             _clockRect.localScale = Vector3.zero;
             _clockRect.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
-            StartCoroutine(TimerCoroutine());
+            StopAllCoroutines();
+            StartCoroutine(TimerCoroutine(Constant.TURN_INTERVAL));
         }
         else if (_isMyTurn)
         {
@@ -75,15 +81,26 @@ public class UIInGame : UIView
             _clockRect.localScale = Vector2.one;
             _clockRect.DOScale(0f, 0.2f).SetEase(Ease.InBack);
         }
+        ShowTurnText(args.TurnNumber);
     }
-    private IEnumerator TimerCoroutine()
+    private void HandleNewPhase(GameplayManager.StartPhaseEventArgs args)
     {
-        _timer = Constant.TURN_INTERVAL;
+        ShowPhaseText(args.Phase.ToString());
+        if (args.Phase != GamePhase.Night)
+        {
+            StopAllCoroutines();
+            StartCoroutine(TimerCoroutine(args.Duration));
+        }
+    }
+    private IEnumerator TimerCoroutine(float duration)
+    {
+        _timer = duration;
         while (_isMyTurn)
         {
             _timer -= Time.deltaTime;
             if (_timer < 0) _timer = 0;
-            _clockFill.fillAmount = 1 - _timer / Constant.TURN_INTERVAL;
+            _clockFill.fillAmount = 1 - _timer / duration;
+            _counterTMP.text = Mathf.CeilToInt(_timer).ToString();
             yield return null;
         }
     }
@@ -167,5 +184,13 @@ public class UIInGame : UIView
                 _item1.gameObject.SetActive(false);
             });
         }
+    }
+    private void ShowPhaseText(string phaseName)
+    {
+        _phaseTMP.text = phaseName;
+    }
+    private void ShowTurnText(int turnNumber)
+    {
+        _turnTMP.text = $"Turn {turnNumber}";
     }
 }

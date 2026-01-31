@@ -867,7 +867,7 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void NextTurnClientRpc(ulong nextPlayerId)
+    private void NextTurnClientRpc(ulong nextPlayerId, int turnNumber)
     {
         _inTurnPlayer = nextPlayerId;
         if (!_playerAndHolderMap.TryGetValue(nextPlayerId, out CardHolder _)) return;
@@ -893,7 +893,7 @@ public class NetworkBoardManager : NetworkBehaviour
         _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
 
 
-        GameplayManager.Instance.HandleNewTurn(nextPlayerId);
+        GameplayManager.Instance.HandleNewTurn(nextPlayerId, turnNumber);
     }
 
     private Vector3 GetMouseWorldPointOnBoard()
@@ -1041,7 +1041,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     public void RequestNextTurn(ulong playerId)
     {
-        NextTurnClientRpc(playerId);
+        NextTurnClientRpc(playerId, _turnOrder.IndexOf(playerId));
     }
     public bool CheckForOutOfCards()
     {

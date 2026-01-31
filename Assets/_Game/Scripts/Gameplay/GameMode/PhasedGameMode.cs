@@ -7,6 +7,7 @@ using UnityEngine;
 public class PhasedGameMode : GameMode
 {
     [SerializeField] private float _dayDiscussionTime = 10f;
+    [SerializeField] private float _votingTime = 5f;
 
     private List<ulong> _currentNightOrder = new();
     private int _currentTurnIndex;
@@ -41,6 +42,7 @@ public class PhasedGameMode : GameMode
         _currentTurnIndex = 0;
         manager.SetCurrentPhase(GamePhase.Night);
         manager.StartNextTurn(); // Start first turn in random order
+        GameplayManager.Instance.TriggerStartPhase(GamePhase.Night, 0f);
     }
 
     public override void HandlePlayerTurnStart(NetworkBoardManager manager, ulong playerId)
@@ -56,6 +58,7 @@ public class PhasedGameMode : GameMode
             // End Night, start Day
             EndPhase(manager, GamePhase.Night);
             StartPhase(manager, GamePhase.DayDiscussion);
+            GameplayManager.Instance.TriggerStartPhase(GamePhase.DayDiscussion, _dayDiscussionTime);
             manager.StartCoroutine(DayDiscussionRoutine(manager));
         }
         else
@@ -71,12 +74,13 @@ public class PhasedGameMode : GameMode
         yield return new WaitForSeconds(_dayDiscussionTime);
         EndPhase(manager, GamePhase.DayDiscussion);
         StartPhase(manager, GamePhase.DayVoting);
+        GameplayManager.Instance.TriggerStartPhase(GamePhase.DayVoting, _votingTime);
         manager.StartCoroutine(VotingCoroutine(manager));
     }
 
     private IEnumerator VotingCoroutine(NetworkBoardManager manager)
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(_votingTime);
         OnVotingComplete(manager);
     }
 
