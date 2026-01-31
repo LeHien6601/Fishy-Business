@@ -52,7 +52,15 @@ public class CardHolder : MonoBehaviour
             //     _cartCoin.SetActive(value);
         }
     }
-
+    private bool _shield = false;
+    public bool Shield
+    {
+        get { return _shield; }
+        set
+        {
+            _shield = value;
+        }
+    }
     private bool _nightVision = false;
     public bool NightVision
     {

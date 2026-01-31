@@ -774,6 +774,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 ApplyBinocularsToPlayerClientRpc(targetPlayer);
                 break;
             case ActionCardType.Shield:
+                ApplyShieldToPlayerClientRpc(targetPlayer);
                 break;
             case ActionCardType.SwapGoal:
                 break;
@@ -793,9 +794,17 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void ApplyToolOnPlayerClientRpc(ulong tagetPlayer)
     {
-        bool isRepair = _placingCard.ActionCardType == ActionCardType.FixTool;
         CardHolder holder = _playerAndHolderMap[tagetPlayer];
-        holder.SetTool(_placingCard.ToolType, isRepair);
+        if (_placingCard.ActionCardType == ActionCardType.BrokenTool && holder.Shield)
+        {
+            holder.Shield = false;
+            Debug.Log("Your shield has blocked an attack from somebody");
+            //@TODO: notify has shield
+        }
+        else
+        {
+            holder.SetTool(_placingCard.ToolType, _placingCard.ActionCardType == ActionCardType.FixTool);
+        }
         Destroy(_placingCard.gameObject);
         _placingCard = null;
         _targerPlayer = null;
@@ -806,6 +815,15 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         CardHolder holder = _playerAndHolderMap[targetPlayerId];
         holder.NightVision = true;
+        Destroy(_placingCard.gameObject);
+        _placingCard = null;
+        _targerPlayer = null;
+    }
+    [ClientRpc]
+    private void ApplyShieldToPlayerClientRpc(ulong targetPlayerId, ClientRpcParams clientRpcParams = default)
+    {
+        CardHolder holder = _playerAndHolderMap[targetPlayerId];
+        holder.Shield = true;
         Destroy(_placingCard.gameObject);
         _placingCard = null;
         _targerPlayer = null;
