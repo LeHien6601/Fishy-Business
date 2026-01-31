@@ -62,7 +62,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  m_Color: {r: 0.05490196, g: 0.08235294, b: 0.1764706, a: 0.6}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  m_Color: {r: 0.05490196, g: 0.08235294, b: 0.1764706, a: 0.6}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -547,11 +547,13 @@ MonoBehaviour:
   _borderImage: {fileID: 5065174118715635852}
   _dogSprite: {fileID: -222594803, guid: e4de9debdc64791448596e753abd7fb8, type: 3}
   _catSprite: {fileID: -732949668, guid: e4de9debdc64791448596e753abd7fb8, type: 3}
-  _myTurnRect: {fileID: 7966663935874281012}
-  _clockRect: {fileID: 3393951472208828651}
+  _counterRect: {fileID: 4325808152214274294}
   _clockFill: {fileID: 8494343975119196132}
+  _myTurnRect: {fileID: 7966663935874281012}
   _counterTMP: {fileID: 3613525889054884775}
+  _phaseRect: {fileID: 3996249395565148263}
   _phaseTMP: {fileID: 5246998893185861276}
+  _turnRect: {fileID: 9171938918941949425}
   _turnTMP: {fileID: 4614854541249848067}
   _dogBorderColor: {r: 0.24705882, g: 0.2627451, b: 0.74509805, a: 1}
   _catBorderColor: {r: 0.7411765, g: 0.2509804, b: 0.24313726, a: 1}
@@ -1102,7 +1104,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: turn 1
+  m_text: Turn 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 19a1811e660e53d4a9e5187a789b44a0, type: 2}
   m_sharedMaterial: {fileID: -1468220269831285196, guid: 19a1811e660e53d4a9e5187a789b44a0, type: 2}
@@ -1129,10 +1131,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38.4
-  m_fontSizeBase: 36
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1233,7 +1235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  m_Color: {r: 0.05490196, g: 0.08235294, b: 0.1764706, a: 0.6}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1652,7 +1654,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: night phase
+  m_text: Discussion
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 19a1811e660e53d4a9e5187a789b44a0, type: 2}
   m_sharedMaterial: {fileID: -1468220269831285196, guid: 19a1811e660e53d4a9e5187a789b44a0, type: 2}
@@ -1679,10 +1681,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 51.4
-  m_fontSizeBase: 36
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0

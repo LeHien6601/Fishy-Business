@@ -29,6 +29,20 @@ public abstract class GameMode : ScriptableObject
         order.Shuffle(); // Implement Shuffle extension if needed
         return order;
     }
+    public static string GetGamePhaseName(GamePhase gamePhase)
+    {
+        switch (gamePhase)
+        {
+            case GamePhase.Night:
+                return "Night";
+            case GamePhase.DayDiscussion:
+                return "Discussion";
+            case GamePhase.DayVoting:
+                return "Voting";
+            default:
+            return "None";
+        }
+    }
 }
 
 public enum GamePhase
@@ -36,7 +50,7 @@ public enum GamePhase
     None,
     Night,
     DayDiscussion,
-    DayVoting
+    DayVoting,
 }
 
 public static class ListExtensions

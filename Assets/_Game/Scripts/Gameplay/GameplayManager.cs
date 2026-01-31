@@ -39,15 +39,22 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         OnEndGame?.Invoke(id);
         SoundManager.PlayMusic(SoundType.Lobby, 2f);
     }
-    public void TriggerStartPhase(GamePhase phase, float duration, List<object> additionalData = null)
+    // Server trigger start phase
+    public void TriggerStartPhase(GamePhase phase, float duration, List<object> additional = null)
+    {
+        TriggerStartPhaseClientRPC(phase, duration);
+    }
+    [ClientRpc]
+    private void TriggerStartPhaseClientRPC(GamePhase phase, float duration)
     {
         OnStartPhase?.Invoke(new StartPhaseEventArgs()
         {
             Phase = phase,
-            Duration = duration,
-            AdditionalData = additionalData
+            Duration = duration
         });
     }
+
+
     //Server-Start game
     public void HandleStartGame(Dictionary<ulong, PlayerRole> playerRoleMap)
     {

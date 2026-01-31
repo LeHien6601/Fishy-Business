@@ -33,7 +33,7 @@ public class UIEndGame : UIView
         UIManager.Instance.HideUI(EUIState.InGame);
     }
 
-    public override async void Hide()
+    public override void Hide()
     {
         base.Hide();
         _fireWorkTransform.DeleteChildren();
