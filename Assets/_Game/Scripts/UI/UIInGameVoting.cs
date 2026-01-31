@@ -63,7 +63,12 @@ public class UIInGameVoting : UIView
     private void UpdateUI()
     {
         List<GameplayManager.VotingData> votingDatas = GameplayManager.Instance.GetVotingDatas();
-        if (votingDatas == null) return;
+        if (votingDatas == null)
+        {
+            Debug.LogError("Missing voting datas!");
+            return;
+        }
+        ;
         int skipCount = 0;
         foreach (GameplayManager.VotingData votingData in votingDatas)
         {

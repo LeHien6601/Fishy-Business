@@ -1,11 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
-using Unity.Services.Lobbies.Models;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [CreateAssetMenu(fileName = "PhasedGameMode", menuName = "GameModes/Phased")]
 public class PhasedGameMode : GameMode
@@ -60,7 +57,6 @@ public class PhasedGameMode : GameMode
         manager.SetCurrentPhase(GamePhase.Night);
         GameplayManager.Instance.TriggerStartPhase(GamePhase.Night, 0f);
 
-        // manager.StartNextTurn(); // Start first turn in random order
         manager.StartNightPhase();  // Start first turn in random order
     }
 

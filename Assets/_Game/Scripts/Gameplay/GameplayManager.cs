@@ -6,6 +6,7 @@ using HHDCore;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using UnityEditor;
+using UnityEngine;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
 {
@@ -159,12 +160,21 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
 
     public void TriggerVoting(string toPlayer, bool isSkip = false)
     {
-        VotingClientRpc(AuthenticationService.Instance.PlayerId, toPlayer, isSkip);
+        Debug.Log($"Player {AuthenticationService.Instance.PlayerId} voted {toPlayer}");
+        VotingServerRpc(AuthenticationService.Instance.PlayerId, toPlayer, isSkip);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void VotingServerRpc(string from, string to, bool isSkip)
+    {
+        Debug.Log($"ServerRpc Player {from} voted {to}");
+        VotingClientRpc(from,to,isSkip);
     }
 
     [ClientRpc]
     private void VotingClientRpc(string from, string to, bool isSkip)
     {
+        Debug.Log($"CLientRpc Player {from} voted {to}");
         _currentVotingData.Add(new VotingData()
         {
             FromPlayer = from,
