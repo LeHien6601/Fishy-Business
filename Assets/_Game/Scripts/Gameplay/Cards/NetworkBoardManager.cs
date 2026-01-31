@@ -596,6 +596,7 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         else
         {
+            Debug.Log("Game continue");
             ServerDrawNewCardThenEndTurn();
         }
     }
@@ -644,6 +645,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void DiscardCardFromHandServerRpc(ulong senderId)
     {
+        Debug.Log("Discard server");
         ServerDrawNewCardThenEndTurn();
 
         List<ulong> targets = NetworkManager.Singleton.ConnectedClientsIds.ToList();
@@ -957,12 +959,14 @@ public class NetworkBoardManager : NetworkBehaviour
                 _currentGameMode.EndGame(this, isDogWin);
             }
         });
+        Debug.Log("Networkboard call");
         _currentGameMode.HandlePlayerActionComplete(this);
     }
 
     [ClientRpc]
     private void DrawNewCardClientRpc(CardData cardData, ulong receiver, ClientRpcParams clientRpcParams = default)
     {
+        StopCountDown();
         if (NetworkManager.Singleton.LocalClientId == receiver)
         {
             Card newCard = _cardsInDeck.Pop();
@@ -1048,7 +1052,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private void OnEndTime() // only the in-turn player is supposed to call this function
     {
         if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0) return;
-
+        Debug.Log("end time");
         if (_placingCard)
         {
             _localPlayerState = PlayerState.NONE; // fast switching state on in-turn side
@@ -1065,6 +1069,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void DiscardPlacingCardServerRpc()
     {
+        Debug.Log("Discard");
         ServerDrawNewCardThenEndTurn();
         DiscardPlacingCardClientRpc();
     }

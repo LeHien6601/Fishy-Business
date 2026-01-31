@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using Unity.Netcode;
@@ -34,6 +35,7 @@ public class UIInGame : UIView
     private bool _isMyTurn = false;
     private float _timer = 0;
     private bool _showTurn = false;
+    private bool _resetTimer = false;
 
     public override void Show()
     {
@@ -65,38 +67,40 @@ public class UIInGame : UIView
     void OnDisable()
     {
         GameplayManager.Instance.OnStartedNewTurn -= HandleNewTurn;
-        GameplayManager.Instance.OnStartedNewTurn -= HandleNewTurn;
+        GameplayManager.Instance.OnUseActionCard -= HandleUIActionCard;
         GameplayManager.Instance.OnStartPhase -= HandleStartPhase;
         GameplayManager.Instance.OnEndPhase -= HandleEndPhase;
     }
-    private void HandleNewTurn(GameplayManager.StartedNewTurnEventArgs args)
+    private async void HandleNewTurn(GameplayManager.StartedNewTurnEventArgs args)
     {
         if (args.ClientId == NetworkManager.Singleton.LocalClientId)
         {
             _isMyTurn = true;
             ShowRect(_myTurnRect);
-            ShowRect(_counterRect);
-            StopAllCoroutines();
-            StartCoroutine(TimerCoroutine(Constant.TURN_INTERVAL));
         }
         else if (_isMyTurn)
         {
             _isMyTurn = false;
             HideRect(_myTurnRect);
-            HideRect(_counterRect);
         }
         ShowTurnText(args.TurnNumber);
+        ShowRect(_counterRect);
+        _resetTimer = true;
+        await Task.Yield(); 
+        TimerCountdown(Constant.TURN_INTERVAL);
     }
-    private void HandleStartPhase(GameplayManager.StartPhaseEventArgs args)
+    private async void HandleStartPhase(GameplayManager.StartPhaseEventArgs args)
     {
+        Debug.Log("Start " + args.Phase);
         if (args.Phase != GamePhase.DayVoting)
             ShowPhaseText(GameMode.GetGamePhaseName(args.Phase));
         HideRect(_myTurnRect);
         _showTurn = true;
         if (args.Phase != GamePhase.Night)
         {
-            StopAllCoroutines();
-            StartCoroutine(TimerCoroutine(args.Duration));
+            _resetTimer = true;
+            await Task.Yield();
+            TimerCountdown(args.Duration);
             HideRect(_turnRect);
         }
     }
@@ -104,17 +108,20 @@ public class UIInGame : UIView
     {
         if (phase == GamePhase.DayDiscussion) HideRect(_phaseRect);
     }
-    private IEnumerator TimerCoroutine(float duration)
+    private async void TimerCountdown(float duration)
     {
+        _resetTimer = false;
+        Debug.Log($"Start counter {duration}");
         _timer = duration;
-        while (_isMyTurn)
+        while (!_resetTimer)
         {
-            _timer -= Time.deltaTime;
             if (_timer < 0) _timer = 0;
             _clockFill.fillAmount = 1 - _timer / duration;
             _counterTMP.text = Mathf.CeilToInt(_timer).ToString();
-            yield return null;
+            await Task.Yield();
+            _timer -= Time.deltaTime;
         }
+        Debug.Log($"End counter {duration}");
     }
 
 

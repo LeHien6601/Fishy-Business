@@ -112,6 +112,7 @@ public class PhasedGameMode : GameMode
         {
             // End Night, start Day
             EndPhase(manager, GamePhase.Night);
+            Debug.Log("End Night, start Day");
             StartPhase(manager, GamePhase.DayDiscussion);
             GameplayManager.Instance.TriggerStartPhase(GamePhase.DayDiscussion, _dayDiscussionTime);
             manager.StartCoroutine(DayDiscussionRoutine(manager));

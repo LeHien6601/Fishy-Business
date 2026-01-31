@@ -67,8 +67,7 @@ public class UIInGameVoting : UIView
         {
             Debug.LogError("Missing voting datas!");
             return;
-        }
-        ;
+        };
         int skipCount = 0;
         foreach (GameplayManager.VotingData votingData in votingDatas)
         {

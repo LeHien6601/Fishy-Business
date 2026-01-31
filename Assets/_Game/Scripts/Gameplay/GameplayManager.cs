@@ -53,14 +53,15 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     // Server trigger start phase
     public void TriggerStartPhase(GamePhase phase, float duration)
     {
-        TriggerStartPhaseClientRPC(phase, duration);
+        TriggerStartPhaseClientRpc(phase, duration);
     }
+    // Server trigger end phase
     public void TriggerEndPhase(GamePhase phase)
     {
-        TriggerEndPhaseClientRPC(phase);
+        TriggerEndPhaseClientRpc(phase);
     }
     [ClientRpc]
-    private void TriggerStartPhaseClientRPC(GamePhase phase, float duration)
+    private void TriggerStartPhaseClientRpc(GamePhase phase, float duration)
     {
         if (phase == GamePhase.DayVoting) 
         {
@@ -74,7 +75,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         });
     }
     [ClientRpc]
-    private void TriggerEndPhaseClientRPC(GamePhase phasen)
+    private void TriggerEndPhaseClientRpc(GamePhase phasen)
     {
         OnEndPhase?.Invoke(phasen);
     }
