@@ -11,7 +11,7 @@ public class UIInGameVoting : UIView
     [SerializeField] private List<UIVotingMember> _uiMembers = new();
     [SerializeField] private Button _skipBTN;
     [SerializeField] private TextMeshProUGUI _skipCountTMP;
-    private Dictionary<ulong, UIVotingMember> _votingMemberDict = new();
+    private Dictionary<string, UIVotingMember> _votingMemberDict = new();
 
     public override void Show()
     {
@@ -54,8 +54,7 @@ public class UIInGameVoting : UIView
                             int.Parse(lobby.Players[i].Data[Constant.KEY_PLAYER_ICON_ID].Value)) : null,
                     lobby.Players[i].Id);
                 _uiMembers[i].SetLock(false);
-                GameManager.Instance.GetNetIdByAuthId(lobby.Players[i].Id, out var id);
-                _votingMemberDict[id] = _uiMembers[i];
+                _votingMemberDict[lobby.Players[i].Id] = _uiMembers[i];
             }
             _skipBTN.interactable = true;
             _skipCountTMP.text = "0";
@@ -75,13 +74,8 @@ public class UIInGameVoting : UIView
     }
     public void TriggerVoting(string toAuthId)
     {
-        if (!GameManager.Instance.GetNetIdByAuthId(toAuthId, out var netId))
-        {
-            Debug.LogError("Missing player net id in GameManager dictionary!");
-            return;
-        }
         _skipBTN.interactable = false;
-        GameplayManager.Instance.TriggerVoting(netId);
+        GameplayManager.Instance.TriggerVoting(toAuthId);
         foreach (var uiMember in _uiMembers)
         {
             uiMember.SetLock(true);
@@ -91,7 +85,7 @@ public class UIInGameVoting : UIView
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         _skipBTN.interactable = false;
-        GameplayManager.Instance.TriggerVoting(0, true);
+        GameplayManager.Instance.TriggerVoting("", true);
         foreach (var uiMember in _uiMembers)
         {
             uiMember.SetLock(true);

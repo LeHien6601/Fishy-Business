@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
+using Unity.Services.Authentication;
 using UnityEditor;
 
 public class GameplayManager : SingletonMonoNet<GameplayManager>
@@ -31,8 +32,8 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     [Serializable]
     public struct VotingData
     {
-        public ulong FromPlayer;
-        public ulong ToPlayer;
+        public string FromPlayer;
+        public string ToPlayer;
         public bool Skip;
     }
     public event Action OnChangedVotingData;
@@ -156,13 +157,13 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         OnUseActionCard?.Invoke(actionCardType, toolType);
     }
 
-    public void TriggerVoting(ulong toPlayer, bool isSkip = false)
+    public void TriggerVoting(string toPlayer, bool isSkip = false)
     {
-        VotingClientRpc(NetworkManager.Singleton.LocalClientId, toPlayer, isSkip);
+        VotingClientRpc(AuthenticationService.Instance.PlayerId, toPlayer, isSkip);
     }
 
     [ClientRpc]
-    private void VotingClientRpc(ulong from, ulong to, bool isSkip)
+    private void VotingClientRpc(string from, string to, bool isSkip)
     {
         _currentVotingData.Add(new VotingData()
         {

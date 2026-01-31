@@ -72,9 +72,10 @@ public class PhasedGameMode : GameMode
         foreach (var voting in votingDatas)
         {
             if (voting.Skip) continue;
-            if (!votesPerPlayer.ContainsKey(voting.ToPlayer))
-                votesPerPlayer[voting.ToPlayer] = 0;
-            votesPerPlayer[voting.ToPlayer]++;
+            GameManager.Instance.GetNetIdByAuthId(voting.ToPlayer, out var toId);
+            if (!votesPerPlayer.ContainsKey(toId))
+                votesPerPlayer[toId] = 0;
+            votesPerPlayer[toId]++;
         }
         int maxVotes = votesPerPlayer.Values.Max();
 
@@ -146,7 +147,7 @@ public class PhasedGameMode : GameMode
         // Process votes (e.g., eliminate player)
         // Then resume Night
         EndPhase(manager, GamePhase.DayVoting);
-        
+
         StartPhase(manager, GamePhase.Night);
         StartNightPhase(manager);
     }

@@ -22,7 +22,7 @@ public class UIVotingMember : MonoBehaviour
     [SerializeField] private Button _voteBTN;
 
     private UIInGameVoting _uiInGameVoting;
-    private List<ulong> _votedMembers = new();
+    private List<string> _votedMembers = new();
     private bool _isMine = false;
     private string _id;
     private bool _locked = false;
@@ -80,7 +80,7 @@ public class UIVotingMember : MonoBehaviour
         _votedMembers.Clear();
     }
 
-    public void TakeVote(ulong voteId)
+    public void TakeVote(string voteId)
     {
         _votedMembers.Add(voteId);
         _voteCountTMP.text = _votedMembers.Count.ToString();
