@@ -47,7 +47,7 @@ public class Seat : NetworkBehaviour, IInteractable
         RequestSeatServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RequestSeatServerRpc(ulong requesterId)
     {
         if (_occupyingClientId.Value != ulong.MaxValue)
@@ -80,7 +80,7 @@ public class Seat : NetworkBehaviour, IInteractable
         ExitSeatServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void ExitSeatServerRpc(ulong clientId)
     {
         // Check if client is occupying this seat
