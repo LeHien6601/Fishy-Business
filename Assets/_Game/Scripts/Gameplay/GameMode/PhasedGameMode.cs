@@ -11,6 +11,15 @@ public class PhasedGameMode : GameMode
 
     private List<ulong> _currentNightOrder = new();
     private int _currentTurnIndex;
+    
+    private List<VotingData> _currentVotingData = new();
+    public struct VotingData
+    {
+        public ulong FromPlayer;
+        public ulong ToPlayer;
+        public bool Skip;
+    }
+    
 
     public override void StartPhase(NetworkBoardManager manager, GamePhase phase)
     {
@@ -35,6 +44,7 @@ public class PhasedGameMode : GameMode
     {
         // Phased: Start with Night phase
         StartPhase(manager, GamePhase.Night);
+        _currentVotingData.Clear();
     }
 
     public override void StartGame(NetworkBoardManager manager)

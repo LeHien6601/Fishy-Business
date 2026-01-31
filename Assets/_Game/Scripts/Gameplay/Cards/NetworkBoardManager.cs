@@ -9,13 +9,13 @@ using UnityEngine.Events;
 
 public class NetworkBoardManager : NetworkBehaviour
 {
-    [SerializeField] private GameMode _currentGameMode;
     [SerializeField] private CardDatabaseSO _cardDatabase;
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _deckPlace;
     [SerializeField] private Transform _discardPile;
     [SerializeField] private Transform _turnIndicator;
     [SerializeField] private DayNightController _dayNightController;
+    private GameMode _currentGameMode;
     private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
@@ -65,6 +65,7 @@ public class NetworkBoardManager : NetworkBehaviour
         // random goal tressure
         _tressureIndex = Random.Range(0, 3);
 
+        _currentGameMode = GameConfig.Instance.GameModes[int.Parse(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_ID].Value)];
         _currentGameMode.Initialize(this, playerOrders);
         await Task.Delay(1000); // wait for a moment to ensure all clients are ready
         _playerStartGameCount = 0;

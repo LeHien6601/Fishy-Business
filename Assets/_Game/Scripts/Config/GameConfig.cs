@@ -23,6 +23,9 @@ public class GameConfig : SingletonScriptableObject<GameConfig>
     [Header("Sound Mapping")]
     public List<SoundMapping> soundMappings = new List<SoundMapping>();
 
+    [Header("Game Modes")]
+    public List<GameMode> GameModes = new();
+
     #region Getters
     public Sprite GetPlayerIconById(int iconId)
     {

@@ -6,7 +6,7 @@ public class GameConfigEditor : EditorWindow
     private GameConfig config;
     private SerializedObject serializedConfig;
     private int currentTab = 0;
-    private string[] tabNames = { "UIView", "PlayerIcons", "Sound Mapping" }; // Customize tabs here
+    private string[] tabNames = { "UIView", "PlayerIcons", "Sound Mapping", "Game Modes" }; // Customize tabs here
 
     [MenuItem("MyGame/Config Editor")] // This adds the menu item under a new "MyGame" tab in the menu bar
     public static void OpenWindow()
@@ -49,6 +49,7 @@ public class GameConfigEditor : EditorWindow
             case 0: DrawUIViewsTable(); break;
             case 1: DrawProperty("playerIcons"); break;
             case 2: DrawSoundMappingTab(); break;
+            case 3: DrawProperty("GameModes"); break;
         }
         EditorGUILayout.EndVertical();
 
@@ -183,4 +184,6 @@ public class GameConfigEditor : EditorWindow
         }
     }
 #endregion
+
+
 }
