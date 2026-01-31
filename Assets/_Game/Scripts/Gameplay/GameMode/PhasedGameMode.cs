@@ -50,8 +50,9 @@ public class PhasedGameMode : GameMode
         _currentTurnIndex = 0;
         manager.SetCurrentPhase(GamePhase.Night);
         GameplayManager.Instance.TriggerStartPhase(GamePhase.Night, 0f);
-        
-        manager.StartNextTurn(); // Start first turn in random order
+
+        // manager.StartNextTurn(); // Start first turn in random order
+        manager.StartNightPhase();  // Start first turn in random order
     }
 
     public override void HandlePlayerTurnStart(NetworkBoardManager manager, ulong playerId)
@@ -59,7 +60,7 @@ public class PhasedGameMode : GameMode
         manager.CoverAllClientsRpc();
 
         manager.RequestNextTurn(playerId);
-        
+
         ClientRpcParams clientRpcParams = new ClientRpcParams
         {
             Send = new ClientRpcSendParams

@@ -113,6 +113,12 @@ public class NetworkBoardManager : NetworkBehaviour
 
     public void SetTurnOrder(List<ulong> order) => _turnOrder = order;
     public void SetCurrentPhase(GamePhase phase) => _currentPhase = phase;
+    public void StartNightPhase()
+    {
+        if (_turnOrder == null || _turnOrder.Count == 0) return;
+        _inTurnPlayer = _turnOrder[0];
+        _currentGameMode.HandlePlayerTurnStart(this, _inTurnPlayer);
+    }
     public void StartNextTurn()
     {
         if (_turnOrder == null || _turnOrder.Count == 0) return;
