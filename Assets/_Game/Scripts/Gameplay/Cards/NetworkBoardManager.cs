@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -299,7 +300,7 @@ public class NetworkBoardManager : NetworkBehaviour
                     ActionCardType.BrokenTool => PlayerState.SELECTING_TARGET_PLAYER,
                     ActionCardType.Binoculars => PlayerState.SELECTING_TARGET_PLAYER,
                     ActionCardType.Shield => PlayerState.SELECTING_TARGET_PLAYER,
-                    // ActionCardType.SwapGoal
+                    ActionCardType.SwapGoal => PlayerState.SWAPING_GOALS,
                     _ => PlayerState.NONE
                 };
             }
@@ -393,7 +394,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 _placingCard.Rotate();
             }
         }
-        else if (_placingCard.ActionCardType != ActionCardType.Bomb && _placingCard.ActionCardType != ActionCardType.CheckGold)
+        else if (_placingCard.ActionCardType != ActionCardType.Bomb && _placingCard.ActionCardType != ActionCardType.CheckGold && _placingCard.ActionCardType != ActionCardType.SwapGoal)
         {
             return;
         }
@@ -474,6 +475,24 @@ public class NetworkBoardManager : NetworkBehaviour
                     _localPlayerState = PlayerState.NONE;
                     CheckThisGoalServerRpc(NetworkManager.Singleton.LocalClientId, _hoveringSlot.Value);
                 }
+                break;
+            case PlayerState.SWAPING_GOALS:
+                HoverCardOnBoard(_boardCore.GoalPos);
+                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
+
+                if (Input.GetMouseButtonDown(0)) // left mouse = swap with left
+                {
+                    _localPlayerState = PlayerState.NONE;
+                    int slotx = ((_hoveringSlot.Value.x / 2 + 4) % 3) * 2;
+                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y));
+                }
+                else if (Input.GetMouseButtonDown(1)) // right mouse = swap with right
+                {
+                    _localPlayerState = PlayerState.NONE;
+                    int slotx = ((_hoveringSlot.Value.x / 2 + 2) % 3) * 2;
+                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y));
+                }
+
                 break;
             case PlayerState.NONE:
             default:
@@ -654,11 +673,41 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #endregion
 
+    #region  SWAP GOALS
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void SwapGoalsServerRpc(Vector2Int slotA, Vector2Int slotB)
+    {
+        if (_tressureIndex == slotA.x / 2)
+        {
+            _tressureIndex = slotB.x / 2;
+        }
+        else if (_tressureIndex == slotB.x / 2)
+        {
+            _tressureIndex = slotA.x / 2;
+        }
+        SwapGoalsClientRpc(slotA, slotB);
+        this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
+    }
+
+    [ClientRpc]
+    private void SwapGoalsClientRpc(Vector2Int slotA, Vector2Int slotB)
+    {
+        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slotA), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            Destroy(_placingCard.gameObject);
+            _placingCard = null;
+        });
+        _boardCore.SwapGoals(slotA, slotB);
+        // GameplayManager.Instance.TriggerActionCard(ActionCardType.SwapGoal, ToolType.None);
+    }
+    #endregion
+
+
     #region CHECK GOAL
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void CheckThisGoalServerRpc(ulong requesterId, Vector2Int checkSlot)
     {
-        // goal row = 0 2 4, divide by 2 is 0 1 2, exactly the indexes we want
+        // goal row = 0 2 4, divided by 2 is 0 1 2, exactly the indexes we want
         if (!_boardCore.GoalPos.Contains(checkSlot))
         {
             Debug.LogWarning("this slot is not in GoalPos list");
@@ -1180,4 +1229,5 @@ public enum PlayerState
     SELECTING_PLACE_TO_BOMB,
     SELECTING_TARGET_PLAYER,
     CHECKING_GOAL,
+    SWAPING_GOALS,
 }
