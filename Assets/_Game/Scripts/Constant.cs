@@ -10,14 +10,18 @@ public class Constant
     public const string PLAYER_TAG = "Player";
     public const string GAME_SEAT_TAG = "GameSeat";
     public const string KEY_PLAYER_NAME = "PlayerName";
-    public const string KEY_GAME_MODE_ID = "GameModeID";
+    public const string KEY_GAME_MODE_DATA = "GameData";
     public const string KEY_PLAYER_ICON_ID = "PlayerIconID";
     public const string KEY_START_GAME = "StartGame";
     public const string KEY_HOST_ID = "HostID";
     public const string KEY_RELAY_JOIN_CODE = "RelayJoinCode";
     public const string KEY_LOBBY_CODE = "LobbyCode";
     public const int MAX_PLAYERS = 8;
-    public const float TURN_INTERVAL = 30f;
     public const float RESTART_INTERVAL = 5f;
     public const float START_GAME_COUNTDOWN = 5f;
+
+  
+    public const float DEFAULT_TURN_INTERVAL = 20f;
+    public const float DEFAULT_VOTING_INTERVAL = 15f;
+    public const float DEFAULT_DISCUSSION_INTERVAL = 40f;
 }

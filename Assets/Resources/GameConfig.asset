@@ -99,5 +99,5 @@ MonoBehaviour:
   - soundType: 16
     soundData: {fileID: 11400000, guid: 053b662e88a551042beec9bf5837b4d7, type: 2}
   GameModes:
-  - {fileID: 11400000, guid: d821e80064b2a524a92bf21542e863fd, type: 2}
   - {fileID: 11400000, guid: 84ec56b9655c2c148b16a4bdb9a0601c, type: 2}
+  - {fileID: 11400000, guid: d821e80064b2a524a92bf21542e863fd, type: 2}

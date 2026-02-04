@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9aa8600b89259db4b99a62984d35ee83, type: 3}
   m_Name: PhasedGameMode
   m_EditorClassIdentifier: Assembly-CSharp::PhasedGameMode
-  _dayDiscussionTime: 10
-  _votingTime: 30
+  TurnInterval: 20
+  DayDiscussionInterval: 10
+  VotingInterval: 30

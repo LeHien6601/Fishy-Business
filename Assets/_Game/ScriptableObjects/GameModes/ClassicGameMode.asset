@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a1de56063c00974f866aed578b89485, type: 3}
   m_Name: ClassicGameMode
   m_EditorClassIdentifier: Assembly-CSharp::ClassicGameMode
+  TurnInterval: 20

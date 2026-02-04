@@ -17,6 +17,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [SerializeField] private Transform _turnIndicator;
     [SerializeField] private DayNightController _dayNightController;
     private GameMode _currentGameMode;
+    private GameData _currentGameData;
     private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
@@ -66,7 +67,8 @@ public class NetworkBoardManager : NetworkBehaviour
         // random goal tressure
         _tressureIndex = Random.Range(0, 3);
 
-        _currentGameMode = GameConfig.Instance.GameModes[int.Parse(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_ID].Value)];
+        _currentGameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
+        _currentGameMode = GameConfig.Instance.GameModes[_currentGameData.GameModeIndex];
         _currentGameMode.Initialize(this, playerOrders);
         await Task.Delay(1000); // wait for a moment to ensure all clients are ready
         _playerStartGameCount = 0;
@@ -87,6 +89,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private void StartGameClientRpc()
     {
         Debug.Log("START GAME ON CLIENT");
+        _currentGameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
         // spawn board, facing towards local player
         _boardCore.GenerateBoard();
         if (_playerAndHolderMap.TryGetValue(NetworkManager.Singleton.LocalClientId, out CardHolder _))
@@ -1086,7 +1089,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     private IEnumerator CountDownTurnRoutine()
     {
-        float time = Constant.TURN_INTERVAL;
+        float time = _currentGameData.TurnInterval;
         while (time > 0)
         {
             time -= Time.deltaTime;

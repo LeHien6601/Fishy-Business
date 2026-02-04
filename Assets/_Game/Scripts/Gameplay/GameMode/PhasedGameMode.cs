@@ -7,8 +7,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "PhasedGameMode", menuName = "GameModes/Phased")]
 public class PhasedGameMode : GameMode
 {
-    [SerializeField] private float _dayDiscussionTime = 10f;
-    [SerializeField] private float _votingTime = 30f;
+    public float DayDiscussionInterval = 10f;
+    public float VotingInterval = 30f;
 
     private List<ulong> _currentNightOrder = new();
     private int _currentTurnIndex;
@@ -114,7 +114,7 @@ public class PhasedGameMode : GameMode
             EndPhase(manager, GamePhase.Night);
             Debug.Log("End Night, start Day");
             StartPhase(manager, GamePhase.DayDiscussion);
-            GameplayManager.Instance.TriggerStartPhase(GamePhase.DayDiscussion, _dayDiscussionTime);
+            GameplayManager.Instance.TriggerStartPhase(GamePhase.DayDiscussion, DayDiscussionInterval);
             manager.StartCoroutine(DayDiscussionRoutine(manager));
         }
         else
@@ -127,16 +127,16 @@ public class PhasedGameMode : GameMode
     private IEnumerator DayDiscussionRoutine(NetworkBoardManager manager)
     {
         // 60s timer (sync via RPC if needed)
-        yield return new WaitForSeconds(_dayDiscussionTime);
+        yield return new WaitForSeconds(DayDiscussionInterval);
         EndPhase(manager, GamePhase.DayDiscussion);
         StartPhase(manager, GamePhase.DayVoting);
-        GameplayManager.Instance.TriggerStartPhase(GamePhase.DayVoting, _votingTime);
+        GameplayManager.Instance.TriggerStartPhase(GamePhase.DayVoting, VotingInterval);
         manager.StartCoroutine(VotingCoroutine(manager));
     }
 
     private IEnumerator VotingCoroutine(NetworkBoardManager manager)
     {
-        yield return new WaitForSeconds(_votingTime);
+        yield return new WaitForSeconds(VotingInterval);
         OnVotingComplete(manager);
     }
 

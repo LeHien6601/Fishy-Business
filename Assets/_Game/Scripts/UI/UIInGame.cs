@@ -21,6 +21,7 @@ public class UIInGame : UIView
     [SerializeField] private TextMeshProUGUI _phaseTMP;
     [SerializeField] private RectTransform _turnRect;
     [SerializeField] private TextMeshProUGUI _turnTMP;
+    [SerializeField] private TextMeshProUGUI _dataTMP;
 
 
     [Header("Properties")]
@@ -37,8 +38,14 @@ public class UIInGame : UIView
     private bool _showTurn = false;
     private bool _resetTimer = false;
 
+    private GameData _gameData;
+
     public override void Show()
     {
+        string json = LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value;
+        Utils.UpdateGameModeData(json);
+        _gameData = JsonUtility.FromJson<GameData>(json);
+        _dataTMP.text = $"Index: {_gameData.GameModeIndex}\nTurnInterval: {_gameData.TurnInterval}\nVotingInterval: {_gameData.VotingInterval}\nDiscussionInterval: {_gameData.DayDiscussionInverval}";
         bool isCat = GameplayManager.Instance.GetPlayerRole() == PlayerRole.Cat;
         _showTurn = false;
         _iconImage.sprite = isCat ? _catSprite : _dogSprite;
@@ -87,7 +94,7 @@ public class UIInGame : UIView
         ShowRect(_counterRect);
         _resetTimer = true;
         await Task.Yield(); 
-        TimerCountdown(Constant.TURN_INTERVAL);
+        StartCoroutine(TimerCountdown(_gameData.TurnInterval));
     }
     private async void HandleStartPhase(GameplayManager.StartPhaseEventArgs args)
     {
@@ -100,7 +107,7 @@ public class UIInGame : UIView
         {
             _resetTimer = true;
             await Task.Yield();
-            TimerCountdown(args.Duration);
+            StartCoroutine(TimerCountdown(args.Duration));
             HideRect(_turnRect);
         }
     }
@@ -108,7 +115,7 @@ public class UIInGame : UIView
     {
         if (phase == GamePhase.DayDiscussion) HideRect(_phaseRect);
     }
-    private async void TimerCountdown(float duration)
+    private IEnumerator TimerCountdown(float duration)
     {
         _resetTimer = false;
         Debug.Log($"Start counter {duration}");
@@ -118,8 +125,8 @@ public class UIInGame : UIView
             if (_timer < 0) _timer = 0;
             _clockFill.fillAmount = 1 - _timer / duration;
             _counterTMP.text = Mathf.CeilToInt(_timer).ToString();
-            await Task.Yield();
             _timer -= Time.deltaTime;
+            yield return null;
         }
         Debug.Log($"End counter {duration}");
     }

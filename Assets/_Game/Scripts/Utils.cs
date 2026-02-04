@@ -23,4 +23,49 @@ public class Utils : MonoBehaviour
         string[] nouns = { "Tiger", "Eagle", "Shark", "Wolf", "Lion", "Bear", "Dragon", "Phoenix", "Falcon", "Cheetah", "Panther", "Leopard" };
         return adjectives[Random.Range(0, adjectives.Length)] + nouns[Random.Range(0, nouns.Length)] + Random.Range(0, 100).ToString("00");
     }
+    public static void ResetGameModeData(int index)
+    {
+        if (index == 0)
+        {
+            ClassicGameMode classicGameMode = GameConfig.Instance.GameModes[index] as ClassicGameMode;
+            classicGameMode.TurnInterval = Constant.DEFAULT_TURN_INTERVAL;
+        }
+        else
+        {
+            PhasedGameMode phasedGameMode = GameConfig.Instance.GameModes[index] as PhasedGameMode;
+            phasedGameMode.TurnInterval = Constant.DEFAULT_TURN_INTERVAL;
+            phasedGameMode.VotingInterval = Constant.DEFAULT_VOTING_INTERVAL;
+            phasedGameMode.DayDiscussionInterval = Constant.DEFAULT_DISCUSSION_INTERVAL;
+        }
+    }
+    
+    public static void UpdateGameModeData(string json)
+    {
+        GameData gameData = JsonUtility.FromJson<GameData>(json);
+        int index = gameData.GameModeIndex;
+        if (index == 0)
+        {
+            ClassicGameMode classicGameMode = GameConfig.Instance.GameModes[index] as ClassicGameMode;
+            classicGameMode.TurnInterval = gameData.TurnInterval;
+        }
+        else
+        {
+            PhasedGameMode phasedGameMode = GameConfig.Instance.GameModes[index] as PhasedGameMode;
+            phasedGameMode.TurnInterval = gameData.TurnInterval;
+            phasedGameMode.VotingInterval = gameData.VotingInterval;
+            phasedGameMode.DayDiscussionInterval = gameData.DayDiscussionInverval;
+        }
+    }
+    public static string GetJsonGameModeData(int index)
+    {
+        GameMode gameMode = GameConfig.Instance.GameModes[index];
+        GameData gameData = new()
+        {
+            GameModeIndex = index,
+            TurnInterval = gameMode.TurnInterval,
+            VotingInterval = (index == 1) ? ((PhasedGameMode)gameMode).VotingInterval : Constant.DEFAULT_VOTING_INTERVAL,
+            DayDiscussionInverval = (index == 1) ? ((PhasedGameMode)gameMode).DayDiscussionInterval : Constant.DEFAULT_DISCUSSION_INTERVAL
+        };
+        return JsonUtility.ToJson(gameData);
+    }
 }

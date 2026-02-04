@@ -1,11 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using System.Linq;
 
 public abstract class GameMode : ScriptableObject
 {
+    public float TurnInterval;
     public abstract void Initialize(NetworkBoardManager manager, NetworkList<ulong> playerOrders);
     public abstract void StartGame(NetworkBoardManager manager);
     public abstract void HandlePlayerTurnStart(NetworkBoardManager manager, ulong playerId);
@@ -44,6 +45,14 @@ public abstract class GameMode : ScriptableObject
         }
     }
 }
+[Serializable]
+public struct GameData
+{
+    public int GameModeIndex;
+    public float TurnInterval;
+    public float VotingInterval;
+    public float DayDiscussionInverval;
+}
 
 public enum GamePhase
 {
@@ -61,7 +70,7 @@ public static class ListExtensions
         while (n > 1)
         {
             n--;
-            int k = Random.Range(0, n + 1);
+            int k = UnityEngine.Random.Range(0, n + 1);
             (list[k], list[n]) = (list[n], list[k]);
         }
     }

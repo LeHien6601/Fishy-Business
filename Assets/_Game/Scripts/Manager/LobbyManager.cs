@@ -127,7 +127,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
                     {Constant.KEY_HOST_ID, new DataObject(DataObject.VisibilityOptions.Member, AuthenticationService.Instance.PlayerId)},
                     {Constant.KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Public, "")},
                     {Constant.KEY_START_GAME, new DataObject(DataObject.VisibilityOptions.Public, "false", DataObject.IndexOptions.S1)},
-                    {Constant.KEY_GAME_MODE_ID, new DataObject(DataObject.VisibilityOptions.Public, "0")}
+                    {Constant.KEY_GAME_MODE_DATA, new DataObject(DataObject.VisibilityOptions.Member, Utils.GetJsonGameModeData(0))}
                 }
             };
 
@@ -160,6 +160,27 @@ public class LobbyManager : SingletonMono<LobbyManager>
             };
             currentLobby = await LobbyService.Instance.UpdateLobbyAsync(currentLobby.Id, updateOptions);
             Debug.Log("Lobby name updated");
+            OnUpdatedCurrentLobby?.Invoke(new UpdateCurrentLobbyEventArgs() { Lobby = currentLobby });
+            return true;
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogException(e);
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateLobbyGameDataAsync(string json)
+    {
+        try
+        {
+            Dictionary<string, DataObject> updatedData = currentLobby.Data;
+            updatedData[Constant.KEY_GAME_MODE_DATA] = new DataObject(DataObject.VisibilityOptions.Member, json);
+            await LobbyService.Instance.UpdateLobbyAsync(currentLobby.Id, new UpdateLobbyOptions
+            {
+                Data = updatedData
+            });
+            Debug.Log("Lobby game data updated");
             OnUpdatedCurrentLobby?.Invoke(new UpdateCurrentLobbyEventArgs() { Lobby = currentLobby });
             return true;
         }
