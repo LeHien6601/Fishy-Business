@@ -3,9 +3,25 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Services.Vivox;
 using HHDCore;
+using UnityEngine.InputSystem;
 public class VivoxManager : SingletonMono<VivoxManager>
 {
     private string _currentChannel;
+    private bool _isPushToTalkEnabled = true;
+    public bool IsPushToTalkEnabled
+    {
+        get => _isPushToTalkEnabled;
+        set
+        {
+            _isPushToTalkEnabled = value;
+            PlayerPrefs.SetInt(PUSH_TO_TALK_PREF_KEY, value ? 1 : 0);
+            if (!_isPushToTalkEnabled)
+                SetSelfMute(false); // Unmute if push-to-talk is disabled
+            else
+                SetSelfMute(true);  // Mute if push-to-talk is enabled
+        }
+    }
+    private const string PUSH_TO_TALK_PREF_KEY = "Vivox_PushToTalkEnabled";
 
     private async void Start()
     {
@@ -14,11 +30,25 @@ public class VivoxManager : SingletonMono<VivoxManager>
         LobbyManager.Instance.OnLeftLobby += HandleLeftLobby;
         LobbyManager.Instance.OnKickedFromLobby += HandleKickedFromLobby;
     }
-        private void OnDestroy()
+    private void OnDestroy()
     {
         LobbyManager.Instance.OnJoinedLobby -= HandleJoinedLobby;
         LobbyManager.Instance.OnLeftLobby -= HandleLeftLobby;
         LobbyManager.Instance.OnKickedFromLobby -= HandleKickedFromLobby;
+    }
+
+    void Update()
+    {
+        if (!_isPushToTalkEnabled) return;
+        // Push-to-talk: Press 'V' to talk, release to mute
+        if (Keyboard.current?.vKey.wasPressedThisFrame == true)
+        {
+            SetSelfMute(false);
+        }
+        else if (Keyboard.current?.vKey.wasReleasedThisFrame == true)
+        {
+            SetSelfMute(true);
+        }
     }
 
     private async Task InitializeAsync()
@@ -30,6 +60,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
                 await Task.Yield();
             }
             await VivoxService.Instance.InitializeAsync();
+            IsPushToTalkEnabled = PlayerPrefs.GetInt(PUSH_TO_TALK_PREF_KEY, 1) == 1;
             Debug.Log("Vivox Initialized");
         }
         catch (Exception e)
@@ -74,6 +105,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
 
     private async Task JoinChannelAsync()
     {
+        if (LobbyManager.Instance.currentLobby == null) return;
         string channelName = $"lobby_{LobbyManager.Instance.currentLobby.Id}";
         if (_currentChannel == channelName)
             return;
@@ -144,4 +176,22 @@ public class VivoxManager : SingletonMono<VivoxManager>
         return 0;
     }
 
+    public void SetSelfMute(bool isMuted)
+    {
+        try
+        {
+            // This toggles the local microphone input for the Vivox client
+            if (isMuted)
+                VivoxService.Instance.MuteInputDevice();
+            else
+                VivoxService.Instance.UnmuteInputDevice();
+
+            Debug.Log($"Vivox: Self mute set to {isMuted}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Vivox: Failed to set self mute: {e.Message}");
+        }
+    }
+    
 }

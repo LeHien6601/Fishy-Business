@@ -12,6 +12,8 @@ public class UISettings : UIView
     [SerializeField] private Button _backButton;
     [SerializeField] private Button _saveButton;
     [SerializeField] private TextMeshProUGUI _noteTMP;
+    [SerializeField] private Button _pushToTalkToggle;
+    [SerializeField] private RectTransform _pushToTalkIndicator;
 
     void OnEnable()
     {
@@ -20,6 +22,8 @@ public class UISettings : UIView
         _saveButton.onClick.AddListener(HandleClickSave);
         _musicVolumeSlider.onValueChanged.AddListener((a) => HandleChangeSlider(a));
         _sfxVolumeSlider.onValueChanged.AddListener((a) => HandleChangeSlider(a));
+        _pushToTalkToggle.onClick.AddListener(HandleTogglePushToTalk);
+        _pushToTalkIndicator.gameObject.SetActive(VivoxManager.Instance.IsPushToTalkEnabled);
     }
     void OnDisable()
     {
@@ -27,6 +31,7 @@ public class UISettings : UIView
         _saveButton.onClick.RemoveListener(HandleClickSave);
         _musicVolumeSlider.onValueChanged.RemoveAllListeners();
         _sfxVolumeSlider.onValueChanged.RemoveAllListeners();
+        _pushToTalkToggle.onClick.RemoveListener(HandleTogglePushToTalk);
     }
     private void UpdateUI()
     {
@@ -60,5 +65,10 @@ public class UISettings : UIView
         {
             _noteTMP.gameObject.SetActive(false);
         });
+    }
+    private void HandleTogglePushToTalk()
+    {
+        VivoxManager.Instance.IsPushToTalkEnabled = !VivoxManager.Instance.IsPushToTalkEnabled;
+        _pushToTalkIndicator.gameObject.SetActive(VivoxManager.Instance.IsPushToTalkEnabled);
     }
 }
