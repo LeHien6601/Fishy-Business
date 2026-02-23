@@ -9,15 +9,13 @@ using System.Threading.Tasks;
 public class SoundManager : SingletonMono<SoundManager>
 {
     [Header("Audio Sources")]
-    [SerializeField] private AudioSource musicSource;
+    [SerializeField] private AudioSource _musicSource;
 
     [Header("Pooling")]
-    [SerializeField] private int initial2DPoolSize = 10;
-    [SerializeField] private int initial3DPoolSize = 15;
-    [SerializeField] private int maxPoolSize = 60;
+    [SerializeField] private int _initial2DPoolSize = 10;
+    [SerializeField] private int _initial3DPoolSize = 15;
+    [SerializeField] private int _maxPoolSize = 60;
     [Header("Mixer")]
-    [SerializeField] private string sfxMixerGroupName = "SFX";
-    [SerializeField] private string musicMixerGroupName = "Music";
     [SerializeField] private AudioMixerGroup globalMixerGroup;
     [SerializeField] private AudioMixerGroup musicMixer;
     [SerializeField] private AudioMixerGroup sfxMixer;
@@ -33,6 +31,9 @@ public class SoundManager : SingletonMono<SoundManager>
     private readonly List<AudioSource> active3DSources = new();
 
     private Transform poolParent;
+
+    private bool _playMusicFirstTime = true;
+    private bool _playSFXFirstTime = true;
 
 #region LIFECYCLE
     public override void Awake()
@@ -65,10 +66,9 @@ public class SoundManager : SingletonMono<SoundManager>
     {
         poolParent = new GameObject("[Sound Pool]").transform;
         poolParent.parent = transform;
-        DontDestroyOnLoad(poolParent.gameObject);
 
-        for (int i = 0; i < initial2DPoolSize; i++) CreatePooledSource(false);
-        for (int i = 0; i < initial3DPoolSize; i++) CreatePooledSource(true);
+        for (int i = 0; i < _initial2DPoolSize; i++) CreatePooledSource(false);
+        for (int i = 0; i < _initial3DPoolSize; i++) CreatePooledSource(true);
     }
 
     private AudioSource CreatePooledSource(bool is3D)
@@ -107,7 +107,7 @@ public class SoundManager : SingletonMono<SoundManager>
             return source;
         }
 
-        if (active2DSources.Count + active3DSources.Count + pool2D.Count + pool3D.Count < maxPoolSize)
+        if (active2DSources.Count + active3DSources.Count + pool2D.Count + pool3D.Count < _maxPoolSize)
         {
             var source = CreatePooledSource(is3D);
             source.gameObject.SetActive(true);
@@ -169,6 +169,11 @@ public class SoundManager : SingletonMono<SoundManager>
     public static void Play(SoundType type, Vector3 position, float delay = 0f)
     {
         if (Instance == null) return;
+        if (Instance._playSFXFirstTime)
+        {
+            SetSFXVolume(GetSFXVolume());
+            Instance._playSFXFirstTime = false;
+        }
         if (delay > 0f)
             Instance.StartCoroutine(Instance.DelayedPlay(type, position, true, delay));
         else
@@ -181,6 +186,11 @@ public class SoundManager : SingletonMono<SoundManager>
     public static void Play2D(SoundType type, float delay = 0f)
     {
         if (Instance == null) return;
+        if (Instance._playSFXFirstTime)
+        {
+            SetSFXVolume(GetSFXVolume());
+            Instance._playSFXFirstTime = false;
+        }
         if (delay > 0f)
             Instance.StartCoroutine(Instance.DelayedPlay(type, Vector3.zero, false, delay));
         else
@@ -192,28 +202,32 @@ public class SoundManager : SingletonMono<SoundManager>
     /// </summary>
     public static async void PlayMusic(SoundType type, float delay = 0f)
     {
-        if (Instance == null || Instance.musicSource == null) return;
+        if (Instance == null || Instance._musicSource == null) return;
 
         if (!Instance.soundMap.TryGetValue(type, out SoundData data) || data == null)
         {
             Debug.LogWarning($"No SoundData for music: {type}");
             return;
         }
+        if (Instance._playMusicFirstTime)
+        {
+            SetMusicVolume(GetMusicVolume());
+            Instance._playMusicFirstTime = false;
+        }
         await Task.Delay((int)(delay * 1000));
         var clip = data.GetNextClip();
-        if (clip == null || (Instance.musicSource.clip == clip && Instance.musicSource.isPlaying)) return;
-        Instance.musicSource.outputAudioMixerGroup = Instance.musicMixer;
-        Instance.musicSource.Stop();
-        Instance.musicSource.clip = clip;
-        Instance.musicSource.volume = data.GetRandomVolume();
-        Instance.musicSource.pitch = data.GetRandomPitch();
-        Instance.musicSource.loop = true;
-        Instance.musicSource.Play();
+        if (clip == null || (Instance._musicSource.clip == clip && Instance._musicSource.isPlaying)) return;
+        Instance._musicSource.Stop();
+        Instance._musicSource.clip = clip;
+        Instance._musicSource.volume = data.GetRandomVolume();
+        Instance._musicSource.pitch = data.GetRandomPitch();
+        Instance._musicSource.loop = true;
+        Instance._musicSource.Play();
     }
     static public void StopMusic()
     {
-        if (Instance == null || Instance.musicSource == null) return;
-        Instance.musicSource.Stop();
+        if (Instance == null || Instance._musicSource == null) return;
+        Instance._musicSource.Stop();
     }
 
     // ===================================================================
@@ -237,7 +251,6 @@ public class SoundManager : SingletonMono<SoundManager>
 
         if (is3D)
             source.transform.position = worldPos;
-
         source.outputAudioMixerGroup = sfxMixer;
         source.clip = clip;
         source.volume = soundData.GetRandomVolume();
@@ -255,23 +268,23 @@ public class SoundManager : SingletonMono<SoundManager>
 #region MIXER CONTROLS
     public static void SetMusicVolume(float volume)
     {
-        if (Instance == null || Instance.globalMixerGroup?.audioMixer == null) return;
+        if (Instance == null || Instance.globalMixerGroup == null || Instance.globalMixerGroup.audioMixer == null) return;
 
         volume = Mathf.Clamp01(volume);
         float db = volume > 0f ? Mathf.Log10(volume) * 20f : -80f; // Convert to decibels
         Instance.globalMixerGroup.audioMixer.SetFloat(MUSIC_VOLUME_PARAM, db);
-
+        Debug.Log($"Set Music Volume: {volume:F2} (dB: {db:F1})");
         PlayerPrefs.SetFloat(MUSIC_VOLUME_PARAM, volume);
         PlayerPrefs.Save();
     }
     public static void SetSFXVolume(float volume)
     {
-        if (Instance == null || Instance.globalMixerGroup?.audioMixer == null) return;
+        if (Instance == null || Instance.globalMixerGroup == null || Instance.globalMixerGroup.audioMixer == null) return;
 
         volume = Mathf.Clamp01(volume);
         float db = volume > 0f ? Mathf.Log10(volume) * 20f : -80f;
         Instance.globalMixerGroup.audioMixer.SetFloat(SFX_VOLUME_PARAM, db);
-
+        Debug.Log($"Set SFX Volume: {volume:F2} (dB: {db:F1})");
         PlayerPrefs.SetFloat(SFX_VOLUME_PARAM, volume);
         PlayerPrefs.Save();
     }
@@ -288,7 +301,7 @@ public class SoundManager : SingletonMono<SoundManager>
 
     private void LoadVolumes()
     {
-        if (globalMixerGroup?.audioMixer == null)
+        if (globalMixerGroup == null || globalMixerGroup.audioMixer == null)
         {
             Debug.LogWarning("AudioMixer not assigned in SoundManager!");
             return;

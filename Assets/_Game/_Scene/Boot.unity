@@ -148,12 +148,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36faa63d49b0cd746b99f4460d8798fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
-  musicSource: {fileID: 452831837}
-  initial2DPoolSize: 10
-  initial3DPoolSize: 10
-  maxPoolSize: 50
-  sfxMixerGroupName: SFX
-  musicMixerGroupName: Music
+  _musicSource: {fileID: 452831837}
+  _initial2DPoolSize: 10
+  _initial3DPoolSize: 15
+  _maxPoolSize: 60
   globalMixerGroup: {fileID: 24300002, guid: b757b40492b67c74aaa411955783e3da, type: 2}
   musicMixer: {fileID: 6784966432330702018, guid: b757b40492b67c74aaa411955783e3da, type: 2}
   sfxMixer: {fileID: -1459294269007520242, guid: b757b40492b67c74aaa411955783e3da, type: 2}
@@ -199,14 +197,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395937275}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 2
     m_Resolution: -1
@@ -329,7 +327,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 6784966432330702018, guid: b757b40492b67c74aaa411955783e3da, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
