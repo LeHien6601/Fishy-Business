@@ -21,7 +21,9 @@ public class VivoxManager : SingletonMono<VivoxManager>
                 SetSelfMute(true);  // Mute if push-to-talk is enabled
         }
     }
+    public bool IsGlobalSelfMute = false;
     private const string PUSH_TO_TALK_PREF_KEY = "Vivox_PushToTalkEnabled";
+    private const string GLOBAL_SELF_MUTE_PREF_KEY = "Vivox_GlobalSelfMuteEnabled";
 
     private async void Start()
     {
@@ -183,7 +185,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
             // This toggles the local microphone input for the Vivox client
             if (isMuted)
                 VivoxService.Instance.MuteInputDevice();
-            else
+            else if (!IsGlobalSelfMute)
                 VivoxService.Instance.UnmuteInputDevice();
 
             Debug.Log($"Vivox: Self mute set to {isMuted}");

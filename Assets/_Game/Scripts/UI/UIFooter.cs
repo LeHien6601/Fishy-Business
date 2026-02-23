@@ -8,6 +8,8 @@ public class UIFooter : UIView
     [SerializeField] private TextMeshProUGUI _playerNameTMP;
     [SerializeField] private Image _playerIconImage;
     [SerializeField] private Button[] _playerInfoButtons;
+    [SerializeField] private Button _globalSelfMuteButton;
+    [SerializeField] private Image _globalSelfMuteIndicator;
     void OnEnable()
     {
         _playerNameTMP.text = PlayerInfoManager.Instance.PlayerName;
@@ -16,6 +18,8 @@ public class UIFooter : UIView
         {
             button.onClick.AddListener(HandleClickPlayerInfo);
         }
+        _globalSelfMuteButton.onClick.AddListener(HandleToggleGlobalSelfMute);
+        _globalSelfMuteIndicator.gameObject.SetActive(VivoxManager.Instance.IsGlobalSelfMute);
         UpdateUI();
     }
     void OnDisable()
@@ -25,6 +29,7 @@ public class UIFooter : UIView
         {
             button.onClick.RemoveListener(HandleClickPlayerInfo);
         }
+        _globalSelfMuteButton.onClick.RemoveListener(HandleToggleGlobalSelfMute);
     }
     private void UpdateUI()
     {
@@ -57,5 +62,10 @@ public class UIFooter : UIView
         {
             Debug.LogWarning($"Icon sprite for ID {args.NewPlayerIconId} not found.");
         }
+    }
+    private void HandleToggleGlobalSelfMute()
+    {
+        VivoxManager.Instance.IsGlobalSelfMute = !VivoxManager.Instance.IsGlobalSelfMute;
+        _globalSelfMuteIndicator.gameObject.SetActive(VivoxManager.Instance.IsGlobalSelfMute);
     }
 }
