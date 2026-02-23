@@ -557,6 +557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dea932ae1ceb6c4a97a3267f00ef5d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VivoxManager
+  _voiceActivityEventChannel: {fileID: 11400000, guid: beff826de03a3894db287e43c2275239, type: 2}
 --- !u!1 &1353700003
 GameObject:
   m_ObjectHideFlags: 0
