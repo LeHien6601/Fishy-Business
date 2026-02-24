@@ -801,7 +801,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 259.6025, y: -28.9575}
-  m_SizeDelta: {x: 205.46, y: 57.915}
+  m_SizeDelta: {x: 258.16, y: 57.915}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6032922993178853867
 CanvasRenderer:
@@ -831,7 +831,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Push-to-talk
+  m_text: 'Push-to-talk [V]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
@@ -3041,10 +3041,10 @@ RectTransform:
   - {fileID: 3765437589827253887}
   m_Father: {fileID: 2711448955070218673}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 411.28998, y: -28.9575}
-  m_SizeDelta: {x: 0, y: 57.915}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 57.915, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2723110948048397116
 CanvasRenderer:

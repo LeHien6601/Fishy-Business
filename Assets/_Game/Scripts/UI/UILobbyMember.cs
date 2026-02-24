@@ -1,7 +1,6 @@
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UILobbyMember : MonoBehaviour
@@ -21,6 +20,8 @@ public class UILobbyMember : MonoBehaviour
     [SerializeField] private Button _noBTN;
     [SerializeField] private UILobbyMemberVoiceButton _voiceChatButton;
     [SerializeField] private Button _kickBTN;
+    [SerializeField] private Image _voiceDetectedImg;
+    [SerializeField] private VoiceActivityEventChannelSO _voiceActivityEventChannel;
 
     private bool _isMine = false;
     private string _id;
@@ -32,12 +33,14 @@ public class UILobbyMember : MonoBehaviour
         _yesBTN.onClick.AddListener(HandleClickYes);
         _noBTN.onClick.AddListener(HandleClickNo);
         _kickBTN.onClick.AddListener(HandleClickKickButton);
+        _voiceActivityEventChannel.OnEventRaised += HandleVoiceActivityUpdated;
     }
     void OnDisable()
     {
         _yesBTN.onClick.RemoveListener(HandleClickYes);
         _noBTN.onClick.RemoveListener(HandleClickNo);
         _kickBTN.onClick.RemoveListener(HandleClickKickButton);
+        _voiceActivityEventChannel.OnEventRaised -= HandleVoiceActivityUpdated;
     }
     #endregion
 
@@ -75,6 +78,7 @@ public class UILobbyMember : MonoBehaviour
         _soundRect.gameObject.SetActive(false);
         _voiceChatButton.OnVoiceChatVolumeChanged += HandleVoiceChatVolumnUpdated;
         _kickBTN.gameObject.SetActive(false);
+        _voiceDetectedImg.gameObject.SetActive(false);
     }
 
     public void HandleClickKickButton()
@@ -103,6 +107,11 @@ public class UILobbyMember : MonoBehaviour
     private void HandleVoiceChatVolumnUpdated(UILobbyMemberVoiceButton.VoiceChatVolumnChangedEventArgs args)
     {
         VivoxManager.Instance.UpdatePlayerVoiceChatVolume(_id, args.NewVolume);
+    }
+    private void HandleVoiceActivityUpdated(string authId, bool isActive)
+    {
+        if (authId != _id) return;
+        _voiceDetectedImg.gameObject.SetActive(isActive);
     }
     #endregion
 }

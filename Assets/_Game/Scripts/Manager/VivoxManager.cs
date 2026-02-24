@@ -66,7 +66,6 @@ public class VivoxManager : SingletonMono<VivoxManager>
         if (_voiceActivityEventChannel != null)
         {
             _voiceActivityEventChannel.RaiseEvent(playerId, isSpeaking);
-            Debug.Log($"Vivox: Speech detected for player {playerId}, isSpeaking: {isSpeaking}");
         }
     }
 
