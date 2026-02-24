@@ -194,5 +194,33 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         return _playerRole;
     }
     public List<VotingData> GetVotingDatas() {return _currentVotingData;}
+    public string GetVotingResult()
+    {
+        if (_currentVotingData.Count == 0) return null;
+        var voteCount = new Dictionary<string, int>();
+        int skipCount = 0;
+        foreach (var votingData in _currentVotingData)
+        {
+            if (votingData.Skip)
+            {
+                skipCount++;
+                continue;
+            }
+            if (!voteCount.ContainsKey(votingData.ToPlayer))
+                voteCount[votingData.ToPlayer] = 0;
+            voteCount[votingData.ToPlayer]++;
+        }
+        string maxVotedPlayer = null;
+        int maxVoteCount = 0;
+        foreach (var pair in voteCount)
+        {
+            if (pair.Value > maxVoteCount)
+            {
+                maxVoteCount = pair.Value;
+                maxVotedPlayer = pair.Key;
+            }
+        }
+        return (maxVoteCount > skipCount) ? maxVotedPlayer : null;
+    }
     #endregion
 }

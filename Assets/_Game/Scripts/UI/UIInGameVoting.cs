@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
@@ -11,6 +12,7 @@ public class UIInGameVoting : UIView
     [SerializeField] private List<UIVotingMember> _uiMembers = new();
     [SerializeField] private Button _skipBTN;
     [SerializeField] private TextMeshProUGUI _skipCountTMP;
+    [SerializeField] private Image _skipImage;
     private Dictionary<string, UIVotingMember> _votingMemberDict = new();
 
     public override void Show()
@@ -27,6 +29,7 @@ public class UIInGameVoting : UIView
         GameplayManager.Instance.OnChangedVotingData += UpdateUI;
         GameplayManager.Instance.OnEndPhase += HandleEndGamePhase;
         _skipBTN.onClick.AddListener(TriggerSkip);
+        _skipImage.gameObject.SetActive(false);
     }
     void OnDisable()
     {
@@ -96,8 +99,19 @@ public class UIInGameVoting : UIView
         }
     }
 
-    private void HandleEndGamePhase(GamePhase phase)
+    private async void HandleEndGamePhase(GamePhase phase)
     {
-        if (phase == GamePhase.DayVoting) Hide();
+        if (phase != GamePhase.DayVoting) return;
+        string votedPlayerId = GameplayManager.Instance.GetVotingResult();
+        if (votedPlayerId == null)
+        {
+            _skipImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            _votingMemberDict[votedPlayerId].SetActiveVotedImage(true);
+        }
+        await Task.Delay(2000);
+        Hide();
     }
 }

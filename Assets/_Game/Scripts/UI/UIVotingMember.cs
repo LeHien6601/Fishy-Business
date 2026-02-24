@@ -20,6 +20,10 @@ public class UIVotingMember : MonoBehaviour
     [SerializeField] private Button _yesBTN;
     [SerializeField] private Button _noBTN;
     [SerializeField] private Button _voteBTN;
+    [SerializeField] private Image _votedImage;
+
+    [SerializeField] private Image _voiceDetectedImg;
+    [SerializeField] private VoiceActivityEventChannelSO _voiceActivityEventChannel;
 
     private UIInGameVoting _uiInGameVoting;
     private List<string> _votedMembers = new();
@@ -34,12 +38,16 @@ public class UIVotingMember : MonoBehaviour
         _yesBTN.onClick.AddListener(HandleClickYes);
         _noBTN.onClick.AddListener(HandleClickNo);
         _voteBTN.onClick.AddListener(HandleClickKickButton);
+        _voiceActivityEventChannel.OnEventRaised += HandleVoiceActivityUpdated;
+        _voiceDetectedImg.gameObject.SetActive(false);
+        SetActiveVotedImage(false);
     }
     void OnDisable()
     {
         _yesBTN.onClick.RemoveListener(HandleClickYes);
         _noBTN.onClick.RemoveListener(HandleClickNo);
         _voteBTN.onClick.RemoveListener(HandleClickKickButton);
+        _voiceActivityEventChannel.OnEventRaised -= HandleVoiceActivityUpdated;
     }
     #endregion
 
@@ -92,6 +100,11 @@ public class UIVotingMember : MonoBehaviour
         _voteBTN.gameObject.SetActive(!isLocked);
     }
 
+    public void SetActiveVotedImage(bool isActive)
+    {
+        _votedImage.gameObject.SetActive(isActive);
+    }
+
     public void HandleClickKickButton()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
@@ -115,6 +128,12 @@ public class UIVotingMember : MonoBehaviour
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         ToggleVotingContainer();
+    }
+
+    private void HandleVoiceActivityUpdated(string authId, bool isActive)
+    {
+        if (authId != _id) return;
+        _voiceDetectedImg.gameObject.SetActive(isActive);
     }
     
     #endregion
