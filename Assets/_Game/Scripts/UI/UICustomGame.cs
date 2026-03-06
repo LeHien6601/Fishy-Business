@@ -19,6 +19,7 @@ public class UICustomGame : UIView
     private string _selectedLobbyCode = "";
     private string _selectedRelayJoinCode = "";
     private List<UILobbyItem> _lobbyItems = new();
+    private List<Lobby> _lobbyList = new();
     private int countClick = 0;
     #endregion
     private void Awake()
@@ -64,13 +65,7 @@ public class UICustomGame : UIView
     }
     private void HandleChangeLobbyList(LobbyManager.UpdatedLoobyListEventArgs args)
     {
-        // Update lobby list UI
-        Debug.Log("Lobby list updated: " + args.LobbyList.Count + " lobbies available.");
-        foreach (var lobby in args.LobbyList)
-        {
-            Debug.Log($"Lobby ID: {lobby.Id}, Name: {lobby.Name}, Players: {lobby.Players.Count}/{lobby.MaxPlayers}");
-            Debug.Log($"Lobby code: {lobby.LobbyCode} Relay join code: {lobby.Data[Constant.KEY_RELAY_JOIN_CODE].Value}");
-        }
+        _lobbyList = args.LobbyList.ToList();
         HandleChangeLobbyListUI(args.LobbyList);
     }
     private void HandleChangeLobbyListUI(List<Lobby> lobbyList)
@@ -140,6 +135,7 @@ public class UICustomGame : UIView
     private async void Create()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
+        if (_lobbyList.Count > 5) return;
         UIManager.Instance.HideUI(EUIState.CustomGame, true);
         UIManager.Instance.ShowUI(EUIState.Loading);
         await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
