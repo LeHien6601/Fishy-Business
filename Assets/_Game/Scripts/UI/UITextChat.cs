@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using Unity.Services.Vivox;
@@ -22,8 +23,10 @@ public class UITextChat : UIView
     [SerializeField] private RectTransform _messageContainer;
     [SerializeField] private VerticalLayoutGroup _verticalLayoutGroup;
     [SerializeField] private BoolEventChannelSO _togglePlayerInputEvent;
+    [SerializeField] private float _sendChatTimeThreshold = 0.1f;
     private CursorLockMode _lastCursorMode;
     private List<UITextChatElement> _elements = new();
+    private float _lastSendTime = -1;
 
     void OnEnable()
     {
@@ -69,8 +72,15 @@ public class UITextChat : UIView
     private async void OnSendClicked() 
     {
         if (_inputField.text.IsNullOrEmpty()) return;
-        await VivoxManager.Instance.SendTextMessageAsync(_inputField.text);
+        if (Time.time - _lastSendTime < _sendChatTimeThreshold)
+        {
+            await Task.Yield();
+        }
+        if (_inputField.text.IsNullOrEmpty()) return;
+        _lastSendTime = Time.time;
+        string message = _inputField.text;
         _inputField.text = "";
+        await VivoxManager.Instance.SendTextMessageAsync(message);
         _inputField.ActivateInputField();
     }
 
@@ -84,6 +94,7 @@ public class UITextChat : UIView
             Cursor.lockState = CursorLockMode.None;
             LoadHistory();
             EventSystem.current.SetSelectedGameObject(_inputField.gameObject);
+            _lastSendTime = Time.time;
         }
         else
         {
