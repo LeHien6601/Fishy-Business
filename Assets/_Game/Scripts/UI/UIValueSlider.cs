@@ -10,6 +10,7 @@ public class UIValueSlider : MonoBehaviour
     [SerializeField] private float _minValue;
     [SerializeField] private float _maxValue;
     [SerializeField] private string _postFix = "s";
+    private bool _setFirsttime = true;
 
     void Awake()
     {
@@ -30,6 +31,11 @@ public class UIValueSlider : MonoBehaviour
     public void SetValue(float value)
     {
         _slider.value = value;
+        if (_setFirsttime)
+        {
+            UpdateUI(value);
+            _setFirsttime = false;
+        }
     }
 
     public float GetValue()

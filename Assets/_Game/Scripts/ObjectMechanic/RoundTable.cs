@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
@@ -25,6 +23,7 @@ public class RoundTable : NetworkBehaviour
     public NetworkList<ulong> PlayerOrders = new(); // server writes, all read
     [Header("UI References")]
     [SerializeField] private Button _startBtn;
+    [SerializeField] private UIRoundTable _uiRoundTable;
     [SerializeField] private TextMeshProUGUI _countdownTMP;
 
     private NetworkVariable<bool> _gameplaying = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -72,11 +71,11 @@ public class RoundTable : NetworkBehaviour
     {
         if (args.OldClientId == NetworkManager.Singleton.LocalClientId)
         {
-            _startBtn.gameObject.SetActive(false);
+            _uiRoundTable.gameObject.SetActive(false);
         }
         if (args.NewClientId == NetworkManager.Singleton.LocalClientId)
         {
-            _startBtn.gameObject.SetActive(true);
+            _uiRoundTable.gameObject.SetActive(true);
         }
     }
 
@@ -84,12 +83,12 @@ public class RoundTable : NetworkBehaviour
     {
         if (newValue)
         {
-            _startBtn.gameObject.SetActive(false);
+            _uiRoundTable.gameObject.SetActive(false);
             HandleCountdownTimer();
         }
         else
         {
-            _startBtn.gameObject.SetActive(true);
+            _uiRoundTable.gameObject.SetActive(true);
             _countdownTMP.gameObject.SetActive(false);
         }
     }
@@ -302,7 +301,9 @@ public class RoundTable : NetworkBehaviour
             if (seat.GetOccupant())
             {
                 if (NetworkManager.Singleton.LocalClientId == seat.GetOccupyingClientId())
-                    _startBtn.gameObject.SetActive(true);
+                {
+                    _uiRoundTable.gameObject.SetActive(true);
+                }
                 Transform occupantTf = seat.GetOccupant().transform;
                 Tween occupantPosTween = occupantTf.DOMove(seat.SitPosition(targetPos, targetRot), duration)
                                        .SetEase(easeType);

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public abstract class GameMode : ScriptableObject
 {
-    public float TurnInterval;
+    public float TurnInterval = 15;
     public abstract void Initialize(NetworkBoardManager manager, NetworkList<ulong> playerOrders);
     public abstract void StartGame(NetworkBoardManager manager);
     public abstract void HandlePlayerTurnStart(NetworkBoardManager manager, ulong playerId);

@@ -119,13 +119,11 @@ public class UILobbyInfo : UIView
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
-        // UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
     }
     private void HandleClickReset()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         Hide();
-        // UIManager.Instance.ShowUI(EUIState.LobbyGameplay);
         GameplayManager.Instance.TriggerResetGame();
     }
     private void HandleClickEditName()
@@ -169,7 +167,7 @@ public class UILobbyInfo : UIView
         _noteTMP.gameObject.SetActive(true);
         _noteTMP.rectTransform.localScale = Vector3.zero;
         _noteTMP.rectTransform.DOScale(Vector2.one, 0.3f).SetEase(Ease.OutBack);
-        await System.Threading.Tasks.Task.Delay(2000);
+        await Task.Delay(2000);
         _noteTMP.rectTransform.DOScale(Vector2.zero, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
         {
             _noteTMP.gameObject.SetActive(false);
