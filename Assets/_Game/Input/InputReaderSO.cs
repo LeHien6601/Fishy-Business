@@ -16,6 +16,9 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
     public event UnityAction<float> Navigate = delegate { };
     public event UnityAction Select = delegate { };
     public event UnityAction Confirm = delegate { };
+    public event UnityAction OpenEmoteEvent = delegate { };
+    public event UnityAction CloseEmoteEvent = delegate { };
+    public event UnityAction<float> ScrollWheelEvent = delegate { };
 
     public enum ActionMap
     {
@@ -61,6 +64,19 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
         {
             Interact.Invoke();
         }
+    }
+
+    public void OnEmote(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed)
+            OpenEmoteEvent?.Invoke();
+        else if (context.phase == InputActionPhase.Canceled)
+            CloseEmoteEvent?.Invoke();
+    }
+
+    public void OnScrollWheel(InputAction.CallbackContext context)
+    {
+        ScrollWheelEvent?.Invoke(context.ReadValue<float>());
     }
 
     public void OnJump(InputAction.CallbackContext context)

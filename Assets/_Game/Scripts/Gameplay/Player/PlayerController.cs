@@ -25,6 +25,8 @@ public class PlayerController : NetworkBehaviour
     private JumpState _jumpState;
     private AttackState _attackState;
     private SitState _sitState;
+    private EmoteState _emoteState;
+
     public bool CanInteract { get => _interactor.enabled; set => _interactor.enabled = value; }
 
     public override void OnNetworkSpawn()
@@ -42,6 +44,7 @@ public class PlayerController : NetworkBehaviour
         _jumpState = new JumpState(this, animator, _onAirSpeed, _initJumpVelocity);
         _attackState = new AttackState(animator);
         _sitState = new SitState(this, animator);
+        _emoteState = new EmoteState(this, animator);
         _currentState = _idleState;
 
         _inputReader.Move += HandleMove;
@@ -50,7 +53,7 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Interact += _interactor.Interact;
         GameplayManager.Instance.OnStartGame += OnStartGame;
         GameplayManager.Instance.OnEndGame += OnEndGame;
-
+        Emoter.OnEmoteSelected += HandleEmote;
         _targetTransformChannel.RaiseEvent(transform);
         _headBoneTransformChannel.RaiseEvent(_headBone);
         CameraController.SwitchCamMode(CameraMode.ThirdPerson);
@@ -67,6 +70,7 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Interact -= _interactor.Interact;
         GameplayManager.Instance.OnStartGame -= OnStartGame;
         GameplayManager.Instance.OnEndGame -= OnEndGame;
+        Emoter.OnEmoteSelected -= HandleEmote;
     }
 
     private void OnEndGame(ulong arg0)
@@ -109,6 +113,15 @@ public class PlayerController : NetworkBehaviour
     {
         if (_currentState == _sitState)
             ToState(_idleState);
+    }
+
+    private void HandleEmote(int emoteIndex)
+    {
+        if (_currentState == _idleState)
+        {
+            _emoteState.Select(emoteIndex);
+            ToState(_emoteState);
+        }
     }
 
     void Update()
