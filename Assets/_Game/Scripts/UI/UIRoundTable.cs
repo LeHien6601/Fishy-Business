@@ -27,15 +27,16 @@ public class UIRoundTable : MonoBehaviour
     }
     void OnEnable()
     {
-        _gameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
+        UpdateUI();
         _blockRect.gameObject.SetActive(!LobbyManager.Instance.isHost);
 
         _gameModeBtns[0].onClick.AddListener(() => ChangeGameMode(0));
         _gameModeBtns[1].onClick.AddListener(() => ChangeGameMode(1));
-        ChangeGameMode(_gameData.GameModeIndex);
 
         _saveBTN.onClick.AddListener(HandleClickSave);
         _toggleDataContainerBTN.onClick.AddListener(HandleClickToggle);
+        
+        LobbyManager.Instance.OnUpdatedCurrentLobby += HandleUpdateLobby;
     }
     void OnDisable()
     {
@@ -44,6 +45,8 @@ public class UIRoundTable : MonoBehaviour
 
         _saveBTN.onClick.RemoveListener(HandleClickSave);
         _toggleDataContainerBTN.onClick.RemoveListener(HandleClickToggle);
+        
+        LobbyManager.Instance.OnUpdatedCurrentLobby -= HandleUpdateLobby;
     }
 
     private void ChangeGameMode(int index)
@@ -87,6 +90,16 @@ public class UIRoundTable : MonoBehaviour
         {
             ShowNote("Failed to save game configuration.");
         }
+    }
+    private void UpdateUI()
+    {
+        _gameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
+        ChangeGameMode(_gameData.GameModeIndex);
+    }
+    private void HandleUpdateLobby(LobbyManager.UpdateCurrentLobbyEventArgs args)
+    {
+        if (LobbyManager.Instance.isHost) return;
+        UpdateUI();
     }
     private void HandleClickSave()
     {
