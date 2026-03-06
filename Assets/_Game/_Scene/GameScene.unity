@@ -17004,10 +17004,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Be sleep bae <3
+  m_text: SLEEP WELL
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 19a1811e660e53d4a9e5187a789b44a0, type: 2}
+  m_sharedMaterial: {fileID: -1468220269831285196, guid: 19a1811e660e53d4a9e5187a789b44a0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -18422,7 +18422,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1397269006
 RectTransform:
   m_ObjectHideFlags: 0
@@ -27553,7 +27553,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2488380984017828594, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.35
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2488380984017828594, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_AnchorMax.y
@@ -27561,7 +27561,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2488380984017828594, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.35
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2488380984017828594, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_SizeDelta.x
@@ -27877,7 +27877,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6707027553969128850, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_fontSize
-      value: 18
+      value: 37.05
       objectReference: {fileID: 0}
     - target: {fileID: 6776649656666377973, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_Name

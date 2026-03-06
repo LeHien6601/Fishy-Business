@@ -22,8 +22,7 @@ public class DayNightController : MonoBehaviour
     public void Uncover()
     {
         Debug.Log("U r uncovered, u can see the board");
-        _coverImg.gameObject.SetActive(false);
-        _coverImg.DOFade(0, 0.5f).From(1);
+        _coverImg.DOFade(0, 0.5f).From(1).OnComplete(() => _coverImg.gameObject.SetActive(false));
         foreach (var star in _stars)
         {
             star.gameObject.SetActive(false);
