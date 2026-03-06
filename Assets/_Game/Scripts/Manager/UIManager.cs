@@ -114,7 +114,8 @@ public enum EUIState
     CustomPlayer,
     Settings,
     Notification,
-    InGameVoting
+    InGameVoting,
+    TextChat
 }
 [Serializable]
 public struct UIViewState

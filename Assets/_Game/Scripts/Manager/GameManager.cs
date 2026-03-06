@@ -59,12 +59,14 @@ public class GameManager : SingletonMonoNet<GameManager>
             SpawnPlayerRpc(clientId);
             HandlePlayerJoinNetworkClientRpc(clientId);
             UIManager.Instance.ShowUI(EUIState.Notification);
+            UIManager.Instance.ShowUI(EUIState.TextChat);
         }
         // Leave lobby or kicked from lobby -> clean up
         else if (sceneName == "Lobby")
         {
             _spawnedPlayerNames.Clear();
             UIManager.Instance.HideUI(EUIState.InGame);
+            UIManager.Instance.HideUI(EUIState.TextChat);
             _currentGameState = EGameState.MainMenu;
             UIManager.Instance.HideUI(EUIState.Notification);
         }

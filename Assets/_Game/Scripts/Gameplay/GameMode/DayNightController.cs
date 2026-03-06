@@ -7,6 +7,12 @@ public class DayNightController : MonoBehaviour
 {
     [SerializeField] private Image _coverImg;
     [SerializeField] private List<Image> _stars;
+
+    void Awake()
+    {
+        _coverImg.gameObject.SetActive(false);
+    }
+
     public void Cover()
     {
         Debug.Log("U r being covered, u cant see the board");
