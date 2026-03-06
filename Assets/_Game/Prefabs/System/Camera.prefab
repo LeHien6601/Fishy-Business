@@ -568,6 +568,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -759,7 +760,9 @@ MonoBehaviour:
   _1stPersonCamera: {fileID: 6453634777643854508}
   _customPlayerCamera: {fileID: 6095447017141585350}
   _sceneViewCamera: {fileID: 2836984395549880791}
-  _cinemachineInputAxisController: {fileID: 5220714561048499277}
+  _3rdCinemachineInputAxisController: {fileID: 7136811689256017501}
+  _1stCinemachineInputAxisController: {fileID: 5220714561048499277}
+  _togglePlayerInputEvent: {fileID: 11400000, guid: df2c321a517cdbf419e7f4b2fa264adb, type: 2}
   _headBoneOffset: {x: -0.17364818, y: 0, z: 0, w: 0.9848077}
   _yAxisMultiplier: 1.5
   _targetTransformChannel: {fileID: 11400000, guid: 64e9b6e076ceb5440aba58b59e857a59, type: 2}
@@ -1239,7 +1242,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8399639361241533213}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
   m_Name: 

@@ -9,7 +9,10 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineCamera _1stPersonCamera;
     [SerializeField] private CinemachineCamera _customPlayerCamera;
     [SerializeField] private CinemachineCamera _sceneViewCamera;
-    [SerializeField] private CinemachineInputAxisController _cinemachineInputAxisController;
+    [SerializeField] private CinemachineInputAxisController _3rdCinemachineInputAxisController;
+    [SerializeField] private CinemachineInputAxisController _1stCinemachineInputAxisController;
+    [SerializeField] private BoolEventChannelSO _togglePlayerInputEvent;
+
     public static event UnityAction<CameraMode> OnCameraModeSwitched;
     private static CameraMode _cameraMode;
     private static CameraMode _previousMode;
@@ -24,12 +27,14 @@ public class CameraController : MonoBehaviour
 
     void OnEnable()
     {
+        _togglePlayerInputEvent.OnEventRaised += ToggleMouseInput;
         OnCameraModeSwitched += OnSwitchCamMode;
         _targetTransformChannel.OnEventRaised += TrackTarget;
         _headBoneTransformChannel.OnEventRaised += AssignHeadBone;
     }
     void OnDisable()
     {
+        _togglePlayerInputEvent.OnEventRaised -= ToggleMouseInput;
         _targetTransformChannel.OnEventRaised -= TrackTarget;
         _headBoneTransformChannel.OnEventRaised -= AssignHeadBone;
         OnCameraModeSwitched -= OnSwitchCamMode;
@@ -59,12 +64,12 @@ public class CameraController : MonoBehaviour
                     pan.PanAxis.Value = pan.PanAxis.Center;
                     pan.TiltAxis.Value = pan.TiltAxis.Center;
                 }
-                _cinemachineInputAxisController.enabled = false;
+                _1stCinemachineInputAxisController.enabled = false;
                 Cursor.lockState = CursorLockMode.None;
                 break;
             case CameraMode.FirstPersonWithFreeLook:
                 _1stPersonCamera.Priority = 10;
-                _cinemachineInputAxisController.enabled = true;
+                _1stCinemachineInputAxisController.enabled = true;
                 Cursor.lockState = CursorLockMode.Locked;
                 break;
             case CameraMode.CustomPlayer:
@@ -126,6 +131,13 @@ public class CameraController : MonoBehaviour
     public static void SwitchCamMode(CameraMode mode)
     {
         OnCameraModeSwitched?.Invoke(mode);
+    }
+
+    private void ToggleMouseInput(bool isActive)
+    {
+        _3rdCinemachineInputAxisController.enabled = isActive;
+        _1stCinemachineInputAxisController.enabled = isActive;
+        Cursor.lockState = isActive ? CursorLockMode.Locked : CursorLockMode.None;
     }
 }
 
