@@ -4,9 +4,11 @@ using UnityEngine;
 using Unity.Services.Vivox;
 using HHDCore;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 public class VivoxManager : SingletonMono<VivoxManager>
 {
     [SerializeField] private VoiceActivityEventChannelSO _voiceActivityEventChannel;
+    public event Action<VivoxMessage> OnTextMessageReceived;
     private string _currentChannel;
     private bool _isPushToTalkEnabled = true;
     public bool IsPushToTalkEnabled
@@ -40,6 +42,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
     private async void Start()
     {
         await InitializeAsync();
+        VivoxService.Instance.ChannelMessageReceived += OnMessageReceived;
         VivoxService.Instance.ParticipantAddedToChannel += OnParticipantAdded;
         LobbyManager.Instance.OnJoinedLobby += HandleJoinedLobby;
         LobbyManager.Instance.OnLeftLobby += HandleLeftLobby;
@@ -47,11 +50,64 @@ public class VivoxManager : SingletonMono<VivoxManager>
     }
     private void OnDestroy()
     {
+        VivoxService.Instance.ChannelMessageReceived -= OnMessageReceived;
         VivoxService.Instance.ParticipantAddedToChannel -= OnParticipantAdded;
         LobbyManager.Instance.OnJoinedLobby -= HandleJoinedLobby;
         LobbyManager.Instance.OnLeftLobby -= HandleLeftLobby;
         LobbyManager.Instance.OnKickedFromLobby -= HandleKickedFromLobby;
     }
+
+    #region Text Chat Methods
+
+    /// <summary>
+    /// Sends a text message to the current lobby channel.
+    /// </summary>
+    public async Task SendTextMessageAsync(string messageContent)
+    {
+        if (string.IsNullOrEmpty(_currentChannel))
+        {
+            Debug.LogWarning("Vivox: Cannot send message, not in a channel.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(messageContent)) return;
+
+        try
+        {
+            await VivoxService.Instance.SendChannelTextMessageAsync(_currentChannel, messageContent);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Vivox: Failed to send message: {e.Message}");
+        }
+    }
+
+    private void OnMessageReceived(VivoxMessage message)
+    {
+        // We only care about messages in our current lobby channel
+        if (message.ChannelName == _currentChannel)
+        {
+            Debug.Log($"Vivox Msg from {message.SenderDisplayName}: {message.MessageText}");
+            OnTextMessageReceived?.Invoke(message);
+        }
+    }
+
+    public async Task<IReadOnlyList<VivoxMessage>> GetHistoryAsync(int messageCount = 20)
+    {
+        if (string.IsNullOrEmpty(_currentChannel)) return null;
+        
+        try
+        {
+            return await VivoxService.Instance.GetChannelTextMessageHistoryAsync(_currentChannel, messageCount);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Vivox: Failed to get history: {e.Message}");
+            return null;
+        }
+    }
+
+    #endregion
 
     private void OnParticipantAdded(VivoxParticipant participant)
     {
@@ -131,7 +187,11 @@ public class VivoxManager : SingletonMono<VivoxManager>
 
         try
         {
-            await VivoxService.Instance.LoginAsync();
+            LoginOptions options = new LoginOptions
+            {
+                DisplayName = PlayerInfoManager.Instance.PlayerName 
+            };
+            await VivoxService.Instance.LoginAsync(options);
             Debug.Log("Vivox Logged In");
         }
         catch (Exception e)
@@ -148,7 +208,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
             return;
         try
         {
-            await VivoxService.Instance.JoinGroupChannelAsync(channelName, ChatCapability.AudioOnly);
+            await VivoxService.Instance.JoinGroupChannelAsync(channelName, ChatCapability.TextAndAudio);
             _currentChannel = channelName;
             Debug.Log($"Joined Vivox channel: {channelName}");
         }
