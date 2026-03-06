@@ -27103,7 +27103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86f11bfead72ae84f96ff0dc21799508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayNightController
-  _coverImg: {fileID: 1397269005}
+  _coverImg: {fileID: 1397269007}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

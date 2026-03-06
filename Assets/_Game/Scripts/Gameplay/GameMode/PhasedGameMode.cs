@@ -39,7 +39,8 @@ public class PhasedGameMode : GameMode
     public override void Initialize(NetworkBoardManager manager, NetworkList<ulong> playerOrders)
     {
         // Phased: Start with Night phase
-        StartPhase(manager, GamePhase.Night);
+        base.StartPhase(manager, GamePhase.Night);
+        Debug.Log("Start phase night");
     }
 
     public override void StartGame(NetworkBoardManager manager)
@@ -73,7 +74,7 @@ public class PhasedGameMode : GameMode
                 votesPerPlayer[toId] = 0;
             votesPerPlayer[toId]++;
         }
-        if(votesPerPlayer == null || votesPerPlayer.Count <= 0) return;
+        if (votesPerPlayer == null || votesPerPlayer.Count <= 0) return;
         int maxVotes = votesPerPlayer.Values.Max();
 
         var topPlayers = votesPerPlayer
