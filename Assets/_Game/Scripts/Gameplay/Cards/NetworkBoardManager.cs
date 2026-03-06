@@ -90,6 +90,8 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         Debug.Log("START GAME ON CLIENT");
         _currentGameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
+        _turnIndicator.gameObject.SetActive(_currentGameData.GameModeIndex == 0); // classic mode has turn indicator, others don't
+        Debug.Log(_currentGameData.GameModeIndex);
         // spawn board, facing towards local player
         _boardCore.GenerateBoard();
         if (_playerAndHolderMap.TryGetValue(NetworkManager.Singleton.LocalClientId, out CardHolder _))
@@ -1012,7 +1014,6 @@ public class NetworkBoardManager : NetworkBehaviour
         }
 
         // ---- visual -----
-        _turnIndicator.gameObject.SetActive(true);
         var direction = inTurnHolder.transform.position - _turnIndicator.position;
         direction.y = 0;
         _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
