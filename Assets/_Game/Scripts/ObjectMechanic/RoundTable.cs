@@ -29,13 +29,20 @@ public class RoundTable : NetworkBehaviour
 
     private NetworkVariable<bool> _gameplaying = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private Coroutine _startGameCoroutine;
-    public override void OnNetworkSpawn()
+    public override async void OnNetworkSpawn()
     {
         if (IsHost || IsServer)
         {
-            // only server knows the boardManager at start
-            _boardManagerRef.Value = new NetworkObjectReference(_boardManager.NetworkObject);
-            Debug.Log("Server set BoardManager reference.");
+            while (_boardManager != null && !_boardManager.NetworkObject.IsSpawned)
+            {
+                await Task.Yield(); 
+            }
+
+            if (_boardManager != null)
+            {
+                _boardManagerRef.Value = new NetworkObjectReference(_boardManager.NetworkObject);
+                Debug.Log("Server set BoardManager reference.");
+            }
             for (int i = 0; i < _currentCapacity; i++)
             {
                 var seat = Instantiate(_seatPrefab);

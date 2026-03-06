@@ -76,6 +76,7 @@ public class UIInGameVoting : UIView
         {
             if (votingData.Skip) skipCount++;
             else _votingMemberDict[votingData.ToPlayer].TakeVote(votingData.FromPlayer);
+            _votingMemberDict[votingData.FromPlayer].SetActiveVoteContainer(true);
         }
         _skipCountTMP.text = skipCount.ToString();
     }

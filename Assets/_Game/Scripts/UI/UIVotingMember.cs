@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,10 @@ public class UIVotingMember : MonoBehaviour
     [SerializeField] private Image _votedImage;
 
     [SerializeField] private Image _voiceDetectedImg;
+
+    [SerializeField] private RectTransform _banContainer;
+    [SerializeField] private RectTransform _voteContainer;
+    [Header("Events")]
     [SerializeField] private VoiceActivityEventChannelSO _voiceActivityEventChannel;
 
     private UIInGameVoting _uiInGameVoting;
@@ -41,6 +46,8 @@ public class UIVotingMember : MonoBehaviour
         _voiceActivityEventChannel.OnEventRaised += HandleVoiceActivityUpdated;
         _voiceDetectedImg.gameObject.SetActive(false);
         SetActiveVotedImage(false);
+        SetActiveBanContainer(false);
+        SetActiveVoteContainer(false);
     }
     void OnDisable()
     {
@@ -103,12 +110,7 @@ public class UIVotingMember : MonoBehaviour
     public void SetActiveVotedImage(bool isActive)
     {
         _votedImage.gameObject.SetActive(isActive);
-    }
-
-    public void HandleClickKickButton()
-    {
-        SoundManager.Play2D(SoundType.ButtonClick);
-        ToggleVotingContainer();
+        SetActiveBanContainer(isActive);
     }
 
     private void ToggleVotingContainer()
@@ -117,6 +119,48 @@ public class UIVotingMember : MonoBehaviour
         _voteRect.gameObject.SetActive(!_voteRect.gameObject.activeSelf);
         _voteTMP.text = $"Vote {_nameTMP.text}?";
     }
+    public void SetActiveVoteContainer(bool active)
+    {
+        if (active != _voteContainer.gameObject.activeSelf)
+        {
+            _voteContainer.gameObject.SetActive(active);
+            if (active)
+            {
+                _voteContainer.localScale = Vector3.zero;
+                _voteContainer.DOScale(1, 0.1f).SetEase(Ease.OutBack);
+            }
+            else
+            {
+                _voteContainer.localScale = Vector3.zero;
+            }
+        }
+    }
+    private void SetActiveBanContainer(bool active)
+    {
+        if (active != _banContainer.gameObject.activeSelf)
+        {
+            _banContainer.gameObject.SetActive(active);
+            if (active)
+            {
+                _banContainer.localScale = Vector3.zero;
+                _banContainer.DOScale(1, 0.1f).SetEase(Ease.OutBack);
+            }
+            else
+            {
+                _banContainer.localScale = Vector3.zero;
+            }
+        }
+    }
+    #endregion
+    #region Handlers
+
+    public void HandleClickKickButton()
+    {
+        SoundManager.Play2D(SoundType.ButtonClick);
+        ToggleVotingContainer();
+    }
+
+    
     private void HandleClickYes()
     {
         SoundManager.Play2D(SoundType.ButtonClick);

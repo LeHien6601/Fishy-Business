@@ -227,7 +227,7 @@ public class VivoxManager : SingletonMono<VivoxManager>
         }
         catch (Exception e)
         {
-            Debug.LogError($"Vivox: Failed to set self mute: {e.Message}");
+            Debug.LogWarning($"Vivox: Failed to set self mute: {e.Message}");
         }
     }
     
