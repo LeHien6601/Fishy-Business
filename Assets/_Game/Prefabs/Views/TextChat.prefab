@@ -634,6 +634,7 @@ MonoBehaviour:
   _textChatElementPrefab: {fileID: 839120549315620201, guid: 5a3b2a6e2db424443b47e933825702bd, type: 3}
   _messageContainer: {fileID: 2771989782558551028}
   _verticalLayoutGroup: {fileID: 6081495872581256121}
+  _togglePlayerInputEvent: {fileID: 11400000, guid: df2c321a517cdbf419e7f4b2fa264adb, type: 2}
 --- !u!1 &2809468266890887762
 GameObject:
   m_ObjectHideFlags: 0

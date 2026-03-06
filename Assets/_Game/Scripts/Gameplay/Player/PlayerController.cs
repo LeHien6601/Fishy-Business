@@ -15,6 +15,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _initJumpVelocity = 20f;
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _onAirSpeed = 10f;
+    [SerializeField] private BoolEventChannelSO _togglePlayerInputEvent;
     public CharacterController CharacterController;
     public Vector3 MoveDirection { get; private set; }
     public Vector3 Movement;
@@ -26,6 +27,8 @@ public class PlayerController : NetworkBehaviour
     private AttackState _attackState;
     private SitState _sitState;
     private EmoteState _emoteState;
+    
+    private bool _canJump = true;
 
     public bool CanInteract { get => _interactor.enabled; set => _interactor.enabled = value; }
 
@@ -57,6 +60,7 @@ public class PlayerController : NetworkBehaviour
         _targetTransformChannel.RaiseEvent(transform);
         _headBoneTransformChannel.RaiseEvent(_headBone);
         CameraController.SwitchCamMode(CameraMode.ThirdPerson);
+        _togglePlayerInputEvent.OnEventRaised += HandleToggleInput;
     }
 
     public override void OnNetworkDespawn()
@@ -71,6 +75,7 @@ public class PlayerController : NetworkBehaviour
         GameplayManager.Instance.OnStartGame -= OnStartGame;
         GameplayManager.Instance.OnEndGame -= OnEndGame;
         Emoter.OnEmoteSelected -= HandleEmote;
+        _togglePlayerInputEvent.OnEventRaised -= HandleToggleInput;
     }
 
     private void OnEndGame(ulong arg0)
@@ -124,6 +129,12 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private void HandleToggleInput(bool isActive)
+    {
+        _inputReader.ToggleInput(isActive);
+        _canJump = isActive;
+    }
+
     void Update()
     {
         if (!IsOwner)
@@ -141,7 +152,7 @@ public class PlayerController : NetworkBehaviour
         if (CharacterController.isGrounded)
         {
             Movement.y = -1f;
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && _canJump)
             {
                 ToState(_jumpState);
                 return;
@@ -183,13 +194,18 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner)
             return;
+        
+        _canJump = true;
         _inputReader.Move += HandleMove;
         _inputReader.Attack += HandleAttack;
+        Emoter.OnEmoteSelected += HandleEmote;
     }
 
     public void DeactivateInput()
     {
+        _canJump = false;
         _inputReader.Move -= HandleMove;
         _inputReader.Attack -= HandleAttack;
+        Emoter.OnEmoteSelected -= HandleEmote;
     }
 }

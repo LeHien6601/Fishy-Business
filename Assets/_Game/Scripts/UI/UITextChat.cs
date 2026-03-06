@@ -21,6 +21,7 @@ public class UITextChat : UIView
     [SerializeField] private UITextChatElement _textChatElementPrefab;
     [SerializeField] private RectTransform _messageContainer;
     [SerializeField] private VerticalLayoutGroup _verticalLayoutGroup;
+    [SerializeField] private BoolEventChannelSO _togglePlayerInputEvent;
     private CursorLockMode _lastCursorMode;
     private List<UITextChatElement> _elements = new();
 
@@ -53,7 +54,16 @@ public class UITextChat : UIView
 
     void Update()
     {
-        if (Keyboard.current.enterKey.wasPressedThisFrame) OnToggleClicked();
+        if (Keyboard.current.enterKey.wasPressedThisFrame) {
+            if (_inputField.text.IsNullOrEmpty())
+            {
+                OnToggleClicked();
+            }
+            else
+            {
+                OnSendClicked();
+            }
+        }
     }
 
     private async void OnSendClicked() 
@@ -73,12 +83,14 @@ public class UITextChat : UIView
             _lastCursorMode = Cursor.lockState;
             Cursor.lockState = CursorLockMode.None;
             LoadHistory();
+            EventSystem.current.SetSelectedGameObject(_inputField.gameObject);
         }
         else
         {
             Cursor.lockState = _lastCursorMode;
+            EventSystem.current.SetSelectedGameObject(null);
         }
-        EventSystem.current.SetSelectedGameObject(null);
+        _togglePlayerInputEvent.RaiseEvent(!turnOn);
     }
     private async void LoadHistory()
     {
@@ -128,7 +140,6 @@ public class UITextChat : UIView
         element.SetText($"<color=#888888>[{timestamp}]</color> <b>{finalName}:</b> {msg.MessageText}");
 
         Canvas.ForceUpdateCanvases();
-        StartCoroutine(ScrollToBottom());
         StartCoroutine(UpdateVerticleLayoutGroup());
     }
     private void SetActiveTextBox(bool isActive)
@@ -172,5 +183,6 @@ public class UITextChat : UIView
         _verticalLayoutGroup.enabled = false;
         yield return new WaitForEndOfFrame();
         _verticalLayoutGroup.enabled = true;
+        StartCoroutine(ScrollToBottom());
     }
 }

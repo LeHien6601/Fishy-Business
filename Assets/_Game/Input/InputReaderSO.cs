@@ -28,6 +28,12 @@ public class InputReaderSO : ScriptableObject, InputSystem_Actions.IPlayerAction
     }
 
 
+    public void ToggleInput(bool value)
+    {
+        if (value) _gameInput.Enable();
+        else _gameInput.Disable();
+    }
+
     private void OnEnable()
     {
         _gameInput = new InputSystem_Actions();
