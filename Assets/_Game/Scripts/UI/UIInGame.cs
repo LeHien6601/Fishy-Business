@@ -21,7 +21,9 @@ public class UIInGame : UIView
     [SerializeField] private TextMeshProUGUI _phaseTMP;
     [SerializeField] private RectTransform _turnRect;
     [SerializeField] private TextMeshProUGUI _turnTMP;
-    [SerializeField] private TextMeshProUGUI _dataTMP;
+    [SerializeField] private UIToolTip _roleTooltip;
+    [SerializeField] private TextMeshProUGUI _gameModeTMP;
+    [SerializeField] private UIToolTip _gameModeTooltip;
 
 
     [Header("Properties")]
@@ -45,13 +47,14 @@ public class UIInGame : UIView
         string json = LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value;
         Utils.UpdateGameModeData(json);
         _gameData = JsonUtility.FromJson<GameData>(json);
-        _dataTMP.text = $"Index: {_gameData.GameModeIndex}\nTurnInterval: {_gameData.TurnInterval}\nVotingInterval: {_gameData.VotingInterval}\nDiscussionInterval: {_gameData.DayDiscussionInverval}";
         bool isCat = GameplayManager.Instance.GetPlayerRole() == PlayerRole.Cat;
         _showTurn = false;
         _iconImage.sprite = isCat ? _catSprite : _dogSprite;
         _borderImage.color = isCat ? _catBorderColor : _dogBorderColor;
+        UpdateGameMode();
         HideRect(_phaseRect);
         HideRect(_turnRect);
+        _roleTooltip.SetText(isCat ? Constant.CAT_ROLE_DESCRIPTION : Constant.DOG_ROLE_DESCRIPTION);
         base.Show();
     }
     public override void Hide()
@@ -177,6 +180,12 @@ public class UIInGame : UIView
                     break;
             }
         }
+    }
+    private void UpdateGameMode()
+    {
+        bool isClassic = _gameData.GameModeIndex == 0;
+        _gameModeTMP.text = isClassic ? Constant.CLASSIC_MODE : Constant.DAY_NIGHT_MODE;
+        _gameModeTooltip.SetText(isClassic ? Constant.CLASSIC_MODE_DESCRIPTION : Constant.DAY_NIGHT_DESCRIPTION);
     }
     private void ShowSymbol(Sprite sprite)
     {

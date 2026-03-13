@@ -39,7 +39,7 @@ MonoBehaviour:
     SortingOrder: 6
   - State: 9
     View: {fileID: 4587145308734755930, guid: 4782929860534d6489fe83fea1bb9c5e, type: 3}
-    SortingOrder: 1
+    SortingOrder: 0
   - State: 10
     View: {fileID: 8171707745913130471, guid: ff27057bfd20e0a43a1ae96b5b23df7d, type: 3}
     SortingOrder: 2
