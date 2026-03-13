@@ -56,15 +56,16 @@ public class Utils : MonoBehaviour
             phasedGameMode.DayDiscussionInterval = gameData.DayDiscussionInverval;
         }
     }
-    public static string GetJsonGameModeData(int index)
+    public static string GetJsonGameModeData(int gameModeIndex, int mapIndex)
     {
-        GameMode gameMode = GameConfig.Instance.GameModes[index];
+        GameMode gameMode = GameConfig.Instance.GameModes[gameModeIndex];
         GameData gameData = new()
         {
-            GameModeIndex = index,
+            GameModeIndex = gameModeIndex,
+            MapIndex = mapIndex,
             TurnInterval = gameMode.TurnInterval,
-            VotingInterval = (index == 1) ? ((PhasedGameMode)gameMode).VotingInterval : Constant.DEFAULT_VOTING_INTERVAL,
-            DayDiscussionInverval = (index == 1) ? ((PhasedGameMode)gameMode).DayDiscussionInterval : Constant.DEFAULT_DISCUSSION_INTERVAL
+            VotingInterval = (gameModeIndex == 1) ? ((PhasedGameMode)gameMode).VotingInterval : Constant.DEFAULT_VOTING_INTERVAL,
+            DayDiscussionInverval = (gameModeIndex == 1) ? ((PhasedGameMode)gameMode).DayDiscussionInterval : Constant.DEFAULT_DISCUSSION_INTERVAL
         };
         return JsonUtility.ToJson(gameData);
     }

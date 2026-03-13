@@ -44,6 +44,7 @@ public class RoundTable : NetworkBehaviour
             }
             for (int i = 0; i < _currentCapacity; i++)
             {
+                Debug.Log("INSTANTIATE SEAT");
                 var seat = Instantiate(_seatPrefab);
                 seat.GetComponent<NetworkObject>().Spawn(true);
                 seat.name = $"Seat {i + 1}";

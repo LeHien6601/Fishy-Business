@@ -15,6 +15,8 @@ public class UICustomGame : UIView
     [SerializeField] private Button _joinBtn;
     [SerializeField] private RectTransform _lobbyListContent;
     [SerializeField] private UILobbyItem _lobbyItemPrefab;
+    [SerializeField] private RectTransform _mapSelectionRect;
+    [SerializeField] private List<Button> _mapButtons;
     private Coroutine _refreshLobbyListCoroutine;
     private string _selectedLobbyCode = "";
     private string _selectedRelayJoinCode = "";
@@ -25,7 +27,7 @@ public class UICustomGame : UIView
     private void Awake()
     {
         _backBtn.onClick.AddListener(Back);
-        _createBtn.onClick.AddListener(Create);
+        _createBtn.onClick.AddListener(HandleClickCreate);
         _joinBtn.onClick.AddListener(Join);
     }
 
@@ -34,6 +36,12 @@ public class UICustomGame : UIView
         _joinBtn.interactable = false;
         _refreshLobbyListCoroutine = StartCoroutine(RefreshLobbyList());
         LobbyManager.Instance.OnUpdatedLobbyList += HandleChangeLobbyList;
+        for (int i = 0; i < _mapButtons.Count; i++)
+        {
+            int j = i;
+            _mapButtons[i].onClick.AddListener(() => Create(j));
+        }
+        _mapSelectionRect.gameObject.SetActive(false);
     }
     void OnDisable()
     {
@@ -42,6 +50,11 @@ public class UICustomGame : UIView
         {
             StopCoroutine(_refreshLobbyListCoroutine);
             _refreshLobbyListCoroutine = null;
+        }
+        for (int i = 0; i < _mapButtons.Count; i++)
+        {
+            int j = i;
+            _mapButtons[i].onClick.RemoveAllListeners();
         }
     }
     public override void HideWithParams(object isCreating)
@@ -132,16 +145,21 @@ public class UICustomGame : UIView
         UIManager.Instance.ShowUI(EUIState.MainMenu);
         UIManager.Instance.HideUI(EUIState.CustomGame, false);
     }
-    private async void Create()
+    private void HandleClickCreate()
+    {
+        _mapSelectionRect.gameObject.SetActive(true);
+    }
+    private async void Create(int mapIndex)
     {
         SoundManager.Play2D(SoundType.ButtonClick);
         if (_lobbyList.Count > 5) return;
         UIManager.Instance.HideUI(EUIState.CustomGame, true);
         UIManager.Instance.ShowUI(EUIState.Loading);
-        await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName());
+        await LobbyManager.Instance.CreateLobbyAsync(Utils.GetRandomLobbyName(), mapIndex);
         GameManager.Instance.StartGame();
         await Task.Delay(500);
         UIManager.Instance.HideUI(EUIState.Loading);
+        _mapSelectionRect.gameObject.SetActive(false);
     }
 
     private async void Join()

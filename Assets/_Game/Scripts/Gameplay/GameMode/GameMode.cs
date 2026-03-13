@@ -52,6 +52,7 @@ public struct GameData
     public float TurnInterval;
     public float VotingInterval;
     public float DayDiscussionInverval;
+    public int MapIndex;
 }
 
 public enum GamePhase
