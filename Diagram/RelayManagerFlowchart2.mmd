@@ -1,0 +1,9 @@
+flowchart LR
+    Host -->|CreateAllocation| RelayService
+    RelayService -->|JoinCode| Host
+    Host -->|Save JoinCode| LobbyService
+    Client -->|Read JoinCode| Lobby
+    Client -->|JoinAllocation| RelayService
+    RelayService -->|RelayData| Client
+    Host -->|StartHost| NetworkManager
+    Client -->|StartClient| NetworkManager
