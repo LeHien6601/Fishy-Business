@@ -3246,7 +3246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIGuide
   _showAnimation: {fileID: 423049040332653492}
   _hideAnimation: {fileID: 8439414920556893410}
-  _backButton: {fileID: 0}
+  _backButton: {fileID: 6855173711786834197}
 --- !u!1 &2612118176859540708
 GameObject:
   m_ObjectHideFlags: 0
