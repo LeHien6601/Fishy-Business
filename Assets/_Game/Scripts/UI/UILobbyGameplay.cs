@@ -9,6 +9,7 @@ public class UILobbyGameplay : UIView
     [Header("References")]
     [SerializeField] private Button _continueBtn;
     [SerializeField] private Button _lobbyInfoBtn;
+    [SerializeField] private Button _gameplayInfoBtn;
     [SerializeField] private Button _settingsBtn;
     [SerializeField] private Button _leaveLobbyBtn;
     [SerializeField] private Button _exitToDesktopBtn;
@@ -16,6 +17,7 @@ public class UILobbyGameplay : UIView
     {
         _continueBtn.onClick.AddListener(HandleClickContinue);
         _lobbyInfoBtn.onClick.AddListener(HandleClickLobbyInfo);
+        _gameplayInfoBtn.onClick.AddListener(HandleClickGameplayInfo);
         _settingsBtn.onClick.AddListener(HandleClickSettings);
         _leaveLobbyBtn.onClick.AddListener(HandleClickLeaveLobby);
         _exitToDesktopBtn.onClick.AddListener(HandleClickExitToDesktop);
@@ -24,6 +26,7 @@ public class UILobbyGameplay : UIView
     {
         _continueBtn.onClick.RemoveListener(HandleClickContinue);
         _lobbyInfoBtn.onClick.RemoveListener(HandleClickLobbyInfo);
+        _gameplayInfoBtn.onClick.RemoveListener(HandleClickGameplayInfo);
         _settingsBtn.onClick.RemoveListener(HandleClickSettings);
         _leaveLobbyBtn.onClick.RemoveListener(HandleClickLeaveLobby);
         _exitToDesktopBtn.onClick.RemoveListener(HandleClickExitToDesktop);
@@ -53,8 +56,13 @@ public class UILobbyGameplay : UIView
     private void HandleClickLobbyInfo()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
-        // Hide();
         UIManager.Instance.ShowUI(EUIState.LobbyInfo);
+        EventSystem.current.SetSelectedGameObject(null);
+    }
+    private void HandleClickGameplayInfo()
+    {
+        SoundManager.Play2D(SoundType.ButtonClick);
+        UIManager.Instance.ShowUI(EUIState.Guide);
         EventSystem.current.SetSelectedGameObject(null);
     }
     private void HandleClickSettings()

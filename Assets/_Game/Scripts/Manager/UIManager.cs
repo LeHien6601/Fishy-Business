@@ -115,7 +115,8 @@ public enum EUIState
     Settings,
     Notification,
     InGameVoting,
-    TextChat
+    TextChat,
+    Guide
 }
 [Serializable]
 public struct UIViewState

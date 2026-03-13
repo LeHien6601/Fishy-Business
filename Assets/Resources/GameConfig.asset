@@ -55,6 +55,9 @@ MonoBehaviour:
   - State: 14
     View: {fileID: 4758496721424205595, guid: cab6e3fa28d6e3948bf41d04feb1efa0, type: 3}
     SortingOrder: 2
+  - State: 15
+    View: {fileID: 948093618603668472, guid: f7494aabc64f9204e8e3ee64026fa1c7, type: 3}
+    SortingOrder: 5
   playerIcons:
   - {fileID: -197385056, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
   - {fileID: -1626465430, guid: a9964c97ffcb722448626cd3cd49fddb, type: 3}
