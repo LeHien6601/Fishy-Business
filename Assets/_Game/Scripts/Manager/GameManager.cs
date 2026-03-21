@@ -54,7 +54,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     public void HandleLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
         Debug.Log($"Client {clientId} finished loading scene {sceneName}");
-        if (sceneName == "GameScene" && NetworkManager.Singleton.IsHost)
+        if (sceneName == "GameScene")
         {
             SpawnPlayerRpc(clientId);
             HandlePlayerJoinNetworkClientRpc(clientId);
@@ -65,9 +65,10 @@ public class GameManager : SingletonMonoNet<GameManager>
         else if (sceneName == "Lobby")
         {
             _spawnedPlayerNames.Clear();
+            _currentGameState = EGameState.MainMenu;
+            HandlePlayerLeaveNetworkClientRpc(clientId);
             UIManager.Instance.HideUI(EUIState.InGame);
             UIManager.Instance.HideUI(EUIState.TextChat);
-            _currentGameState = EGameState.MainMenu;
             UIManager.Instance.HideUI(EUIState.Notification);
         }
     }
@@ -82,6 +83,17 @@ public class GameManager : SingletonMonoNet<GameManager>
         HandlePlayerJoinNetworkServerRpc(clientId, PlayerInfoManager.Instance.PlayerName, AuthenticationService.Instance.PlayerId);
         _currentGameState = EGameState.InGame;
         SoundManager.PlayMusic(SoundType.Lobby);
+        UIManager.Instance.ShowUI(EUIState.Notification);
+        UIManager.Instance.ShowUI(EUIState.TextChat);
+    }
+    [ClientRpc]
+    private void HandlePlayerLeaveNetworkClientRpc(ulong clientId)
+    {
+        if (clientId != NetworkManager.Singleton.LocalClientId) return;
+        _currentGameState = EGameState.MainMenu;
+        UIManager.Instance.HideUI(EUIState.InGame);
+        UIManager.Instance.HideUI(EUIState.TextChat);
+        UIManager.Instance.HideUI(EUIState.Notification);
     }
 
     /// <summary>

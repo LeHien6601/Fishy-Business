@@ -14,17 +14,18 @@ public class PlayerNameDisplay : NetworkBehaviour
     [SerializeField] private Image _nameBackgroundImage;
     [SerializeField] private VoiceActivityEventChannelSO _voiceActivityEventChannel;
     private Camera _camera;
-    private string _id;
-
-    // Replace string NetworkVariable with FixedString128Bytes
+    private NetworkVariable<FixedString512Bytes> _playerId = new(new FixedString512Bytes(""), 
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+    
     private NetworkVariable<FixedString128Bytes> _playerName = new(new FixedString128Bytes(""), 
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         _playerName.OnValueChanged += HandleChangeName;
+        _playerId.OnValueChanged += HandleChangeId;
         _camera = Camera.main;
         _canvas.worldCamera = _camera;
         _nameTMP.text = _playerName.Value.ToString();
@@ -36,19 +37,24 @@ public class PlayerNameDisplay : NetworkBehaviour
     {
         base.OnNetworkDespawn();
         _playerName.OnValueChanged -= HandleChangeName;
+        _playerId.OnValueChanged -= HandleChangeId;
         _voiceActivityEventChannel.OnEventRaised -= HandleVoiceActivityUpdated;
     }
 
-    // Update handler to use FixedString128Bytes
     private void HandleChangeName(FixedString128Bytes previousValue, FixedString128Bytes newValue)
     {
         _nameTMP.text = newValue.ToString();
+    }
+    private void HandleChangeId(FixedString512Bytes previousValue, FixedString512Bytes newValue)
+    {
+        _nameBackgroundImage.color = GameConfig.Instance.GetColor(LobbyManager.Instance.GetPlayerIndex(newValue.ToString()));
     }
 
     public void SetPlayerName(string name, string authId)
     {
         _playerName.Value = new FixedString128Bytes(name);
-        _id = authId;
+        if (authId == null) return;
+        _playerId.Value = new FixedString512Bytes(authId);
         _nameBackgroundImage.color = GameConfig.Instance.GetColor(LobbyManager.Instance.GetPlayerIndex(authId));
     }
 
@@ -59,7 +65,8 @@ public class PlayerNameDisplay : NetworkBehaviour
     }
     private void HandleVoiceActivityUpdated(string authId, bool isActive)
     {
-        if (authId != _id) return;
+
+        if (authId != _playerId.Value) return;
         _voiceDetectedImg.gameObject.SetActive(isActive);
     }
 }
