@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -328,7 +329,7 @@ public class CardHolder : MonoBehaviour
             _ => false,
         };
     }
-    public void SetTool(ToolType toolType, bool isRepair)
+    public void SetTool(ToolType toolType, bool isRepair, ulong targetId, ulong senderId)
     {
         SoundManager.Play2D(isRepair ? SoundType.CoinAppear : SoundType.CoinDisappear);
         switch (toolType)
@@ -337,8 +338,11 @@ public class CardHolder : MonoBehaviour
                 if (Cart != isRepair)
                 {
                     AnimationForTool(_cartCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair ?
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                    {
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
+                    }
                 }
                 Cart = isRepair;
                 break;
@@ -346,8 +350,9 @@ public class CardHolder : MonoBehaviour
                 if (Hat != isRepair)
                 {
                     AnimationForTool(_hatCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair ?
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);
                 }
                 Hat = isRepair;
                 break;
@@ -355,8 +360,9 @@ public class CardHolder : MonoBehaviour
                 if (Shovel != isRepair)
                 {
                     AnimationForTool(_shovelCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair ?
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);
                 }
                 Shovel = isRepair;
                 break;
@@ -364,14 +370,16 @@ public class CardHolder : MonoBehaviour
                 if (Cart != isRepair)
                 {
                     AnimationForTool(_cartCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair ?
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
                 }
                 if (Hat != isRepair)
                 {
                     AnimationForTool(_hatCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair ?
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);
                 }
                 Cart = Hat = isRepair;
                 break;
@@ -379,14 +387,16 @@ public class CardHolder : MonoBehaviour
                 if (Cart != isRepair)
                 {
                     AnimationForTool(_cartCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair ?
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Cart);
                 }
                 if (Shovel != isRepair)
                 {
                     AnimationForTool(_shovelCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair ?
-                                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                                        ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);
                 }
                 Cart = Shovel = isRepair;
                 break;
@@ -394,14 +404,16 @@ public class CardHolder : MonoBehaviour
                 if (Hat != isRepair)
                 {
                     AnimationForTool(_hatCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair? 
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);  
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Hat);
                 }
                 if (Shovel != isRepair)
                 {
                     AnimationForTool(_shovelCoin, isRepair);
-                    GameplayManager.Instance.TriggerActionCard(isRepair? 
-                                ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);  
+                    if (NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+                        GameplayManager.Instance.TriggerActionCard(isRepair ?
+                                    ActionCardType.FixTool : ActionCardType.BrokenTool, ToolType.Shovel);
                 }
                 Hat = Shovel = isRepair;
                 break;

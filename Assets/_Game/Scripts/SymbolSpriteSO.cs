@@ -11,4 +11,6 @@ public class SymbolSpriteSO : ScriptableObject
     public Sprite FixCart;
     public Sprite FixHat;
     public Sprite FixShovel;
+    public Sprite Shield;
+    public Sprite ShieldBreak;
 }
