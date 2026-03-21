@@ -2373,7 +2373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &239075253
 Transform:
   m_ObjectHideFlags: 0
@@ -5562,6 +5562,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
+--- !u!20 &459042933 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2634996219422889798, guid: c65ee764a7d785c40b91cb17b0e9e783, type: 3}
+  m_PrefabInstance: {fileID: 459042931}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &463292864
 GameObject:
   m_ObjectHideFlags: 0
@@ -6027,6 +6032,14 @@ PrefabInstance:
     - target: {fileID: 391319839793913597, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 999645599458766034, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 459042933}
+    - target: {fileID: 999645599458766034, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1012217889842204036, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_AnchorMax.y
@@ -22238,7 +22251,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1610224605
 Transform:
   m_ObjectHideFlags: 0
@@ -28538,6 +28551,14 @@ PrefabInstance:
     - target: {fileID: 977445340905852122, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 999645599458766034, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 459042933}
+    - target: {fileID: 999645599458766034, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1012217889842204036, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       propertyPath: m_AnchorMax.y
