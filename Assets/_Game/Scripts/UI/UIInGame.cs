@@ -65,7 +65,7 @@ public class UIInGame : UIView
     void OnEnable()
     {
         GameplayManager.Instance.OnStartedNewTurn += HandleNewTurn;
-        GameplayManager.Instance.OnUseActionCard += HandleUIActionCard;
+        // GameplayManager.Instance.OnUseActionCard += HandleUIActionCard;
         GameplayManager.Instance.OnStartPhase += HandleStartPhase;
         GameplayManager.Instance.OnEndPhase += HandleEndPhase;
         _myTurnRect.localScale = Vector3.zero;
