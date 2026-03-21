@@ -346,6 +346,16 @@ public class LobbyManager : SingletonMono<LobbyManager>
             }
         };
     }
+    public int GetPlayerIndex(string authId)
+    {
+        int index = 0;
+        foreach (var player in currentLobby.Players)
+        {
+            if (player.Id == authId) return index;
+            index++;
+        }
+        return index;
+    }
 
 
     private IEnumerator HeartbeatLobby(string lobbyId)

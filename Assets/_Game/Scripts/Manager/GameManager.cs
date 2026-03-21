@@ -124,6 +124,15 @@ public class GameManager : SingletonMonoNet<GameManager>
     {
         return _idMap.TryGetValue(clientId, out var authId) ? authId : null;
     }
+    public int GetPlayerIndexByClientId(ulong clientId)
+    {
+        int i = 0;
+        foreach (var player in _idMap)
+        {
+            if (player.Key == clientId) return i++;
+        }
+        return 0;
+    }
     /// <summary>
     /// Find the Netcode client ID that belongs to a specific UGS Authentication ID.
     /// Used heavily for syncing lobby data → in-game objects.

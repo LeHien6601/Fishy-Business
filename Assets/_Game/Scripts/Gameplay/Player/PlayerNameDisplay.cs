@@ -11,6 +11,7 @@ public class PlayerNameDisplay : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI _nameTMP;
     [SerializeField] private Canvas _canvas;
     [SerializeField] private Image _voiceDetectedImg;
+    [SerializeField] private Image _nameBackgroundImage;
     [SerializeField] private VoiceActivityEventChannelSO _voiceActivityEventChannel;
     private Camera _camera;
     private string _id;
@@ -44,11 +45,11 @@ public class PlayerNameDisplay : NetworkBehaviour
         _nameTMP.text = newValue.ToString();
     }
 
-    // Update SetPlayerName to use FixedString128Bytes
     public void SetPlayerName(string name, string authId)
     {
         _playerName.Value = new FixedString128Bytes(name);
         _id = authId;
+        _nameBackgroundImage.color = GameConfig.Instance.GetColor(LobbyManager.Instance.GetPlayerIndex(authId));
     }
 
     void LateUpdate()

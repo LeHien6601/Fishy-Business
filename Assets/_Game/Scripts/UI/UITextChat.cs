@@ -77,6 +77,7 @@ public class UITextChat : UIView
             await Task.Yield();
         }
         if (_inputField.text.IsNullOrEmpty()) return;
+        SoundManager.Play2D(SoundType.ButtonClick);
         _lastSendTime = Time.time;
         string message = _inputField.text;
         _inputField.text = "";
@@ -148,7 +149,8 @@ public class UITextChat : UIView
         string timestamp = msg.ReceivedTime.ToLocalTime().ToString("HH:mm");
         var playerInfo = LobbyManager.Instance.GetPlayerInfoFromPlayerId(msg.SenderPlayerId);
         string finalName = playerInfo.Found ? playerInfo.Name : msg.SenderDisplayName;
-        element.SetText($"<color=#888888>[{timestamp}]</color> <b>{finalName}:</b> {msg.MessageText}");
+        string colorCode = "#" + GameConfig.Instance.GetColorCode(LobbyManager.Instance.GetPlayerIndex(msg.SenderPlayerId));
+        element.SetText($"<color=#cccccc>[{timestamp}]</color> <color={colorCode}><b>{finalName}:</b></color> {msg.MessageText}");
 
         Canvas.ForceUpdateCanvases();
         StartCoroutine(UpdateVerticleLayoutGroup());

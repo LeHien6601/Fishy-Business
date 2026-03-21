@@ -24,10 +24,10 @@ MonoBehaviour:
     SortingOrder: 5
   - State: 4
     View: {fileID: 392927606908382715, guid: 56be211ffc6ee6547b239f46e793e6ec, type: 3}
-    SortingOrder: 1
+    SortingOrder: 3
   - State: 5
     View: {fileID: 9052830829739115278, guid: df856596f754dfe48828a2d12e35a340, type: 3}
-    SortingOrder: 2
+    SortingOrder: 4
   - State: 6
     View: {fileID: 6240974990313755145, guid: 233b82f291cd2e449ab4294095a947a6, type: 3}
     SortingOrder: 7
@@ -107,3 +107,12 @@ MonoBehaviour:
   GameModes:
   - {fileID: 11400000, guid: 84ec56b9655c2c148b16a4bdb9a0601c, type: 2}
   - {fileID: 11400000, guid: d821e80064b2a524a92bf21542e863fd, type: 2}
+  ColorList:
+  - {r: 0, g: 0.32480717, b: 1, a: 1}
+  - {r: 0, g: 0.8957093, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0.39264822, a: 1}
+  - {r: 0.6670532, g: 1, b: 0, a: 1}
+  - {r: 1, g: 0.91523814, b: 0, a: 1}
+  - {r: 1, g: 0.20215121, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0.6268492, a: 1}
+  - {r: 0.7899852, g: 0, b: 1, a: 1}

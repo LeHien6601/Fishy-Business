@@ -10116,7 +10116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2612088225
+  GlobalObjectIdHash: 1013939895
   InScenePlacedSourceGlobalObjectIdHash: 2612088225
   DeferredDespawnTick: 0
   Ownership: 1
@@ -13040,11 +13040,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 6165459632898404982}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 64.3, y: 0}
+  m_AnchoredPosition: {x: 5, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &2575518124012891489
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -17267,6 +17267,7 @@ MonoBehaviour:
   _nameTMP: {fileID: 2531301924962020825}
   _canvas: {fileID: 1184092920061621709}
   _voiceDetectedImg: {fileID: 2795317219020381455}
+  _nameBackgroundImage: {fileID: 1197894313856394249}
   _voiceActivityEventChannel: {fileID: 11400000, guid: beff826de03a3894db287e43c2275239, type: 2}
 --- !u!1 &7145508984416671783
 GameObject:

@@ -147,6 +147,7 @@ public class UICustomGame : UIView
     }
     private void HandleClickCreate()
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         _mapSelectionRect.gameObject.SetActive(true);
     }
     private async void Create(int mapIndex)
