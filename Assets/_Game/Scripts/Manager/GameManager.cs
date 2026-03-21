@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using HHDCore;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -51,11 +52,19 @@ public class GameManager : SingletonMonoNet<GameManager>
     /// Called by Netcode whenever ANY client finishes loading a scene.
     /// We use this to spawn the player object exactly when the client is ready.
     /// </summary>
-    public void HandleLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
+    public async void HandleLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
         Debug.Log($"Client {clientId} finished loading scene {sceneName}");
         if (sceneName == "GameScene")
         {
+            if (NetworkManager.Singleton.IsHost && clientId == NetworkManager.Singleton.LocalClientId)
+            {
+                GameData gameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
+                string mapSceneName = GameConfig.Instance.MapScenes[gameData.MapIndex];
+                Debug.Log($"Map {mapSceneName}");
+                NetworkManager.Singleton.SceneManager.LoadScene(mapSceneName, LoadSceneMode.Additive);
+            }
+            while (!IsSpawned) await Task.Yield();
             SpawnPlayerRpc(clientId);
             HandlePlayerJoinNetworkClientRpc(clientId);
             UIManager.Instance.ShowUI(EUIState.Notification);
