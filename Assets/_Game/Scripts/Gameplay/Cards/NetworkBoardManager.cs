@@ -1198,11 +1198,11 @@ public class NetworkBoardManager : NetworkBehaviour
     public void CoverAllClientsRpc()
     {
         CardHolder localHolder = _playerAndHolderMap[NetworkManager.Singleton.LocalClientId];
-        if (localHolder.NightVision)
-        {
-            return; // do not cover if has night vision
-        }
-        _dayNightController.Cover();
+        // if (localHolder.NightVision)
+        // {
+        //     return; // do not cover if has night vision
+        // }
+        _dayNightController.Cover(localHolder.NightVision);
     }
 
 
