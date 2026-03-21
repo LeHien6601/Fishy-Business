@@ -17,6 +17,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     public event Action<StartedNewTurnEventArgs> OnStartedNewTurn;
     public event Action OnResetGame;
     public event Action<ActionCardType, ToolType> OnUseActionCard;
+    public event Action OnShieldBreak;
     public struct StartedNewTurnEventArgs
     {
         public ulong ClientId;
@@ -157,6 +158,10 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     public void TriggerActionCard(ActionCardType actionCardType, ToolType toolType)
     {
         OnUseActionCard?.Invoke(actionCardType, toolType);
+    }
+    public void TriggerShieldBreak()
+    {
+        OnShieldBreak?.Invoke();
     }
 
     public void TriggerVoting(string toPlayer, bool isSkip = false)

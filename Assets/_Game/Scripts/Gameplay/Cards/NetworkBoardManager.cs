@@ -442,7 +442,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = confirm
                 {
                     _localPlayerState = PlayerState.NONE;
-                    BombThisPathServerRpc(_hoveringSlot.Value);
+                    BombThisPathServerRpc(_hoveringSlot.Value, NetworkManager.Singleton.LocalClientId);
                 }
                 break;
             case PlayerState.SELECTING_TARGET_PLAYER:
@@ -468,7 +468,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 if (Mouse.current.leftButton.wasPressedThisFrame)
                 {
                     _localPlayerState = PlayerState.NONE;
-                    ApplyActionCardOnPlayerServerRpc(_targerPlayer.Value);
+                    ApplyActionCardOnPlayerServerRpc(_targerPlayer.Value, NetworkManager.Singleton.LocalClientId);
                 }
 
                 break;
@@ -738,26 +738,26 @@ public class NetworkBoardManager : NetworkBehaviour
                                     showTarget: requester.BeforeFaceSlot(),
                                     isTressure: checkResult,
                                     revealCardData: NetworkManager.Singleton.LocalClientId == requesterId);
-
-        GameplayManager.Instance.TriggerActionCard(ActionCardType.CheckGold, ToolType.None);
+        if (NetworkManager.Singleton.LocalClientId == requesterId)
+            GameplayManager.Instance.TriggerActionCard(ActionCardType.CheckGold, ToolType.None);
     }
     #endregion
 
     #region BOMB A PATH ON BOARD
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void BombThisPathServerRpc(Vector2Int slot)
+    private void BombThisPathServerRpc(Vector2Int slot, ulong senderId)
     {
         if (!_boardCore.OnBoardPaths.Contains(slot))
         {
             Debug.LogWarning("this slot is not in OnBoardPaths list");
             return;
         }
-        BombThisPathClientRpc(slot);
+        BombThisPathClientRpc(slot, senderId);
         this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
     }
 
     [ClientRpc]
-    private void BombThisPathClientRpc(Vector2Int slot)
+    private void BombThisPathClientRpc(Vector2Int slot, ulong senderId)
     {
         Vector3 wp = _boardCore.GetWorldPositionForSlot(slot);
         _placingCard.transform.DOMove(wp, BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
@@ -768,7 +768,8 @@ public class NetworkBoardManager : NetworkBehaviour
         BombEvent.Invoke(wp);
         _boardCore.BombThisPath(slot);
         // @TODO: add some visuals
-        GameplayManager.Instance.TriggerActionCard(ActionCardType.Bomb, ToolType.None);
+        if (NetworkManager.Singleton.LocalClientId == senderId)
+            GameplayManager.Instance.TriggerActionCard(ActionCardType.Bomb, ToolType.None);
     }
 
     #endregion
@@ -826,19 +827,19 @@ public class NetworkBoardManager : NetworkBehaviour
     #region TOOL FUNCTION ON A PLAYER
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void ApplyActionCardOnPlayerServerRpc(ulong targetPlayer)
+    private void ApplyActionCardOnPlayerServerRpc(ulong targetPlayer, ulong senderId)
     {
         switch (_placingCard.ActionCardType)
         {
             case ActionCardType.BrokenTool:
             case ActionCardType.FixTool:
-                ApplyToolOnPlayerClientRpc(targetPlayer);
+                ApplyToolOnPlayerClientRpc(targetPlayer, senderId);
                 break;
             case ActionCardType.Binoculars:
                 ApplyBinocularsToPlayerClientRpc(targetPlayer);
                 break;
             case ActionCardType.Shield:
-                ApplyShieldToPlayerClientRpc(targetPlayer);
+                ApplyShieldToPlayerClientRpc(targetPlayer, senderId);
                 break;
             case ActionCardType.SwapGoal:
                 break;
@@ -856,7 +857,7 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void ApplyToolOnPlayerClientRpc(ulong tagetPlayer)
+    private void ApplyToolOnPlayerClientRpc(ulong tagetPlayer, ulong senderId)
     {
         CardHolder holder = _playerAndHolderMap[tagetPlayer];
         if (_placingCard.ActionCardType == ActionCardType.BrokenTool && holder.Shield)
@@ -864,14 +865,22 @@ public class NetworkBoardManager : NetworkBehaviour
             holder.Shield = false;
             Debug.Log("Your shield has blocked an attack from somebody");
             //@TODO: notify has shield
+            if (NetworkManager.Singleton.LocalClientId == tagetPlayer || NetworkManager.Singleton.LocalClientId == senderId)
+            {
+                ShowEffectShieldBreak();
+            }
         }
         else
         {
-            holder.SetTool(_placingCard.ToolType, _placingCard.ActionCardType == ActionCardType.FixTool);
+            holder.SetTool(_placingCard.ToolType, _placingCard.ActionCardType == ActionCardType.FixTool, tagetPlayer, senderId);
         }
         Destroy(_placingCard.gameObject);
         _placingCard = null;
         _targerPlayer = null;
+    }
+    private void ShowEffectShieldBreak()
+    {
+        GameplayManager.Instance.TriggerShieldBreak();
     }
 
     [ClientRpc]
@@ -884,13 +893,18 @@ public class NetworkBoardManager : NetworkBehaviour
         _targerPlayer = null;
     }
     [ClientRpc]
-    private void ApplyShieldToPlayerClientRpc(ulong targetPlayerId, ClientRpcParams clientRpcParams = default)
+    private void ApplyShieldToPlayerClientRpc(ulong targetPlayerId, ulong senderId, ClientRpcParams clientRpcParams = default)
     {
         CardHolder holder = _playerAndHolderMap[targetPlayerId];
         holder.Shield = true;
         Destroy(_placingCard.gameObject);
         _placingCard = null;
         _targerPlayer = null;
+        if (NetworkManager.Singleton.LocalClientId == targetPlayerId || NetworkManager.Singleton.LocalClientId == senderId)
+        {
+            GameplayManager.Instance.TriggerActionCard(ActionCardType.Shield, ToolType.None);
+        }
+
     }
     #endregion
 

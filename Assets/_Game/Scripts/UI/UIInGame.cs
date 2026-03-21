@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Threading.Tasks;
 using DG.Tweening;
@@ -65,7 +66,8 @@ public class UIInGame : UIView
     void OnEnable()
     {
         GameplayManager.Instance.OnStartedNewTurn += HandleNewTurn;
-        // GameplayManager.Instance.OnUseActionCard += HandleUIActionCard;
+        GameplayManager.Instance.OnUseActionCard += HandleUIActionCard;
+        GameplayManager.Instance.OnShieldBreak += HandleShieldBreak;
         GameplayManager.Instance.OnStartPhase += HandleStartPhase;
         GameplayManager.Instance.OnEndPhase += HandleEndPhase;
         _myTurnRect.localScale = Vector3.zero;
@@ -74,10 +76,13 @@ public class UIInGame : UIView
         _item1.gameObject.SetActive(false);
         _item2.gameObject.SetActive(false);
     }
+
+
     void OnDisable()
     {
         GameplayManager.Instance.OnStartedNewTurn -= HandleNewTurn;
         GameplayManager.Instance.OnUseActionCard -= HandleUIActionCard;
+        GameplayManager.Instance.OnShieldBreak -= HandleShieldBreak;
         GameplayManager.Instance.OnStartPhase -= HandleStartPhase;
         GameplayManager.Instance.OnEndPhase -= HandleEndPhase;
     }
@@ -96,7 +101,7 @@ public class UIInGame : UIView
         ShowTurnText(args.TurnNumber);
         ShowRect(_counterRect);
         _resetTimer = true;
-        await Task.Yield(); 
+        await Task.Yield();
         StartCoroutine(TimerCountdown(_gameData.TurnInterval));
     }
     private async void HandleStartPhase(GameplayManager.StartPhaseEventArgs args)
@@ -135,6 +140,13 @@ public class UIInGame : UIView
     }
 
 
+    private void HandleShieldBreak()
+    {
+        //@TODO: Add effect shield break
+        SoundManager.Play2D(SoundType.ShieldGuard);
+        ShowSymbol(_symbolSpriteSO.ShieldBreak);
+
+    }
     private void HandleUIActionCard(ActionCardType actionType, ToolType toolType)
     {
         if (actionType == ActionCardType.None) return;
@@ -180,6 +192,10 @@ public class UIInGame : UIView
                     break;
             }
         }
+        else if (actionType == ActionCardType.Shield)
+        {
+            ShowSymbol(_symbolSpriteSO.Shield);
+        }
     }
     private void UpdateGameMode()
     {
@@ -197,14 +213,14 @@ public class UIInGame : UIView
             _item2.gameObject.SetActive(true);
             color.a = 0f;
             _item2.color = color;
-            
+
             sequence.Append(_item2.DOFade(1f, 1f));
             sequence.Append(_item2.DOFade(0f, 0.5f));
             sequence.OnComplete(() =>
             {
                 _item2.gameObject.SetActive(false);
             });
-            
+
         }
         else
         {

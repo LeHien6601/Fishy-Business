@@ -20,3 +20,5 @@ MonoBehaviour:
   FixCart: {fileID: 21300000, guid: b8ba50cb39d7f6d4abf9bf6fc29c89e2, type: 3}
   FixHat: {fileID: 21300000, guid: f0ef2c95ec5720949b28937898b5ae71, type: 3}
   FixShovel: {fileID: 21300000, guid: ff2ca5d3240676c41bc3fe0afc64898b, type: 3}
+  Shield: {fileID: 21300000, guid: 2ef18377a28cf57478b2fc6313cf0b0f, type: 3}
+  ShieldBreak: {fileID: 21300000, guid: 3d7af7feaf9fa2e498f112c859e70848, type: 3}
