@@ -2,6 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -152,7 +153,7 @@ public class PlayerController : NetworkBehaviour
         if (CharacterController.isGrounded)
         {
             Movement.y = -1f;
-            if (Input.GetKeyDown(KeyCode.Space) && _canJump)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame && _canJump)
             {
                 ToState(_jumpState);
                 return;

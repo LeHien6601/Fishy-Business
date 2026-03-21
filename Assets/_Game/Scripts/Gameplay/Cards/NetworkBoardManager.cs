@@ -7,6 +7,7 @@ using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class NetworkBoardManager : NetworkBehaviour
 {
@@ -419,13 +420,13 @@ public class NetworkBoardManager : NetworkBehaviour
                 HoverCardOnBoard(_boardCore.ValidSlots);
                 if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
 
-                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
+                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = confirm
                 {
                     // after placing card, wait for drawing a new card, then end turn 
                     _localPlayerState = PlayerState.NONE;
                     ConfirmCardPlacementServerRpc(_hoveringSlot.Value, _placingCard.GetRealRotation());
                 }
-                if (Input.GetMouseButtonDown(1)) // right mouse = rotate
+                if (Mouse.current.rightButton.wasPressedThisFrame) // right mouse = rotate
                 {
                     // check condition in advance before sending RPC to save network traffic
                     if (_boardCore.IsPlacableWithOppositeRotation(_placingCard, _hoveringSlot.Value))
@@ -438,7 +439,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 HoverCardOnBoard(_boardCore.OnBoardPaths);
                 if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
 
-                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
+                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = confirm
                 {
                     _localPlayerState = PlayerState.NONE;
                     BombThisPathServerRpc(_hoveringSlot.Value);
@@ -464,7 +465,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
                 if (!_targerPlayer.HasValue) return;
 
-                if (Input.GetMouseButtonDown(0))
+                if (Mouse.current.leftButton.wasPressedThisFrame)
                 {
                     _localPlayerState = PlayerState.NONE;
                     ApplyActionCardOnPlayerServerRpc(_targerPlayer.Value);
@@ -475,7 +476,7 @@ public class NetworkBoardManager : NetworkBehaviour
                 HoverCardOnBoard(_boardCore.GoalPos);
                 if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
 
-                if (Input.GetMouseButtonDown(0)) // left mouse = confirm
+                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = confirm
                 {
                     _localPlayerState = PlayerState.NONE;
                     CheckThisGoalServerRpc(NetworkManager.Singleton.LocalClientId, _hoveringSlot.Value);
@@ -485,13 +486,13 @@ public class NetworkBoardManager : NetworkBehaviour
                 HoverCardOnBoard(_boardCore.GoalPos);
                 if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
 
-                if (Input.GetMouseButtonDown(0)) // left mouse = swap with left
+                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = swap with left
                 {
                     _localPlayerState = PlayerState.NONE;
                     int slotx = ((_hoveringSlot.Value.x / 2 + 4) % 3) * 2;
                     SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y));
                 }
-                else if (Input.GetMouseButtonDown(1)) // right mouse = swap with right
+                else if (Mouse.current.rightButton.wasPressedThisFrame) // right mouse = swap with right
                 {
                     _localPlayerState = PlayerState.NONE;
                     int slotx = ((_hoveringSlot.Value.x / 2 + 2) % 3) * 2;
@@ -1024,7 +1025,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     private Vector3 GetMouseWorldPointOnBoard()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.value);
         if (_boardPlane.Raycast(ray, out float enter))
         {
             Vector3 hit = ray.GetPoint(enter);

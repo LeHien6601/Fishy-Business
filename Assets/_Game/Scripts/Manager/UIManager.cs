@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HHDCore;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class UIManager : SingletonMono<UIManager>
 {
@@ -16,7 +17,7 @@ public class UIManager : SingletonMono<UIManager>
     void Update()
     {
         if (GameManager.Instance.CurrentGameState != GameManager.EGameState.InGame) return;
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             bool isShowingLobbyUI = false;
             foreach (var viewState in _uiViewStates)

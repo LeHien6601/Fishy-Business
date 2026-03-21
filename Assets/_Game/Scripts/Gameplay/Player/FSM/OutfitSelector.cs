@@ -61,6 +61,7 @@ public class OutfitSelector : NetworkBehaviour
     }
 
 #if UNITY_EDITOR
+/*
     void Update()
     {
         if (!IsOwner)
@@ -99,7 +100,7 @@ public class OutfitSelector : NetworkBehaviour
             _outfitPair.Value = new(_currentOutfitId, variantId);
         }
     }
-
+*/
 # endif
 
 

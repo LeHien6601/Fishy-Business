@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class InstrumentInput : MonoBehaviour
 {
@@ -9,14 +10,14 @@ public class InstrumentInput : MonoBehaviour
     [SerializeField] private Transform _buttonContainer;
     [SerializeField] private GameObject _buttonPrefab;
     // A mapping of your 21 note indices (0-20) to Unity KeyCodes
-    private readonly KeyCode[] NoteKeyMap = new KeyCode[]
+    private readonly Key[] NoteKeyMap = new Key[]
     {
         // Notes 14-20 (Top Row: Q, W, E, R, T, Y, U)
-        KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.R, KeyCode.T, KeyCode.Y, KeyCode.U,
+        Key.Q, Key.W, Key.E, Key.R, Key.T, Key.Y, Key.U,
         // Notes 7-13 (Middle Row: A, S, D, F, G, H, J)
-        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.G, KeyCode.H, KeyCode.J,
+        Key.A, Key.S, Key.D, Key.F, Key.G, Key.H, Key.J,
         // Notes 0-6 (Bottom Row: Z, X, C, V, B, N, M)
-        KeyCode.Z, KeyCode.X, KeyCode.C, KeyCode.V, KeyCode.B, KeyCode.N, KeyCode.M
+        Key.Z, Key.X, Key.C, Key.V, Key.B, Key.N, Key.M
     };
 
     public event UnityAction<int> OnNotePlayed;
@@ -40,11 +41,11 @@ public class InstrumentInput : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns the KeyCode corresponding to the given note index (0-20).
+    /// Returns the Key corresponding to the given note index (0-20).
     /// </summary>
     /// <param name="index">The note index (0-20).</param>
-    /// <returns>The KeyCode mapped to the note index.</returns>
-    private KeyCode GetKeyForNote(int index)
+    /// <returns>The Key mapped to the note index.</returns>
+    private Key GetKeyForNote(int index)
     {
         // We use a bounds check just in case an invalid index is passed.
         if (index >= 0 && index < NoteKeyMap.Length)
@@ -54,15 +55,17 @@ public class InstrumentInput : MonoBehaviour
 
         // Return a default key if the index is out of bounds (e.g., Space or None)
         Debug.LogError($"Note index {index} is out of bounds (0-{NoteKeyMap.Length - 1}).");
-        return KeyCode.None;
+        return Key.None;
     }
 
     void Update()
     {
+        if (Keyboard.current == null) return;
+
         // The loop is slightly more efficient if you iterate over the size of the mapping array.
         for (int i = 0; i < NoteKeyMap.Length; i++)
         {
-            if (Input.GetKeyDown(GetKeyForNote(i)))
+            if (Keyboard.current[GetKeyForNote(i)].wasPressedThisFrame)
             {
                 // Invoke the event with the note index (i)
                 OnNotePlayed?.Invoke(i);
