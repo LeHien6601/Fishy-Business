@@ -17,4 +17,5 @@ public enum SoundType
     CoinAppear,
     CoinDisappear,
     BombExplode,
+    ShieldGuard,
 }

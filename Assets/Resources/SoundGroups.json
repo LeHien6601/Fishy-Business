@@ -14,7 +14,8 @@
                 "DealCard",
                 "CoinAppear",
                 "CoinDisappear",
-                "BombExplode"
+                "BombExplode",
+                "ShieldGuard"
             ]
         },
         {
