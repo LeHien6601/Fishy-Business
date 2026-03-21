@@ -1,0 +1,26 @@
+classDiagram
+    class PlayerInfoManager {
+        -string _playerName
+        -int _playerIconId
+        +string PlayerName
+        +int PlayerIconId
+        +event OnChangedPlayerInfo
+        +GenerateRandomPlayerInfo() void
+        +UpdatePlayerInfo(string newName, int newIconId) void
+    }
+
+    %% class ChangedPlayerInfoEventArgs {
+    %%     <<struct>>
+    %%     +string NewPlayerName
+    %%     +int NewPlayerIconId
+    %%     +ulong PlayerId
+    %% }
+
+    class SingletonMono~PlayerInfoManager~ {
+        <<abstract>>
+    }
+
+    %% Relationships
+    SingletonMono <|-- PlayerInfoManager : Inherits
+    %% PlayerInfoManager ..> ChangedPlayerInfoEventArgs : Uses/Triggers
+    %% PlayerInfoManager --> "1" ChangedPlayerInfoEventArgs : nested

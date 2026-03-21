@@ -2,7 +2,6 @@ classDiagram
     direction LR
 
     class BoardCore {
-        - Vector2 cardSize
         - int _rows = 5
         - int _cols = 9
         - Card[,] _board
@@ -14,16 +13,15 @@ classDiagram
 
         + GenerateBoard()
         + PlacePathCardAt(Card, Vector2Int)
-        + PlacePathCardAt(Card, Vector2Int, Quaternion)
         + DropCardOntoBoard(Card)
-
         + GetValidSlotsForCard(Card)
-        + ClearValidSlots()
         + IsValidSlot(Card, Vector2Int)
 
+        + ShowThisGoalCard(Vector2Int slot, Transform showTarget, bool isTressure, bool revealCardData)
         + GetPathsToHiddenGoals()
         + OpenHiddenGoalCard(GoalTracer, bool)
         + BombThisPath(Vector2Int)
+        + SwapGoals(Vector2Int slotA, Vector2Int slotB)
     }
 
     class Card {

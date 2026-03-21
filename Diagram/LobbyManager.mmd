@@ -68,10 +68,10 @@ classDiagram
         + HideUI(EUIState)
     }
 
-    class GameplayManager {
-        + OnStartGame
-        + OnEndGame
-    }
+    %% class GameplayManager {
+    %%     + OnStartGame
+    %%     + OnEndGame
+    %% }
 
     class GameManager {
         + DespawnPlayerRpc()
@@ -86,5 +86,5 @@ classDiagram
     LobbyManager --> RelayManager
     LobbyManager --> AuthenticationService
     LobbyManager --> UIManager
-    LobbyManager --> GameplayManager
+    %% LobbyManager --> GameplayManager
     LobbyManager --> GameManager
