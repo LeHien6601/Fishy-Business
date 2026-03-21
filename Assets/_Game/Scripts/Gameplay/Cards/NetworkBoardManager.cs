@@ -1019,7 +1019,6 @@ public class NetworkBoardManager : NetworkBehaviour
         direction.y = 0;
         _turnIndicator.DORotateQuaternion(Quaternion.LookRotation(direction), 0.1f);
 
-
         GameplayManager.Instance.HandleNewTurn(nextPlayerId, turnNumber);
     }
 

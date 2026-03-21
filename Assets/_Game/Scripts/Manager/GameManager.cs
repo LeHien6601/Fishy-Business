@@ -92,7 +92,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     private void HandlePlayerJoinNetworkServerRpc(ulong clientId, string name, string authId)
     {
         _idMap[clientId] = authId;
-        _spawnedPlayerNames[clientId].SetPlayerName(name);
+        _spawnedPlayerNames[clientId].SetPlayerName(name, authId);
     }
     /// <summary>
     /// Triggered whenever the lobby data changes (e.g., someone edits their name).
@@ -112,7 +112,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void HandleUpdatePlayerDataServerRpc(ulong clientId, string name)
     {
-        _spawnedPlayerNames[clientId].SetPlayerName(name);
+        _spawnedPlayerNames[clientId].SetPlayerName(name, GetAuthIdByNetId(clientId));
     }
     #endregion
 
@@ -120,9 +120,9 @@ public class GameManager : SingletonMonoNet<GameManager>
     /// <summary>
     /// Retrieve the UGS Authentication ID for a given Netcode client ID.
     /// </summary>
-    public string GetAuthIdByNetId(ulong cliendId)
+    public string GetAuthIdByNetId(ulong clientId)
     {
-        return _idMap.TryGetValue(cliendId, out var authId) ? authId : null;
+        return _idMap.TryGetValue(clientId, out var authId) ? authId : null;
     }
     /// <summary>
     /// Find the Netcode client ID that belongs to a specific UGS Authentication ID.
@@ -160,7 +160,7 @@ public class GameManager : SingletonMonoNet<GameManager>
         playerInstance.SpawnAsPlayerObject(clientId, true);
         PlayerNameDisplay nameDisplay = playerInstance.GetComponentInChildren<PlayerNameDisplay>();
         _spawnedPlayerNames[clientId] = nameDisplay;
-        nameDisplay.SetPlayerName("Anonymous");
+        nameDisplay.SetPlayerName("Anonymous", GetAuthIdByNetId(clientId));
         Debug.Log($"Spawned player for client {clientId}");
     }
     /// <summary>
