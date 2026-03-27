@@ -110,8 +110,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 84ec56b9655c2c148b16a4bdb9a0601c, type: 2}
   - {fileID: 11400000, guid: d821e80064b2a524a92bf21542e863fd, type: 2}
   MapScenes:
-  - Map 1
-  - Map 2
+  - DungeonCabin
+  - OceanMap
   ColorList:
   - {r: 0, g: 0.32480717, b: 1, a: 1}
   - {r: 0, g: 0.8957093, b: 1, a: 1}
