@@ -6,8 +6,9 @@ public class Constant
     public const int INTERACTABLE_LAYER = 3;
     // public const int NOT_RENDER_LAYER = 11;
     // public const int OUTLINE_LAYER = 12;
-
+    
     public const string PLAYER_TAG = "Player";
+    public const string RESPAWN_TAG = "Respawn";
     public const string GAME_SEAT_TAG = "GameSeat";
     public const string KEY_PLAYER_NAME = "PlayerName";
     public const string KEY_GAME_MODE_DATA = "GameData";

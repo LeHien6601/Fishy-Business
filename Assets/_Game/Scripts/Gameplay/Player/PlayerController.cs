@@ -62,6 +62,22 @@ public class PlayerController : NetworkBehaviour
         _headBoneTransformChannel.RaiseEvent(_headBone);
         CameraController.SwitchCamMode(CameraMode.ThirdPerson);
         _togglePlayerInputEvent.OnEventRaised += HandleToggleInput;
+        
+        Respawn();
+    }
+
+    public void Respawn()
+    {
+        Transform respawnPoint = GameObject.FindGameObjectWithTag(Constant.RESPAWN_TAG).transform;
+        // check null
+        if (respawnPoint == null)
+        {
+            Debug.LogWarning("Respawn point not found!");
+            return;
+        }
+        // add small random
+        transform.position = respawnPoint.position + UnityEngine.Random.insideUnitSphere * 2f;
+        ToState(_idleState);
     }
 
     public override void OnNetworkDespawn()
