@@ -66,10 +66,15 @@ public class PhasedGameMode : GameMode
     {
         List<GameplayManager.VotingData> votingDatas = GameplayManager.Instance.GetVotingDatas();
         if (votingDatas == null || votingDatas.Count <= 0) return;
+        int skipCount = 0;
         Dictionary<ulong, int> votesPerPlayer = new();
         foreach (var voting in votingDatas)
         {
-            if (voting.Skip) continue;
+            if (voting.Skip)
+            {
+                skipCount++;
+                continue;
+            }
             GameManager.Instance.GetNetIdByAuthId(voting.ToPlayer, out var toId);
             if (!votesPerPlayer.ContainsKey(toId))
                 votesPerPlayer[toId] = 0;
@@ -77,6 +82,7 @@ public class PhasedGameMode : GameMode
         }
         if (votesPerPlayer == null || votesPerPlayer.Count <= 0) return;
         int maxVotes = votesPerPlayer.Values.Max();
+        if(skipCount >= maxVotes) return;
 
         var topPlayers = votesPerPlayer
             .Where(kvp => kvp.Value == maxVotes)
