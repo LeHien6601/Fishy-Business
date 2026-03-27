@@ -156,7 +156,6 @@ public class RoundTable : NetworkBehaviour
             Debug.LogError("Server BoardManager reference is missing!");
             return;
         }
-        SoundManager.Play2D(SoundType.StartGame);
         _gameplaying.Value = true;
 
         PlayerOrders.Clear();

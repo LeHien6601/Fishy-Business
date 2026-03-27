@@ -96,6 +96,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
         if (cliendId != NetworkManager.Singleton.LocalClientId) return;
         _playerRole = role;
         UIManager.Instance.ShowUI(EUIState.InGame);
+        SoundManager.Play2D(SoundType.StartGame);
     }
 
     public void HandleResetGame(List<ulong> idList)
@@ -181,13 +182,24 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     private void VotingClientRpc(string from, string to, bool isSkip)
     {
         Debug.Log($"CLientRpc Player {from} voted {to}");
-        _currentVotingData.Add(new VotingData()
+        if (CheckValidVoting(from))
         {
-            FromPlayer = from,
-            ToPlayer = to,
-            Skip = isSkip
-        });
-        OnChangedVotingData?.Invoke();
+            _currentVotingData.Add(new VotingData()
+            {
+                FromPlayer = from,
+                ToPlayer = to,
+                Skip = isSkip
+            });
+            OnChangedVotingData?.Invoke();
+        }
+    }
+    private bool CheckValidVoting(string from)
+    {
+        foreach (var voting in _currentVotingData)
+        {
+            if (from == voting.FromPlayer) return false;
+        }
+        return true;
     }
     #endregion
 
