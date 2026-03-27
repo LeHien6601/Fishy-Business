@@ -91,6 +91,7 @@ public class UIInGame : UIView
         if (args.ClientId == NetworkManager.Singleton.LocalClientId)
         {
             _isMyTurn = true;
+            SoundManager.Play2D(SoundType.Start);
             ShowRect(_myTurnRect);
         }
         else if (_isMyTurn)
@@ -106,6 +107,7 @@ public class UIInGame : UIView
     }
     private async void HandleStartPhase(GameplayManager.StartPhaseEventArgs args)
     {
+        SoundManager.Play2D(SoundType.CutScene);
         if (args.Phase != GamePhase.DayVoting)
             ShowPhaseText(GameMode.GetGamePhaseName(args.Phase));
         HideRect(_myTurnRect);

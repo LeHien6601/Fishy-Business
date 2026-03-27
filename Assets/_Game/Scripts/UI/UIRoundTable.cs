@@ -33,6 +33,11 @@ public class UIRoundTable : MonoBehaviour
         _gameModeBtns[0].onClick.AddListener(() => ChangeGameMode(0));
         _gameModeBtns[1].onClick.AddListener(() => ChangeGameMode(1));
 
+        foreach (var slider in _sliders)
+        {
+            slider.Slider.onValueChanged.AddListener(HandleSliderValueChange);
+        }
+
         _saveBTN.onClick.AddListener(HandleClickSave);
         _toggleDataContainerBTN.onClick.AddListener(HandleClickToggle);
         
@@ -43,6 +48,11 @@ public class UIRoundTable : MonoBehaviour
         _gameModeBtns[0].onClick.RemoveAllListeners();
         _gameModeBtns[1].onClick.RemoveAllListeners();
 
+        foreach (var slider in _sliders)
+        {
+            slider.Slider.onValueChanged.RemoveAllListeners();
+        }
+
         _saveBTN.onClick.RemoveListener(HandleClickSave);
         _toggleDataContainerBTN.onClick.RemoveListener(HandleClickToggle);
         
@@ -51,6 +61,7 @@ public class UIRoundTable : MonoBehaviour
 
     private void ChangeGameMode(int index)
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         _currentGameMode = index;
         for (int i = 0; i < 2; i++)
         {
@@ -98,6 +109,10 @@ public class UIRoundTable : MonoBehaviour
     {
         if (LobbyManager.Instance.isHost) return;
         UpdateUI();
+    }
+    private void HandleSliderValueChange(float value)
+    {
+        SoundManager.Play2D(SoundType.ButtonClick);
     }
     private void HandleClickSave()
     {

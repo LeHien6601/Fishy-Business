@@ -11,6 +11,7 @@ public class UIValueSlider : MonoBehaviour
     [SerializeField] private float _maxValue;
     [SerializeField] private string _postFix = "s";
     private bool _setFirsttime = true;
+    public Slider Slider => _slider;
 
     void Awake()
     {

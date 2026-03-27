@@ -92,7 +92,6 @@ public class NetworkBoardManager : NetworkBehaviour
         Debug.Log("START GAME ON CLIENT");
         _currentGameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
         _turnIndicator.gameObject.SetActive(_currentGameData.GameModeIndex == 0); // classic mode has turn indicator, others don't
-        Debug.Log(_currentGameData.GameModeIndex);
         // spawn board, facing towards local player
         _boardCore.GenerateBoard();
         if (_playerAndHolderMap.TryGetValue(NetworkManager.Singleton.LocalClientId, out CardHolder _))
@@ -1015,7 +1014,7 @@ public class NetworkBoardManager : NetworkBehaviour
         CardHolder inTurnHolder = _playerAndHolderMap[nextPlayerId];
         if (NetworkManager.Singleton.LocalClientId == nextPlayerId)
         {
-            Debug.Log("Mine turn");
+            Debug.Log("My turn");
             inTurnHolder.IsTurn = true;
             StartCountDown();
         }
@@ -1054,7 +1053,6 @@ public class NetworkBoardManager : NetworkBehaviour
         if (_countDownTurnRoutine != null)
         {
             StopCoroutine(_countDownTurnRoutine);
-            Debug.Log("Stop count down coroutine");
             _countDownTurnRoutine = null;
         }
     }
@@ -1064,7 +1062,6 @@ public class NetworkBoardManager : NetworkBehaviour
         if (_countDownTurnRoutine != null)
         {
             StopCoroutine(_countDownTurnRoutine);
-            Debug.Log("Stop count down coroutine");
         }
         _countDownTurnRoutine = CountDownTurnRoutine();
         StartCoroutine(_countDownTurnRoutine);
@@ -1075,10 +1072,9 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0)
         {
-            Debug.Log("end time with null params");
             return;
         }
-        Debug.Log("end time");
+        Debug.Log("End time");
         if (_placingCard)
         {
             _localPlayerState = PlayerState.NONE; // fast switching state on in-turn side
@@ -1112,7 +1108,6 @@ public class NetworkBoardManager : NetworkBehaviour
 
     private IEnumerator CountDownTurnRoutine()
     {
-        Debug.Log("Start Count down turn Routine");
         float time = _currentGameData.TurnInterval;
         while (time > 0)
         {

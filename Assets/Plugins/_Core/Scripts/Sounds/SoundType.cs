@@ -18,4 +18,9 @@ public enum SoundType
     CoinDisappear,
     BombExplode,
     ShieldGuard,
+    CutScene,
+    SkipVoting,
+    BanVoting,
+    Start,
+    ShieldApply,
 }

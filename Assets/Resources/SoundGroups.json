@@ -15,7 +15,12 @@
                 "CoinAppear",
                 "CoinDisappear",
                 "BombExplode",
-                "ShieldGuard"
+                "ShieldGuard",
+                "CutScene",
+                "Start",
+                "SkipVoting",
+                "BanVoting",
+                "ShieldApply"
             ]
         },
         {

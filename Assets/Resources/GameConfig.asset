@@ -89,7 +89,7 @@ MonoBehaviour:
   - soundType: 8
     soundData: {fileID: 0}
   - soundType: 9
-    soundData: {fileID: 0}
+    soundData: {fileID: 11400000, guid: 509426581b08052439efc576de29c304, type: 2}
   - soundType: 10
     soundData: {fileID: 11400000, guid: a310783ccace95540983bdb5953f6fc0, type: 2}
   - soundType: 11
@@ -106,6 +106,16 @@ MonoBehaviour:
     soundData: {fileID: 11400000, guid: 053b662e88a551042beec9bf5837b4d7, type: 2}
   - soundType: 17
     soundData: {fileID: 11400000, guid: 4b8e71bde3d1fd14889b3907b599e1fb, type: 2}
+  - soundType: 18
+    soundData: {fileID: 11400000, guid: 66fed8381514a874f95ae103b55bd0fd, type: 2}
+  - soundType: 19
+    soundData: {fileID: 11400000, guid: 3b08e2fe2cf9e6b4c99d8e3f8b2e478b, type: 2}
+  - soundType: 20
+    soundData: {fileID: 11400000, guid: c898b9ffbf59e1843b3100a1e2447efd, type: 2}
+  - soundType: 21
+    soundData: {fileID: 11400000, guid: 509426581b08052439efc576de29c304, type: 2}
+  - soundType: 22
+    soundData: {fileID: 11400000, guid: 383e2909a1b74574e8b322a8d3b9e0eb, type: 2}
   GameModes:
   - {fileID: 11400000, guid: 84ec56b9655c2c148b16a4bdb9a0601c, type: 2}
   - {fileID: 11400000, guid: d821e80064b2a524a92bf21542e863fd, type: 2}

@@ -108,10 +108,12 @@ public class UIInGameVoting : UIView
         if (votedPlayerId == null)
         {
             _skipImage.gameObject.SetActive(true);
+            SoundManager.Play2D(SoundType.SkipVoting);
         }
         else
         {
             _votingMemberDict[votedPlayerId].SetActiveVotedImage(true);
+            SoundManager.Play2D(SoundType.BanVoting);
         }
         await Task.Delay(2000);
         Hide();

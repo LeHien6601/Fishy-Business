@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf9c12ed9067a7d45bfec7de438eb0ea, type: 3}
+  m_Name: SFX_ShieldApply
+  m_EditorClassIdentifier: Assembly-CSharp-firstpass::SoundData
+  clips:
+  - {fileID: 8300000, guid: eaa36c1d8fb912b44ae886d771eea776, type: 3}
+  minVolumeDB: -12
+  maxVolumeDB: -3
+  minPitch: 0.64101744
+  maxPitch: 0.8883943
+  playbackMode: 1
+  soundGroup: SFX
+  soundType: ShieldApply
+  sequenceIndex: 0
