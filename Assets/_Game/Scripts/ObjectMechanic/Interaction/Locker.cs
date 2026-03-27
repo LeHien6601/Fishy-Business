@@ -4,6 +4,7 @@ using UnityEngine;
 public class Locker : MonoBehaviour, IInteractable
 {
     [SerializeField] private InputReaderSO _inputReaderSO;
+    [SerializeField] private Transform _cameraTransform;
     private PlayerController _player;
 
 
@@ -29,13 +30,11 @@ public class Locker : MonoBehaviour, IInteractable
 
     public void Interact(PlayerController actor)
     {
-        //start changing outift
         _player = actor;
         UIManager.Instance.ShowUI(EUIState.CustomPlayer);
-        CameraController.SwitchCamMode(CameraMode.CustomPlayer);
+        CameraController.SetCustomCameraTransform(_cameraTransform.position, _cameraTransform.rotation);
         actor.DeactivateInput();
         SwapInput();
-        // @@TODO: UI, Camera
     }
 
     void OnDestroy()

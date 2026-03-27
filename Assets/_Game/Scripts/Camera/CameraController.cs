@@ -14,6 +14,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private BoolEventChannelSO _togglePlayerInputEvent;
 
     public static event UnityAction<CameraMode> OnCameraModeSwitched;
+    public static event UnityAction<Vector3, Quaternion> OnCustomCameraTransformSet;
     private static CameraMode _cameraMode;
     private static CameraMode _previousMode;
     private Transform _headBoneTransform;
@@ -28,9 +29,10 @@ public class CameraController : MonoBehaviour
     void OnEnable()
     {
         _togglePlayerInputEvent.OnEventRaised += ToggleMouseInput;
-        OnCameraModeSwitched += OnSwitchCamMode;
         _targetTransformChannel.OnEventRaised += TrackTarget;
         _headBoneTransformChannel.OnEventRaised += AssignHeadBone;
+        OnCameraModeSwitched += OnSwitchCamMode;
+        OnCustomCameraTransformSet += OnSetCustomCameraTransform;
     }
     void OnDisable()
     {
@@ -38,6 +40,7 @@ public class CameraController : MonoBehaviour
         _targetTransformChannel.OnEventRaised -= TrackTarget;
         _headBoneTransformChannel.OnEventRaised -= AssignHeadBone;
         OnCameraModeSwitched -= OnSwitchCamMode;
+        OnCustomCameraTransformSet -= OnSetCustomCameraTransform;
     }
 
     private void AssignHeadBone(Transform arg0)
@@ -55,6 +58,7 @@ public class CameraController : MonoBehaviour
             case CameraMode.ThirdPerson:
                 _3rdPersonCamera.Priority = 10;
                 _3rdPersonCamera.transform.rotation = _3rdPersonCamera.Follow.rotation;
+                _3rdCinemachineInputAxisController.enabled = true;
                 Cursor.lockState = CursorLockMode.Locked;
                 break;
             case CameraMode.FirstPerson:
@@ -131,6 +135,17 @@ public class CameraController : MonoBehaviour
     public static void SwitchCamMode(CameraMode mode)
     {
         OnCameraModeSwitched?.Invoke(mode);
+    }
+
+    private void OnSetCustomCameraTransform(Vector3 pos, Quaternion rot)
+    {
+        _customPlayerCamera.transform.SetPositionAndRotation(pos, rot);
+        OnSwitchCamMode(CameraMode.CustomPlayer);
+    }
+
+    public static void SetCustomCameraTransform(Vector3 pos, Quaternion rot)
+    {
+        OnCustomCameraTransformSet?.Invoke(pos, rot);
     }
 
     private void ToggleMouseInput(bool isActive)
