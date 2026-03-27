@@ -165,7 +165,7 @@ public class RoundTable : NetworkBehaviour
             if (seat.IsOccupied())
             {
                 PlayerOrders.Add(seat.GetOccupyingClientId());
-                GameplayManager.Instance.TriggerStartGame(seat.GetOccupyingClientId());
+                StartBoardGameClientRpc(seat.GetOccupyingClientId());
                 occupiedCount++;
             }
         }
@@ -179,6 +179,12 @@ public class RoundTable : NetworkBehaviour
             StopCoroutine(_startGameCoroutine);
         }
         _startGameCoroutine = StartCoroutine(StartGameAfterDelay(_netSeats.ToArray(), occupiedCount, PlayerOrders));
+    }
+    [ClientRpc]
+    private void StartBoardGameClientRpc(ulong clientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId != clientId) return;
+        GameplayManager.Instance.TriggerStartGame(clientId);
     }
     private IEnumerator StartGameAfterDelay(NetworkObjectReference[] netSeats, int occupiedCount, NetworkList<ulong> playerOrders)
     {
