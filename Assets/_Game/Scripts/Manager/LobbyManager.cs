@@ -350,7 +350,7 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public int GetPlayerIndex(string authId)
     {
         int index = 0;
-        List<Player> orderedPlayerList = currentLobby.Players.OrderBy(e => e.Joined.Date.Second).ToList();
+        List<Player> orderedPlayerList = currentLobby.Players.OrderBy(e => e.Joined.Date.Ticks).ToList();
         foreach (var player in orderedPlayerList)
         {
             if (player.Id == authId) return index;
