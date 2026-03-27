@@ -82,6 +82,7 @@ public class UIInGameVoting : UIView
     }
     public void TriggerVoting(string toAuthId)
     {
+        SoundManager.Play2D(SoundType.ButtonClick);
         _skipBTN.interactable = false;
         GameplayManager.Instance.TriggerVoting(toAuthId);
         foreach (var uiMember in _uiMembers)

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -142,11 +143,12 @@ public class PhasedGameMode : GameMode
     }
 
     // Call this after voting (e.g., from UI or timer)
-    public void OnVotingComplete(NetworkBoardManager manager)
+    public async void OnVotingComplete(NetworkBoardManager manager)
     {
-        // Process votes (e.g., eliminate player)
         // Then resume Night
         EndPhase(manager, GamePhase.DayVoting);
+
+        await Task.Delay(5000);
 
         StartPhase(manager, GamePhase.Night);
         StartNightPhase(manager);

@@ -31,8 +31,9 @@ public class GameManager : SingletonMonoNet<GameManager>
         }
         LobbyManager.Instance.OnUpdatedCurrentLobby -= HandleUpdateLobbyData;
     }
-    #endregion
     
+    #endregion
+
     /// <summary>
     /// Host-only: Starts the game by loading the GameScene for all clients.
     /// Registers a callback for when clients finish loading.

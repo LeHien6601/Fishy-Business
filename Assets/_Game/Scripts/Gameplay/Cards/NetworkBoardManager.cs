@@ -978,17 +978,16 @@ public class NetworkBoardManager : NetworkBehaviour
             {
                 _currentGameMode.EndGame(this, isDogWin);
             }
+            _currentGameMode.HandlePlayerActionComplete(this);
         });
-        Debug.Log("Networkboard call");
-        _currentGameMode.HandlePlayerActionComplete(this);
     }
 
     [ClientRpc]
     private void DrawNewCardClientRpc(CardData cardData, ulong receiver, ClientRpcParams clientRpcParams = default)
     {
-        StopCountDown();
         if (NetworkManager.Singleton.LocalClientId == receiver)
         {
+            StopCountDown();
             Card newCard = _cardsInDeck.Pop();
             newCard.SetData(cardData, _cardDatabase.GetCardInforSO(cardData), CardLocation.Deck);
             newCard.OnPlayCard += PlayCard;
@@ -1016,6 +1015,7 @@ public class NetworkBoardManager : NetworkBehaviour
         CardHolder inTurnHolder = _playerAndHolderMap[nextPlayerId];
         if (NetworkManager.Singleton.LocalClientId == nextPlayerId)
         {
+            Debug.Log("Mine turn");
             inTurnHolder.IsTurn = true;
             StartCountDown();
         }
@@ -1054,6 +1054,7 @@ public class NetworkBoardManager : NetworkBehaviour
         if (_countDownTurnRoutine != null)
         {
             StopCoroutine(_countDownTurnRoutine);
+            Debug.Log("Stop count down coroutine");
             _countDownTurnRoutine = null;
         }
     }
@@ -1061,7 +1062,10 @@ public class NetworkBoardManager : NetworkBehaviour
     private void StartCountDown()
     {
         if (_countDownTurnRoutine != null)
+        {
             StopCoroutine(_countDownTurnRoutine);
+            Debug.Log("Stop count down coroutine");
+        }
         _countDownTurnRoutine = CountDownTurnRoutine();
         StartCoroutine(_countDownTurnRoutine);
     }
@@ -1069,7 +1073,11 @@ public class NetworkBoardManager : NetworkBehaviour
 
     private void OnEndTime() // only the in-turn player is supposed to call this function
     {
-        if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0) return;
+        if (_playerAndHolderMap == null || _playerAndHolderMap.Count <= 0)
+        {
+            Debug.Log("end time with null params");
+            return;
+        }
         Debug.Log("end time");
         if (_placingCard)
         {
@@ -1104,6 +1112,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     private IEnumerator CountDownTurnRoutine()
     {
+        Debug.Log("Start Count down turn Routine");
         float time = _currentGameData.TurnInterval;
         while (time > 0)
         {

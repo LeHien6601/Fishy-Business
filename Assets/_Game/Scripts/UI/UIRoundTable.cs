@@ -51,7 +51,6 @@ public class UIRoundTable : MonoBehaviour
 
     private void ChangeGameMode(int index)
     {
-        Debug.Log($"Current game mode {index}");
         _currentGameMode = index;
         for (int i = 0; i < 2; i++)
         {
@@ -59,7 +58,6 @@ public class UIRoundTable : MonoBehaviour
             _gameModeIndicators[i].gameObject.SetActive(i == _currentGameMode);
         }
         _sliders[0].SetValue(_gameData.TurnInterval);
-        Debug.Log($"Set time interval {_gameData.TurnInterval} {_sliders[0].GetValue()}");
         if (index == 1)
         {
             _sliderContainers[0].gameObject.SetActive(true);

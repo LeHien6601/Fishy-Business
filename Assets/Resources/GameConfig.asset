@@ -33,7 +33,7 @@ MonoBehaviour:
     SortingOrder: 7
   - State: 7
     View: {fileID: 5435338139581658603, guid: ce70aeb12668e97499d2d578d66aa98f, type: 3}
-    SortingOrder: 3
+    SortingOrder: 4
   - State: 8
     View: {fileID: 200893462852294572, guid: 152187fe978b0fe4db45bfbbd6649af9, type: 3}
     SortingOrder: 6
@@ -45,13 +45,13 @@ MonoBehaviour:
     SortingOrder: 2
   - State: 11
     View: {fileID: -2218289635160984058, guid: 7a1ebec2e5bbcf64e814a320d4b7cb05, type: 3}
-    SortingOrder: 3
+    SortingOrder: 6
   - State: 12
     View: {fileID: 3351898482459886770, guid: b87470a0c0f8ce3449117d84b5da6d6b, type: 3}
     SortingOrder: 2
   - State: 13
     View: {fileID: 1011685208571591568, guid: 6619483401236f6469655427e9ddf987, type: 3}
-    SortingOrder: 0
+    SortingOrder: 1
   - State: 14
     View: {fileID: 4758496721424205595, guid: cab6e3fa28d6e3948bf41d04feb1efa0, type: 3}
     SortingOrder: 2

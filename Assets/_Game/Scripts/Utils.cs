@@ -14,7 +14,7 @@ public class Utils : MonoBehaviour
     }
     public static string GetRandomPlayerName()
     {
-        string[] names = { "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu" };
+        string[] names = { "Alpha", "Bravo", "Delta", "Echo", "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "Oscar", "Papa", "Quebec", "Romeo", "Tango", "Victor", "X-ray", "Yankee", "Zulu" };
         return names[Random.Range(0, names.Length)] + Random.Range(0, 1000).ToString("000");
     }
     public static string GetRandomLobbyName()

@@ -39,7 +39,7 @@ public class UIInGame : UIView
     private bool _isMyTurn = false;
     private float _timer = 0;
     private bool _showTurn = false;
-    private bool _resetTimer = false;
+    private Coroutine _timerCoroutine;
 
     private GameData _gameData;
 
@@ -100,22 +100,21 @@ public class UIInGame : UIView
         }
         ShowTurnText(args.TurnNumber);
         ShowRect(_counterRect);
-        _resetTimer = true;
         await Task.Yield();
-        StartCoroutine(TimerCountdown(_gameData.TurnInterval));
+        if (_timerCoroutine != null) StopCoroutine(_timerCoroutine);
+        _timerCoroutine = StartCoroutine(TimerCountdown(_gameData.TurnInterval));
     }
     private async void HandleStartPhase(GameplayManager.StartPhaseEventArgs args)
     {
-        Debug.Log("Start " + args.Phase);
         if (args.Phase != GamePhase.DayVoting)
             ShowPhaseText(GameMode.GetGamePhaseName(args.Phase));
         HideRect(_myTurnRect);
         _showTurn = true;
         if (args.Phase != GamePhase.Night)
         {
-            _resetTimer = true;
+            if (_timerCoroutine != null) StopCoroutine(_timerCoroutine);
             await Task.Yield();
-            StartCoroutine(TimerCountdown(args.Duration));
+            _timerCoroutine = StartCoroutine(TimerCountdown(args.Duration));
             HideRect(_turnRect);
         }
     }
@@ -125,24 +124,26 @@ public class UIInGame : UIView
     }
     private IEnumerator TimerCountdown(float duration)
     {
-        _resetTimer = false;
-        Debug.Log($"Start counter {duration}");
         _timer = duration;
-        while (!_resetTimer)
+        while (true)
         {
-            if (_timer < 0) _timer = 0;
+            if (_timer < 0) 
+            {
+                _timer = 0;
+                _clockFill.fillAmount = 1;
+                _counterTMP.text = "0";
+                yield break;
+            }
             _clockFill.fillAmount = 1 - _timer / duration;
             _counterTMP.text = Mathf.CeilToInt(_timer).ToString();
             _timer -= Time.deltaTime;
             yield return null;
         }
-        Debug.Log($"End counter {duration}");
     }
 
 
     private void HandleShieldBreak()
     {
-        //@TODO: Add effect shield break
         SoundManager.Play2D(SoundType.ShieldGuard);
         ShowSymbol(_symbolSpriteSO.ShieldBreak);
 
