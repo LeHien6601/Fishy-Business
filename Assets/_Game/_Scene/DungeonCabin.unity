@@ -26511,6 +26511,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6776649656666377973, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4665224665955478020}
+    - targetCorrespondingSourceObject: {fileID: 195849878707943374, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4665224665955478023}
   m_SourcePrefab: {fileID: 100100000, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
 --- !u!1 &4665224665955478019 stripped
 GameObject:
@@ -26539,6 +26542,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2211200919588437516, guid: 0eee47b1ddfaeae4e9c40826ed21fdd1, type: 3}
+--- !u!1 &4665224665955478021 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 195849878707943374, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+  m_PrefabInstance: {fileID: 4665224665955478018}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4665224665955478022 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2761989702794650610, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
@@ -26550,6 +26558,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86f11bfead72ae84f96ff0dc21799508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayNightController
+--- !u!114 &4665224665955478023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4665224665955478021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b58a866599413fb479752f3daaf9e7e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FindCamera
+  cameraName: Camera-UI
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
