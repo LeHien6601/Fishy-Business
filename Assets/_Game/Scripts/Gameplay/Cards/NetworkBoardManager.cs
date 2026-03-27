@@ -28,7 +28,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private List<ulong> _turnOrder; // Current turn order (fixed or random per mode)
     private NetworkList<ulong> _playerOrders = new(); // sever only
     private ulong _inTurnPlayer = ulong.MaxValue;
-    private const float _waitBetweenPlayerTurns = 1f;
+    private const float _waitBetweenPlayerTurns = 2f;
     private const float _actionCardDuration = 1.5f;
 
     [SerializeField] private BoardCore _boardCore;
