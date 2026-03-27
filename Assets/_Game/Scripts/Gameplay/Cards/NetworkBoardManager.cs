@@ -489,13 +489,13 @@ public class NetworkBoardManager : NetworkBehaviour
                 {
                     _localPlayerState = PlayerState.NONE;
                     int slotx = ((_hoveringSlot.Value.x / 2 + 4) % 3) * 2;
-                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y));
+                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y), NetworkManager.Singleton.LocalClientId);
                 }
                 else if (Mouse.current.rightButton.wasPressedThisFrame) // right mouse = swap with right
                 {
                     _localPlayerState = PlayerState.NONE;
                     int slotx = ((_hoveringSlot.Value.x / 2 + 2) % 3) * 2;
-                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y));
+                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y), NetworkManager.Singleton.LocalClientId);
                 }
 
                 break;
@@ -682,7 +682,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #region  SWAP GOALS
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void SwapGoalsServerRpc(Vector2Int slotA, Vector2Int slotB)
+    private void SwapGoalsServerRpc(Vector2Int slotA, Vector2Int slotB, ulong senderId)
     {
         if (_tressureIndex == slotA.x / 2)
         {
@@ -692,12 +692,12 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             _tressureIndex = slotA.x / 2;
         }
-        SwapGoalsClientRpc(slotA, slotB);
+        SwapGoalsClientRpc(slotA, slotB, senderId);
         this.WaitThenExecute(_actionCardDuration, () => ServerDrawNewCardThenEndTurn());
     }
 
     [ClientRpc]
-    private void SwapGoalsClientRpc(Vector2Int slotA, Vector2Int slotB)
+    private void SwapGoalsClientRpc(Vector2Int slotA, Vector2Int slotB, ulong senderId)
     {
         _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slotA), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
         {
@@ -706,6 +706,10 @@ public class NetworkBoardManager : NetworkBehaviour
         });
         _boardCore.SwapGoals(slotA, slotB);
         // GameplayManager.Instance.TriggerActionCard(ActionCardType.SwapGoal, ToolType.None);
+        if(_currentGameMode is ClassicGameMode || NetworkManager.Singleton.LocalClientId  == senderId)
+        {
+            SoundManager.Play2D(SoundType.SwapGoal);
+        }
     }
     #endregion
 
@@ -902,7 +906,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
         if (_currentGameMode is ClassicGameMode || NetworkManager.Singleton.LocalClientId == targetPlayerId || NetworkManager.Singleton.LocalClientId == senderId)
         {
-            SoundManager.Play2D(SoundType.CoinAppear);
+            SoundManager.Play2D(SoundType.ShieldApply);
         }
 
     }

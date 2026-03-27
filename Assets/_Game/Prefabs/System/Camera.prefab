@@ -428,8 +428,6 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: 1190983414842484879, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         Gain: 1
-        LegacyInput: 
-        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -441,8 +439,6 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: 1190983414842484879, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         Gain: -1
-        LegacyInput: 
-        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -454,8 +450,6 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: -6208862764478138757, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         Gain: -1
-        LegacyInput: 
-        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -1148,7 +1142,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 17.6
+    FieldOfView: 20
     OrthographicSize: 5
     NearClipPlane: 4.1
     FarClipPlane: 1000
@@ -1258,8 +1252,6 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: 1190983414842484879, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         Gain: 1
-        LegacyInput: 
-        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -1271,8 +1263,6 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: 1190983414842484879, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         Gain: -1
-        LegacyInput: 
-        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: -0
       Driver:

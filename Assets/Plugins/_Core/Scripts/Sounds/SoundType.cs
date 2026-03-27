@@ -23,4 +23,5 @@ public enum SoundType
     BanVoting,
     Start,
     ShieldApply,
+    SwapGoal,
 }
