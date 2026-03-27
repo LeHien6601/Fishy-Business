@@ -737,8 +737,7 @@ public class NetworkBoardManager : NetworkBehaviour
                                     showTarget: requester.BeforeFaceSlot(),
                                     isTressure: checkResult,
                                     revealCardData: NetworkManager.Singleton.LocalClientId == requesterId);
-        if (NetworkManager.Singleton.LocalClientId == requesterId)
-            GameplayManager.Instance.TriggerActionCard(ActionCardType.CheckGold, ToolType.None);
+        GameplayManager.Instance.TriggerActionCard(ActionCardType.CheckGold, ToolType.None, requesterId, requesterId, _currentGameMode is ClassicGameMode);
     }
     #endregion
 
@@ -767,8 +766,7 @@ public class NetworkBoardManager : NetworkBehaviour
         BombEvent.Invoke(wp);
         _boardCore.BombThisPath(slot);
         // @TODO: add some visuals
-        if (NetworkManager.Singleton.LocalClientId == senderId)
-            GameplayManager.Instance.TriggerActionCard(ActionCardType.Bomb, ToolType.None);
+        GameplayManager.Instance.TriggerActionCard(ActionCardType.Bomb, ToolType.None, senderId, senderId, _currentGameMode is ClassicGameMode);
     }
 
     #endregion
@@ -871,7 +869,8 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         else
         {
-            holder.SetTool(_placingCard.ToolType, _placingCard.ActionCardType == ActionCardType.FixTool, tagetPlayer, senderId);
+            holder.SetTool(_placingCard.ToolType, _placingCard.ActionCardType == ActionCardType.FixTool, tagetPlayer, senderId, _currentGameMode is ClassicGameMode);
+
         }
         Destroy(_placingCard.gameObject);
         _placingCard = null;
@@ -899,9 +898,10 @@ public class NetworkBoardManager : NetworkBehaviour
         Destroy(_placingCard.gameObject);
         _placingCard = null;
         _targerPlayer = null;
-        if (NetworkManager.Singleton.LocalClientId == targetPlayerId || NetworkManager.Singleton.LocalClientId == senderId)
+        GameplayManager.Instance.TriggerActionCard(ActionCardType.Shield, ToolType.None, targetPlayerId, senderId, _currentGameMode is ClassicGameMode);
+
+        if (_currentGameMode is ClassicGameMode || NetworkManager.Singleton.LocalClientId == targetPlayerId || NetworkManager.Singleton.LocalClientId == senderId)
         {
-            GameplayManager.Instance.TriggerActionCard(ActionCardType.Shield, ToolType.None);
             SoundManager.Play2D(SoundType.CoinAppear);
         }
 

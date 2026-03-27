@@ -64,7 +64,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     [ClientRpc]
     private void TriggerStartPhaseClientRpc(GamePhase phase, float duration)
     {
-        if (phase == GamePhase.DayVoting) 
+        if (phase == GamePhase.DayVoting)
         {
             _currentVotingData.Clear();
             UIManager.Instance.ShowUI(EUIState.InGameVoting);
@@ -156,9 +156,19 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
             TurnNumber = turnNumber
         });
     }
-    public void TriggerActionCard(ActionCardType actionCardType, ToolType toolType)
+    /// <summary>
+    /// This event using to show symbol in IngameUI
+    /// Just called if gameMode is Classic or is target or sender
+    /// </summary>
+    /// <param name="actionCardType"></param>
+    /// <param name="toolType"></param>
+    /// <param name="targetId"></param>
+    /// <param name="senderId"></param>
+    /// <param name="isSendAll"></param>
+    public void TriggerActionCard(ActionCardType actionCardType, ToolType toolType, ulong targetId, ulong senderId, bool isSendAll = false)
     {
-        OnUseActionCard?.Invoke(actionCardType, toolType);
+        if (isSendAll || NetworkManager.Singleton.LocalClientId == targetId || NetworkManager.Singleton.LocalClientId == senderId)
+            OnUseActionCard?.Invoke(actionCardType, toolType);
     }
     public void TriggerShieldBreak()
     {
@@ -175,7 +185,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     private void VotingServerRpc(string from, string to, bool isSkip)
     {
         Debug.Log($"ServerRpc Player {from} voted {to}");
-        VotingClientRpc(from,to,isSkip);
+        VotingClientRpc(from, to, isSkip);
     }
 
     [ClientRpc]
@@ -210,7 +220,7 @@ public class GameplayManager : SingletonMonoNet<GameplayManager>
     {
         return _playerRole;
     }
-    public List<VotingData> GetVotingDatas() {return _currentVotingData;}
+    public List<VotingData> GetVotingDatas() { return _currentVotingData; }
     public string GetVotingResult()
     {
         if (_currentVotingData.Count == 0) return null;
