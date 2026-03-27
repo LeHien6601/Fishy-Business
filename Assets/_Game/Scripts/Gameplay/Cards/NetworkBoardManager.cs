@@ -42,6 +42,8 @@ public class NetworkBoardManager : NetworkBehaviour
     private PlayerState _localPlayerState = PlayerState.NONE;
     private IEnumerator _countDownTurnRoutine;
     private int _playerStartGameCount = 0;
+    public NetworkVariable<float> BoardHeight = new NetworkVariable<float>();
+
 
     // API - transfer visual effects/ sound effects to another class to handle
     public event UnityAction<Vector3> BombEvent = delegate { };
@@ -50,7 +52,11 @@ public class NetworkBoardManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        _boardPlane = new Plane(Vector3.up, transform.position);
+        if (IsServer)
+        {
+            BoardHeight.Value = transform.position.y;
+        }
+        _boardPlane = new Plane(Vector3.up, new Vector3(0, BoardHeight.Value, 0));
     }
 
     #region SETUP
