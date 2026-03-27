@@ -734,13 +734,34 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 195849878707943374, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 335287683}
   m_SourcePrefab: {fileID: 100100000, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
 --- !u!4 &335287681 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6143101593210262607, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
   m_PrefabInstance: {fileID: 335287680}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &335287682 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 195849878707943374, guid: 17c43072642dff143a3b3753e3c11293, type: 3}
+  m_PrefabInstance: {fileID: 335287680}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &335287683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335287682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b58a866599413fb479752f3daaf9e7e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FindCamera
+  cameraName: Camera-UI
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -2560,6 +2581,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 44e6dc6dabfeaf54f92e2dd2af0981e1, type: 3}
   m_PrefabInstance: {fileID: 1529167300}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1656296529
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1656296530}
+  m_Layer: 0
+  m_Name: RespawnPos
+  m_TagString: Respawn
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1656296530
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656296529}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 22.5, y: 1, z: 16.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1904157374
 GameObject:
   m_ObjectHideFlags: 0
@@ -3136,6 +3188,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1656296530}
   - {fileID: 1475850994}
   - {fileID: 1365299181}
   - {fileID: 1298797932}
