@@ -68,16 +68,20 @@ public class PlayerController : NetworkBehaviour
 
     public void Respawn()
     {
-        Transform respawnPoint = GameObject.FindGameObjectWithTag(Constant.RESPAWN_TAG).transform;
-        // check null
+        CharacterController.enabled = false;
+        ToState(_idleState);
+        GameObject respawnPoint = GameObject.FindGameObjectWithTag(Constant.RESPAWN_TAG);
         if (respawnPoint == null)
         {
             Debug.LogWarning("Respawn point not found!");
-            return;
+            transform.position = Vector3.zero;
         }
-        // add small random
-        transform.position = respawnPoint.position + UnityEngine.Random.insideUnitSphere * 2f;
-        ToState(_idleState);
+        else
+        {
+            Vector3 random = respawnPoint.transform.position + UnityEngine.Random.insideUnitSphere * 2f;
+            transform.position = random;
+        }
+        CharacterController.enabled = true;
     }
 
     public override void OnNetworkDespawn()
@@ -224,5 +228,13 @@ public class PlayerController : NetworkBehaviour
         _inputReader.Move -= HandleMove;
         _inputReader.Attack -= HandleAttack;
         Emoter.OnEmoteSelected -= HandleEmote;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag(Constant.FINISH_TAG))
+        {
+            Respawn();
+        }
     }
 }

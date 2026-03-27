@@ -9,6 +9,7 @@ public class Constant
     
     public const string PLAYER_TAG = "Player";
     public const string RESPAWN_TAG = "Respawn";
+    public const string FINISH_TAG = "Finish";
     public const string GAME_SEAT_TAG = "GameSeat";
     public const string KEY_PLAYER_NAME = "PlayerName";
     public const string KEY_GAME_MODE_DATA = "GameData";
