@@ -19,6 +19,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     #region Cycle
     public void Start()
     {
+        Application.targetFrameRate = 60;
         PlayerInfoManager.Instance.GenerateRandomPlayerInfo();
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         LobbyManager.Instance.OnUpdatedCurrentLobby += HandleUpdateLobbyData;
