@@ -1013,7 +1013,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void NextTurnClientRpc(ulong nextPlayerId, int turnNumber)
     {
-        _inTurnPlayer = nextPlayerId;
+        // _inTurnPlayer = nextPlayerId;
         if (!_playerAndHolderMap.TryGetValue(nextPlayerId, out CardHolder _)) return;
         CardHolder inTurnHolder = _playerAndHolderMap[nextPlayerId];
         if (NetworkManager.Singleton.LocalClientId == nextPlayerId)
@@ -1089,7 +1089,6 @@ public class NetworkBoardManager : NetworkBehaviour
             CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
             if (inTurnHolder == null) return;
             inTurnHolder.DiscardRandomCard();
-            DiscardCardFromHandServerRpc(_inTurnPlayer);
         }
     }
 
@@ -1195,6 +1194,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     public void RequestNextTurn(ulong playerId)
     {
+        _inTurnPlayer = playerId;
         NextTurnClientRpc(playerId, _turnOrder.IndexOf(playerId));
     }
     public bool CheckForOutOfCards()
