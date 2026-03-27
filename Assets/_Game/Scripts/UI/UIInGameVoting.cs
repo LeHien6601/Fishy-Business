@@ -72,6 +72,10 @@ public class UIInGameVoting : UIView
             return;
         };
         int skipCount = 0;
+        foreach (var votingMember in _votingMemberDict)
+        {
+            votingMember.Value.ResetVote();
+        }
         foreach (GameplayManager.VotingData votingData in votingDatas)
         {
             if (votingData.Skip) skipCount++;

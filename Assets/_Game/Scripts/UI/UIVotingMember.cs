@@ -100,6 +100,10 @@ public class UIVotingMember : MonoBehaviour
         _votedMembers.Add(voteId);
         _voteCountTMP.text = _votedMembers.Count.ToString();
     }
+    public void ResetVote()
+    {
+        _votedMembers.Clear();
+    }
 
     public void SetLock(bool isLocked)
     {
