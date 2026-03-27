@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 63348079}
   - component: {fileID: 63348078}
   - component: {fileID: 63348077}
-  - component: {fileID: 63348076}
+  - component: {fileID: 63348081}
   m_Layer: 6
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -187,33 +187,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!54 &63348076
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 63348075}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!65 &63348077
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -302,11 +275,32 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6, y: 1, z: 22.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &63348081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63348075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f57bec099b384a4bbefe5a4b78cd802, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloatingShip
+  bobAmplitude: 0.3
+  bobFrequency: 0.6
+  pitchAmplitude: 3
+  pitchFrequency: 0.45
+  rollAmplitude: 5
+  rollFrequency: 0.35
+  driftAmplitude: 0.05
+  driftFrequency: 0.25
+  randomisePhases: 1
 --- !u!1 &101753750
 GameObject:
   m_ObjectHideFlags: 0
@@ -1461,6 +1455,10 @@ PrefabInstance:
     - target: {fileID: 5052258527906030006, guid: 9a57a22c72f37db429f004e0d9de9aa6, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 848867175
+      objectReference: {fileID: 0}
+    - target: {fileID: 5065931859628408714, guid: 9a57a22c72f37db429f004e0d9de9aa6, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6917190293077928722, guid: 9a57a22c72f37db429f004e0d9de9aa6, type: 3}
       propertyPath: m_LocalPosition.x
