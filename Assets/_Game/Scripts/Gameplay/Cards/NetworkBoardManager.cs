@@ -1148,8 +1148,10 @@ public class NetworkBoardManager : NetworkBehaviour
             idList.Add(player);
         }
         GameplayManager.Instance.HandleResetGame(idList);
+        StopAllCoroutines();
         ResetClientRpc();
         _playerOrders.Clear();
+        _dayNightController.Uncover();
     }
 
     [ClientRpc]
@@ -1159,6 +1161,7 @@ public class NetworkBoardManager : NetworkBehaviour
         {
             Destroy(holder.gameObject);
         }
+        StopAllCoroutines();
         _turnIndicator.gameObject.SetActive(false);
         _cardHolders.Clear();
         _playerAndHolderMap.Clear();
@@ -1169,6 +1172,7 @@ public class NetworkBoardManager : NetworkBehaviour
         _deckPlace.DeleteChildren();
         _discardPile.DeleteChildren();
         _boardCore.transform.DeleteChildren();
+        _dayNightController.Uncover();
     }
     #endregion 
 
