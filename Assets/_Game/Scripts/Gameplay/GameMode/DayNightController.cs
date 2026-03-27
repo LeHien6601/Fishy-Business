@@ -28,7 +28,7 @@ public class DayNightController : MonoBehaviour
             _mask.enabled = false;
             _coverUsedItemImg.gameObject.SetActive(false);
             _coverImg.gameObject.SetActive(true);
-            _coverImg.DOFade(1, 0.5f).From(0);
+            _coverImg.DOFade(1, 0.5f);
         }
         else
         {
