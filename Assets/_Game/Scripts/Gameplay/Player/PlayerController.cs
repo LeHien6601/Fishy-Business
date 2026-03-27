@@ -28,7 +28,7 @@ public class PlayerController : NetworkBehaviour
     private AttackState _attackState;
     private SitState _sitState;
     private EmoteState _emoteState;
-    
+
     private bool _canJump = true;
 
     public bool CanInteract { get => _interactor.enabled; set => _interactor.enabled = value; }
@@ -62,7 +62,7 @@ public class PlayerController : NetworkBehaviour
         _headBoneTransformChannel.RaiseEvent(_headBone);
         CameraController.SwitchCamMode(CameraMode.ThirdPerson);
         _togglePlayerInputEvent.OnEventRaised += HandleToggleInput;
-        
+
         Respawn();
     }
 
@@ -139,9 +139,9 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleEmote(int emoteIndex)
     {
+        _emoteState.Select(emoteIndex);
         if (_currentState == _idleState)
         {
-            _emoteState.Select(emoteIndex);
             ToState(_emoteState);
         }
     }
@@ -211,7 +211,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner)
             return;
-        
+
         _canJump = true;
         _inputReader.Move += HandleMove;
         _inputReader.Attack += HandleAttack;
