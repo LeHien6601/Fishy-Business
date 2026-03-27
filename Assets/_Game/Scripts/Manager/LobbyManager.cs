@@ -11,6 +11,7 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using HHDCore;
+using System.Linq;
 public class LobbyManager : SingletonMono<LobbyManager>
 {
     #region Properties
@@ -349,7 +350,8 @@ public class LobbyManager : SingletonMono<LobbyManager>
     public int GetPlayerIndex(string authId)
     {
         int index = 0;
-        foreach (var player in currentLobby.Players)
+        List<Player> orderedPlayerList = currentLobby.Players.OrderBy(e => e.Joined.Date.Second).ToList();
+        foreach (var player in orderedPlayerList)
         {
             if (player.Id == authId) return index;
             index++;
