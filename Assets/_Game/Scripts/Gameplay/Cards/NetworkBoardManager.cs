@@ -356,7 +356,6 @@ public class NetworkBoardManager : NetworkBehaviour
         Vector3 mouseWorld = GetMouseWorldPointOnBoard();
         if (mouseWorld == Vector3.zero)
             return;
-
         float sqrDistance = _snapDistance;
         Vector2Int? bestSlot = null;
         foreach (var slot in slots)
@@ -706,7 +705,7 @@ public class NetworkBoardManager : NetworkBehaviour
         });
         _boardCore.SwapGoals(slotA, slotB);
         // GameplayManager.Instance.TriggerActionCard(ActionCardType.SwapGoal, ToolType.None);
-        if(_currentGameMode is ClassicGameMode || NetworkManager.Singleton.LocalClientId  == senderId)
+        if (_currentGameMode is ClassicGameMode || NetworkManager.Singleton.LocalClientId == senderId)
         {
             SoundManager.Play2D(SoundType.SwapGoal);
         }
@@ -1090,6 +1089,7 @@ public class NetworkBoardManager : NetworkBehaviour
             CardHolder inTurnHolder = _playerAndHolderMap[_inTurnPlayer];
             if (inTurnHolder == null) return;
             inTurnHolder.DiscardRandomCard();
+            DiscardCardFromHandServerRpc(_inTurnPlayer);
         }
     }
 
