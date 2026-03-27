@@ -902,6 +902,7 @@ public class NetworkBoardManager : NetworkBehaviour
         if (NetworkManager.Singleton.LocalClientId == targetPlayerId || NetworkManager.Singleton.LocalClientId == senderId)
         {
             GameplayManager.Instance.TriggerActionCard(ActionCardType.Shield, ToolType.None);
+            SoundManager.Play2D(SoundType.CoinAppear);
         }
 
     }
