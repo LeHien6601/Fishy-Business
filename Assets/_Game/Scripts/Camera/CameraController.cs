@@ -151,7 +151,7 @@ public class CameraController : MonoBehaviour
     private void ToggleMouseInput(bool isActive)
     {
         _3rdCinemachineInputAxisController.enabled = isActive;
-        _1stCinemachineInputAxisController.enabled = isActive;
+        // _1stCinemachineInputAxisController.enabled = isActive;
         Cursor.lockState = isActive ? CursorLockMode.Locked : CursorLockMode.None;
     }
 }

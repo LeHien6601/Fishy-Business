@@ -11,7 +11,7 @@ public class ObjectFader : MonoBehaviour
     private Camera _camera;
     [SerializeField] private int _layerMask = 1 << Constant.DEFAULT_LAYER;
     [SerializeField] private Transform _target;
-    [SerializeField][Range(0, 1f)] private float _fadedAlpha = 0f;
+    [SerializeField][Range(0, 1f)] private float _fadedAlpha = 0.2f;
     [SerializeField] private bool _retainShadows = true;
     [SerializeField] private Vector3 _targetPositionOffset = Vector3.up;
     [SerializeField] private float _fadeSpeed = 3f;
