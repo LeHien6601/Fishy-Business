@@ -34,7 +34,7 @@ public class RoundTable : NetworkBehaviour
         {
             while (_boardManager != null && !_boardManager.NetworkObject.IsSpawned)
             {
-                await Task.Yield(); 
+                await Task.Yield();
             }
 
             if (_boardManager != null)
@@ -96,13 +96,13 @@ public class RoundTable : NetworkBehaviour
     private async void HandleCountdownTimer()
     {
         _countdownTMP.gameObject.SetActive(true);
-        _countdownTMP.text = "GAME STARTS IN " + Constant.START_GAME_COUNTDOWN.ToString("F0") +"S";
+        _countdownTMP.text = "GAME STARTS IN " + Constant.START_GAME_COUNTDOWN.ToString("F0") + "S";
         float timer = Constant.START_GAME_COUNTDOWN;
         while (timer > 0 && _gameplaying.Value)
         {
             await Task.Yield();
             timer -= Time.deltaTime;
-            _countdownTMP.text = "GAME STARTS IN " + Mathf.Ceil(timer).ToString("F0") +"S";
+            _countdownTMP.text = "GAME STARTS IN " + Mathf.Ceil(timer).ToString("F0") + "S";
         }
         if (_countdownTMP && _countdownTMP.gameObject) _countdownTMP.gameObject.SetActive(false);
     }
@@ -194,7 +194,7 @@ public class RoundTable : NetworkBehaviour
             yield break;
         }
         ArrangeSeatsClientRpc(netSeats, occupiedCount);
-        _boardManager.ServerStartGameLogic(playerOrders); 
+        _boardManager.ServerStartGameLogic(playerOrders);
     }
 
 
@@ -271,10 +271,6 @@ public class RoundTable : NetworkBehaviour
 
         _gameplaying.Value = false;
         _boardManager.Reset();
-        foreach (var seat in _seats)
-        {
-            GameplayManager.Instance.TriggerEndGame(seat.GetOccupyingClientId());
-        }
         ResetSeatsClientRpc(_netSeats.ToArray());
     }
 
@@ -309,6 +305,7 @@ public class RoundTable : NetworkBehaviour
                 if (NetworkManager.Singleton.LocalClientId == seat.GetOccupyingClientId())
                 {
                     _uiRoundTable.gameObject.SetActive(true);
+                    GameplayManager.Instance.TriggerEndGame(seat.GetOccupyingClientId());
                 }
                 Transform occupantTf = seat.GetOccupant().transform;
                 Tween occupantPosTween = occupantTf.DOMove(seat.SitPosition(targetPos, targetRot), duration)
