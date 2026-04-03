@@ -206,7 +206,7 @@ public class GameManager : SingletonMonoNet<GameManager>
         {
             playerObject.Despawn(false);
             _spawnedPlayerNames.Remove(clientId);
-            _idMap.Remove(clientId);
+            // _idMap.Remove(clientId);
             Debug.Log($"Despawned player for client {clientId}");
         }
     }
