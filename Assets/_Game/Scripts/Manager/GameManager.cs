@@ -11,7 +11,12 @@ public class GameManager : SingletonMonoNet<GameManager>
     #region Properties
     [SerializeField] private NetworkObject _playerPrefab;
     private Dictionary<ulong, PlayerNameDisplay> _spawnedPlayerNames = new();
-    private Dictionary<ulong, string> _idMap = new(); //network id with auth id
+    private Dictionary<ulong, IdState> _idMap = new(); //network id with auth id
+    public struct IdState
+    {
+        public string AuthId;
+        public bool IsValid;
+    }
     private EGameState _currentGameState = EGameState.MainMenu;
     public EGameState CurrentGameState => _currentGameState;
     #endregion
@@ -114,7 +119,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void HandlePlayerJoinNetworkServerRpc(ulong clientId, string name, string authId)
     {
-        _idMap[clientId] = authId;
+        _idMap[clientId] = new() {AuthId = authId, IsValid = true};
         _spawnedPlayerNames[clientId].SetPlayerName(name, authId);
     }
     /// <summary>
@@ -145,7 +150,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     /// </summary>
     public string GetAuthIdByNetId(ulong clientId)
     {
-        return _idMap.TryGetValue(clientId, out var authId) ? authId : null;
+        return _idMap.TryGetValue(clientId, out var authIdState) ? authIdState.AuthId : null;
     }
     public int GetPlayerIndexByClientId(ulong clientId)
     {
@@ -164,7 +169,7 @@ public class GameManager : SingletonMonoNet<GameManager>
     {
         foreach (var pair in _idMap)
         {
-            if (pair.Value == authId)
+            if (pair.Value.AuthId == authId && pair.Value.IsValid)
             {
                 clientId = pair.Key;
                 return true;
@@ -206,7 +211,11 @@ public class GameManager : SingletonMonoNet<GameManager>
         {
             playerObject.Despawn(false);
             _spawnedPlayerNames.Remove(clientId);
-            // _idMap.Remove(clientId);
+            _idMap[clientId] = new()
+            {
+                AuthId = _idMap[clientId].AuthId,
+                IsValid = false
+            };
             Debug.Log($"Despawned player for client {clientId}");
         }
     }
