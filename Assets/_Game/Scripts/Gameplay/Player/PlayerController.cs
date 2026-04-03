@@ -103,12 +103,14 @@ public class PlayerController : NetworkBehaviour
     {
         if (NetworkManager.Singleton.LocalClientId != arg0) return;
         _inputReader.Interact += HandleInteract;
+        CameraController.SwitchFirstPersonCameraMode(CameraMode.FirstPersonSitting);
     }
 
     private void OnStartGame(ulong arg0)
     {
         if (NetworkManager.Singleton.LocalClientId != arg0) return;
         _inputReader.Interact -= HandleInteract;
+        CameraController.SwitchFirstPersonCameraMode(CameraMode.FisrtPersonPlaying);
     }
 
     private void HandleMove(Vector2 arg0)

@@ -1,3 +1,4 @@
+using System;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,7 +14,16 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineInputAxisController _1stCinemachineInputAxisController;
     [SerializeField] private BoolEventChannelSO _togglePlayerInputEvent;
 
+    [Header("Play Mode - Sit Mode Properties")]
+    [SerializeField] private float _playModeTilt = 28;
+    [SerializeField] private float _playModeOffset = 1f;
+    [SerializeField] private float _playModeFOV = 25;
+    [SerializeField] private float _sitModeTitl = 18;
+    [SerializeField] private float _sitModeOffset = 0.7f;
+    [SerializeField] private float _sitModeFOV = 30;
+
     public static event UnityAction<CameraMode> OnCameraModeSwitched;
+    public static event UnityAction<CameraMode> OnFirstPersonCameraModeSwitched;
     public static event UnityAction<Vector3, Quaternion> OnCustomCameraTransformSet;
     private static CameraMode _cameraMode;
     private static CameraMode _previousMode;
@@ -33,7 +43,9 @@ public class CameraController : MonoBehaviour
         _headBoneTransformChannel.OnEventRaised += AssignHeadBone;
         OnCameraModeSwitched += OnSwitchCamMode;
         OnCustomCameraTransformSet += OnSetCustomCameraTransform;
+        OnFirstPersonCameraModeSwitched += OnSwitchFirstPersonCamMode;
     }
+
     void OnDisable()
     {
         _togglePlayerInputEvent.OnEventRaised -= ToggleMouseInput;
@@ -41,6 +53,7 @@ public class CameraController : MonoBehaviour
         _headBoneTransformChannel.OnEventRaised -= AssignHeadBone;
         OnCameraModeSwitched -= OnSwitchCamMode;
         OnCustomCameraTransformSet -= OnSetCustomCameraTransform;
+        OnFirstPersonCameraModeSwitched -= OnSwitchFirstPersonCamMode;
     }
 
     private void AssignHeadBone(Transform arg0)
@@ -84,6 +97,19 @@ public class CameraController : MonoBehaviour
                 _sceneViewCamera.Priority = 10;
                 Cursor.lockState = CursorLockMode.None;
                 break;
+        }
+    }
+
+    private void OnSwitchFirstPersonCamMode(CameraMode arg0)
+    {
+        switch (arg0)
+        {
+            case CameraMode.FirstPersonSitting:
+            SwitchToSitMode();
+            break;
+            case CameraMode.FisrtPersonPlaying:
+            SwitchToPlayMode();
+            break;
         }
     }
 
@@ -151,8 +177,39 @@ public class CameraController : MonoBehaviour
     private void ToggleMouseInput(bool isActive)
     {
         _3rdCinemachineInputAxisController.enabled = isActive;
-        // _1stCinemachineInputAxisController.enabled = isActive;
         Cursor.lockState = isActive ? CursorLockMode.Locked : CursorLockMode.None;
+    }
+
+    public static void SwitchFirstPersonCameraMode(CameraMode cameraMode)
+    {
+        OnFirstPersonCameraModeSwitched?.Invoke(cameraMode);
+    }
+
+    [ContextMenu("Switch to Play Mode")]
+    public void SwitchToPlayMode()
+    {
+        _1stPersonCamera.Lens.FieldOfView = _playModeFOV;
+        if (_1stPersonCamera.TryGetComponent<CinemachinePanTilt>(out var pan))
+        {
+            pan.TiltAxis.Center = _playModeTilt;
+        }
+        if (_1stPersonCamera.TryGetComponent<CinemachineFollow>(out var follow))
+        {
+            follow.FollowOffset.y = _playModeOffset;
+        }
+    }
+    [ContextMenu("Switch to Sit Mode")]
+    public void SwitchToSitMode()
+    {
+        _1stPersonCamera.Lens.FieldOfView = _sitModeFOV;
+        if (_1stPersonCamera.TryGetComponent<CinemachinePanTilt>(out var pan))
+        {
+            pan.TiltAxis.Center = _sitModeTitl;
+        }
+        if (_1stPersonCamera.TryGetComponent<CinemachineFollow>(out var follow))
+        {
+            follow.FollowOffset.y = _sitModeOffset;
+        }
     }
 }
 
@@ -163,4 +220,7 @@ public enum CameraMode
     FirstPersonWithFreeLook,
     CustomPlayer,
     SceneView,
+
+    FirstPersonSitting,
+    FisrtPersonPlaying
 }
