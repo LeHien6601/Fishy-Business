@@ -19,6 +19,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [SerializeField] private DayNightController _dayNightController;
     private GameMode _currentGameMode;
     private GameData _currentGameData;
+    private BoardInteractionController _interaction;
     private readonly Stack<Card> _cardsInDeck = new(); // represents the deck of cards to be dealt
     private readonly List<CardHolder> _cardHolders = new(); // local cache of all card holders on the board, 1 is yours, the others are dummies representing other players' hands
     private readonly Dictionary<ulong, CardHolder> _playerAndHolderMap = new();
@@ -33,13 +34,8 @@ public class NetworkBoardManager : NetworkBehaviour
 
     [SerializeField] private BoardCore _boardCore;
     private Plane _boardPlane; // for mouse raycast onto board
-    private Card _placingCard = null; // card being placed by you or others
-    private Vector2Int? _hoveringSlot = null; // the slot on board the _placingCard is hovering on
-    private ulong? _targerPlayer = null; // the player that is targeted by a tool card (break/repair)
     private const float _placingOffset = 0.05f;
-    private const float _snapDistance = 1f;
     private const float _deckStackSpace = 0.001f;
-    private PlayerState _localPlayerState = PlayerState.NONE;
     private IEnumerator _countDownTurnRoutine;
     private int _playerStartGameCount = 0;
     public NetworkVariable<float> BoardHeight = new NetworkVariable<float>();
@@ -48,6 +44,11 @@ public class NetworkBoardManager : NetworkBehaviour
     // API - transfer visual effects/ sound effects to another class to handle
     public event UnityAction<Vector3> BombEvent = delegate { };
     // public event UnityAction 
+
+    private void Awake()
+    {
+        _interaction = new BoardInteractionController(this);
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -291,32 +292,10 @@ public class NetworkBoardManager : NetworkBehaviour
         // condition checking are already handled when hovering in hand
         card.Holder.IsTurn = false;
         PlayCardServerRpc(card.CardData, NetworkManager.Singleton.LocalClientId);
-        _placingCard = card;
+        _interaction.BeginCardInteraction(card);
         card.Holder.RemoveCard(card);
         card.transform.SetParent(_boardCore.transform);
-        PlayerState nextState = MatchStateWithCard(card);
-        _boardCore.DropCardOntoBoard(card, onComplete: () => { _localPlayerState = nextState; });
-        // _currentGameMode.HandlePlayerActionComplete(this); // Instead of direct end turn
-
-        static PlayerState MatchStateWithCard(Card card)
-        {
-            if (card.CardType == CardType.Path) return PlayerState.PLACING_CARD;
-            else if (card.CardType == CardType.Action)
-            {
-                return card.ActionCardType switch
-                {
-                    ActionCardType.CheckGold => PlayerState.CHECKING_GOAL,
-                    ActionCardType.Bomb => PlayerState.SELECTING_PLACE_TO_BOMB,
-                    ActionCardType.FixTool => PlayerState.SELECTING_TARGET_PLAYER,
-                    ActionCardType.BrokenTool => PlayerState.SELECTING_TARGET_PLAYER,
-                    ActionCardType.Binoculars => PlayerState.SELECTING_TARGET_PLAYER,
-                    ActionCardType.Shield => PlayerState.SELECTING_TARGET_PLAYER,
-                    ActionCardType.SwapGoal => PlayerState.SWAPING_GOALS,
-                    _ => PlayerState.NONE
-                };
-            }
-            return PlayerState.NONE;
-        }
+        _boardCore.DropCardOntoBoard(card, onComplete: () => _interaction.EnterStateForCard(card));
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -347,7 +326,7 @@ public class NetworkBoardManager : NetworkBehaviour
         if (!_playerAndHolderMap.TryGetValue(senderId, out CardHolder _)) return;
         CardHolder cardHolder = _playerAndHolderMap[senderId];
         Card card = cardHolder.RemoveRandomCard();
-        _placingCard = card;
+        _interaction.BeginCardInteraction(card);
         card.transform.SetParent(_boardCore.transform);
         card.SetData(_cardDatabase.GetCardInforSO(arg0), CardLocation.OnBoard);
 
@@ -357,35 +336,6 @@ public class NetworkBoardManager : NetworkBehaviour
     #endregion
 
     #region HOVER CARD ON BOARD
-    private void HoverCardOnBoard(List<Vector2Int> slots)
-    {
-        Vector3 mouseWorld = GetMouseWorldPointOnBoard();
-        if (mouseWorld == Vector3.zero)
-            return;
-        float sqrDistance = _snapDistance;
-        Vector2Int? bestSlot = null;
-        foreach (var slot in slots)
-        {
-            Vector3 wp = _boardCore.GetWorldPositionForSlot(slot);
-            float sqrD = Vector3.SqrMagnitude(mouseWorld - wp);
-            if (sqrD < sqrDistance)
-            {
-                sqrDistance = sqrD;
-                bestSlot = slot;
-            }
-        }
-        if (bestSlot.HasValue)
-        {
-            // hover this slot
-            if (!_hoveringSlot.HasValue || _hoveringSlot.Value != bestSlot.Value)
-            {
-                _hoveringSlot = bestSlot.Value;
-                // MovePlacingCardServerRpc(bestSlot.Value);
-                MovePlacingCardServerRpc(bestSlot.Value, _placingCard.GetRealRotation());
-            }
-        }
-    }
-
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MovePlacingCardServerRpc(Vector2Int slot, Quaternion quaternion)
     {
@@ -395,119 +345,32 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void MovePlacingCardClientRpc(Vector2Int slot, Quaternion quaternion)
     {
-        if (_placingCard.CardType == CardType.Path)
+        if (_interaction.PlacingCard.CardType == CardType.Path)
         {
-            _placingCard.transform.localRotation = quaternion;
-            _hoveringSlot = slot;
-            if (!_boardCore.IsPlacableWithCurrentRotation(_placingCard, slot))
+            _interaction.PlacingCard.transform.localRotation = quaternion;
+            _interaction.HoveringSlot = slot;
+            if (!_boardCore.IsPlacableWithCurrentRotation(_interaction.PlacingCard, slot))
             {
-                _placingCard.Rotate();
+                _interaction.PlacingCard.Rotate();
             }
         }
-        else if (_placingCard.ActionCardType != ActionCardType.Bomb && _placingCard.ActionCardType != ActionCardType.CheckGold && _placingCard.ActionCardType != ActionCardType.SwapGoal)
+        else if (_interaction.PlacingCard.ActionCardType != ActionCardType.Bomb &&
+                 _interaction.PlacingCard.ActionCardType != ActionCardType.CheckGold &&
+                 _interaction.PlacingCard.ActionCardType != ActionCardType.SwapGoal)
         {
             return;
         }
 
         // move card visually to this slot position (slightly above)
         Vector3 targetPos = _boardCore.GetWorldPositionForSlot(slot) + Vector3.up * _placingOffset;
-        _placingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
+        _interaction.PlacingCard.transform.DOMove(targetPos, 0.04f).SetEase(Ease.OutQuad);
     }
     #endregion
 
     #region HANDLE INPUT AFTER PLAYING A CARD TO BOARD
     private void Update()
     {
-        switch (_localPlayerState)
-        {
-            case PlayerState.PLACING_CARD:
-                HoverCardOnBoard(_boardCore.ValidSlots);
-                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
-
-                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = confirm
-                {
-                    // after placing card, wait for drawing a new card, then end turn 
-                    _localPlayerState = PlayerState.NONE;
-                    ConfirmCardPlacementServerRpc(_hoveringSlot.Value, _placingCard.GetRealRotation());
-                }
-                if (Mouse.current.rightButton.wasPressedThisFrame) // right mouse = rotate
-                {
-                    // check condition in advance before sending RPC to save network traffic
-                    if (_boardCore.IsPlacableWithOppositeRotation(_placingCard, _hoveringSlot.Value))
-                    {
-                        RotateCardServerRpc();
-                    }
-                }
-                break;
-            case PlayerState.SELECTING_PLACE_TO_BOMB:
-                HoverCardOnBoard(_boardCore.OnBoardPaths);
-                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
-
-                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = confirm
-                {
-                    _localPlayerState = PlayerState.NONE;
-                    BombThisPathServerRpc(_hoveringSlot.Value, NetworkManager.Singleton.LocalClientId);
-                }
-                break;
-            case PlayerState.SELECTING_TARGET_PLAYER:
-                // ignore you if its a break tool type
-                switch (_placingCard.ActionCardType)
-                {
-                    case ActionCardType.BrokenTool:
-                        HoverTargetPlayer(ignore: (player) => player.IsMine || !player.HasTool(_placingCard.ToolType));
-                        break;
-                    case ActionCardType.FixTool:
-                        HoverTargetPlayer(ignore: (player) => player.HasTool(_placingCard.ToolType));
-                        break;
-                    case ActionCardType.Binoculars:
-                        HoverTargetPlayer(ignore: (player) => false);
-                        break;
-                    case ActionCardType.Shield:
-                        HoverTargetPlayer(ignore: (player) => false);
-                        break;
-                }
-
-                if (!_targerPlayer.HasValue) return;
-
-                if (Mouse.current.leftButton.wasPressedThisFrame)
-                {
-                    _localPlayerState = PlayerState.NONE;
-                    ApplyActionCardOnPlayerServerRpc(_targerPlayer.Value, NetworkManager.Singleton.LocalClientId);
-                }
-
-                break;
-            case PlayerState.CHECKING_GOAL:
-                HoverCardOnBoard(_boardCore.GoalPos);
-                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
-
-                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = confirm
-                {
-                    _localPlayerState = PlayerState.NONE;
-                    CheckThisGoalServerRpc(NetworkManager.Singleton.LocalClientId, _hoveringSlot.Value);
-                }
-                break;
-            case PlayerState.SWAPING_GOALS:
-                HoverCardOnBoard(_boardCore.GoalPos);
-                if (!_hoveringSlot.HasValue) return; // wait for a _hoveringSlot before processing any input
-
-                if (Mouse.current.leftButton.wasPressedThisFrame) // left mouse = swap with left
-                {
-                    _localPlayerState = PlayerState.NONE;
-                    int slotx = ((_hoveringSlot.Value.x / 2 + 4) % 3) * 2;
-                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y), NetworkManager.Singleton.LocalClientId);
-                }
-                else if (Mouse.current.rightButton.wasPressedThisFrame) // right mouse = swap with right
-                {
-                    _localPlayerState = PlayerState.NONE;
-                    int slotx = ((_hoveringSlot.Value.x / 2 + 2) % 3) * 2;
-                    SwapGoalsServerRpc(_hoveringSlot.Value, new Vector2Int(slotx, _hoveringSlot.Value.y), NetworkManager.Singleton.LocalClientId);
-                }
-
-                break;
-            case PlayerState.NONE:
-            default:
-                break;
-        }
+        _interaction.HandleUpdate();
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -519,15 +382,14 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void ConfirmCardPlacementClientRpc(Vector2Int slot, Quaternion rot)
     {
-        if (_placingCard)
+        if (_interaction.PlacingCard)
         {
-            _boardCore.PlacePathCardAt(_placingCard, slot, rot, () =>
+            _boardCore.PlacePathCardAt(_interaction.PlacingCard, slot, rot, () =>
             {
                 ServerCheckConnectingToHiddenGoals();
             });
             _boardCore.ClearValidSlots();
-            _placingCard = null;
-            _hoveringSlot = null;
+            _interaction.ClearPlacement();
         }
         else
         {
@@ -545,9 +407,9 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void RotateCardClientRpc()
     {
-        if (_placingCard)
+        if (_interaction.PlacingCard)
         {
-            _placingCard.Rotate();
+            _interaction.PlacingCard.Rotate();
         }
         else
         {
@@ -704,10 +566,10 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void SwapGoalsClientRpc(Vector2Int slotA, Vector2Int slotB, ulong senderId)
     {
-        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slotA), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        _interaction.PlacingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(slotA), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
         {
-            Destroy(_placingCard.gameObject);
-            _placingCard = null;
+            Destroy(_interaction.PlacingCard.gameObject);
+            _interaction.ClearCardAndTarget();
         });
         _boardCore.SwapGoals(slotA, slotB);
         // GameplayManager.Instance.TriggerActionCard(ActionCardType.SwapGoal, ToolType.None);
@@ -736,10 +598,10 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void CheckThisGoalClientRpc(ulong requesterId, Vector2Int checkSlot, bool checkResult, ClientRpcParams clientRpcParams = default)
     {
-        _placingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(checkSlot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        _interaction.PlacingCard.transform.DOMove(_boardCore.GetWorldPositionForSlot(checkSlot), BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
         {
-            Destroy(_placingCard.gameObject);
-            _placingCard = null;
+            Destroy(_interaction.PlacingCard.gameObject);
+            _interaction.ClearCardAndTarget();
         });
         CardHolder requester = _playerAndHolderMap[requesterId];
         _boardCore.ShowThisGoalCard(checkSlot,
@@ -767,10 +629,10 @@ public class NetworkBoardManager : NetworkBehaviour
     private void BombThisPathClientRpc(Vector2Int slot, ulong senderId)
     {
         Vector3 wp = _boardCore.GetWorldPositionForSlot(slot);
-        _placingCard.transform.DOMove(wp, BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
+        _interaction.PlacingCard.transform.DOMove(wp, BoardCore.PlaceToSlotDuration).SetEase(Ease.InBack).OnComplete(() =>
         {
-            Destroy(_placingCard.gameObject);
-            _placingCard = null;
+            Destroy(_interaction.PlacingCard.gameObject);
+            _interaction.ClearCardAndTarget();
         });
         BombEvent.Invoke(wp);
         _boardCore.BombThisPath(slot);
@@ -780,39 +642,7 @@ public class NetworkBoardManager : NetworkBehaviour
 
     #endregion
 
-    #region HOVER MOUSE ON BOARD TO CHOOSE TARGET PLAYER
-    private void HoverTargetPlayer(System.Func<CardHolder, bool> ignore)
-    {
-        Vector3 mouseWorld = GetMouseWorldPointOnBoard();
-        if (mouseWorld == Vector3.zero)
-            return;
-
-        float sqrDistance = float.MaxValue;
-        ulong? closetPlayer = null;
-        foreach (var player in _playerAndHolderMap)
-        {
-            if (ignore(player.Value))
-                continue;
-            Vector3 wp = player.Value.transform.position;
-            float sqrD = Vector3.SqrMagnitude(mouseWorld - wp);
-            if (sqrD < sqrDistance)
-            {
-                sqrDistance = sqrD;
-                closetPlayer = player.Key;
-            }
-        }
-        if (closetPlayer.HasValue)
-        {
-            // hover this slot
-            if (!_targerPlayer.HasValue || _targerPlayer.Value != closetPlayer.Value)
-            {
-                _targerPlayer = closetPlayer.Value;
-                SwitchTargerPlayerServerRpc(_targerPlayer.Value);
-            }
-        }
-    }
-
-
+    #region TARGET A PLAYER WITH ACTION CARD
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void SwitchTargerPlayerServerRpc(ulong targetId)
     {
@@ -822,10 +652,10 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void SwitchTargerPlayerClientRpc(ulong targetId)
     {
-        _targerPlayer = targetId;
+        _interaction.TargetPlayer = targetId;
         Transform targetTf = _playerAndHolderMap[targetId].BeforeFaceSlot();
-        _placingCard.transform.DOMove(targetTf.position, 0.1f);
-        _placingCard.transform.DORotateQuaternion(targetTf.rotation, 0.1f);
+        _interaction.PlacingCard.transform.DOMove(targetTf.position, 0.1f);
+        _interaction.PlacingCard.transform.DORotateQuaternion(targetTf.rotation, 0.1f);
         Debug.Log("targeting player " + targetId);
     }
     #endregion
@@ -835,7 +665,7 @@ public class NetworkBoardManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void ApplyActionCardOnPlayerServerRpc(ulong targetPlayer, ulong senderId)
     {
-        switch (_placingCard.ActionCardType)
+        switch (_interaction.PlacingCard.ActionCardType)
         {
             case ActionCardType.BrokenTool:
             case ActionCardType.FixTool:
@@ -866,7 +696,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private void ApplyToolOnPlayerClientRpc(ulong tagetPlayer, ulong senderId)
     {
         CardHolder holder = _playerAndHolderMap[tagetPlayer];
-        if (_placingCard.ActionCardType == ActionCardType.BrokenTool && holder.Shield)
+        if (_interaction.PlacingCard.ActionCardType == ActionCardType.BrokenTool && holder.Shield)
         {
             holder.Shield = false;
             Debug.Log("Your shield has blocked an attack from somebody");
@@ -878,12 +708,11 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         else
         {
-            holder.SetTool(_placingCard.ToolType, _placingCard.ActionCardType == ActionCardType.FixTool, tagetPlayer, senderId, _currentGameMode is ClassicGameMode);
+            holder.SetTool(_interaction.PlacingCard.ToolType, _interaction.PlacingCard.ActionCardType == ActionCardType.FixTool, tagetPlayer, senderId, _currentGameMode is ClassicGameMode);
 
         }
-        Destroy(_placingCard.gameObject);
-        _placingCard = null;
-        _targerPlayer = null;
+        Destroy(_interaction.PlacingCard.gameObject);
+        _interaction.ClearCardAndTarget();
     }
     private void ShowEffectShieldBreak()
     {
@@ -895,18 +724,16 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         CardHolder holder = _playerAndHolderMap[targetPlayerId];
         holder.NightVision = true;
-        Destroy(_placingCard.gameObject);
-        _placingCard = null;
-        _targerPlayer = null;
+        Destroy(_interaction.PlacingCard.gameObject);
+        _interaction.ClearCardAndTarget();
     }
     [ClientRpc]
     private void ApplyShieldToPlayerClientRpc(ulong targetPlayerId, ulong senderId, ClientRpcParams clientRpcParams = default)
     {
         CardHolder holder = _playerAndHolderMap[targetPlayerId];
         holder.Shield = true;
-        Destroy(_placingCard.gameObject);
-        _placingCard = null;
-        _targerPlayer = null;
+        Destroy(_interaction.PlacingCard.gameObject);
+        _interaction.ClearCardAndTarget();
         GameplayManager.Instance.TriggerActionCard(ActionCardType.Shield, ToolType.None, targetPlayerId, senderId, _currentGameMode is ClassicGameMode);
 
         if (_currentGameMode is ClassicGameMode || NetworkManager.Singleton.LocalClientId == targetPlayerId || NetworkManager.Singleton.LocalClientId == senderId)
@@ -1006,7 +833,7 @@ public class NetworkBoardManager : NetworkBehaviour
             _playerAndHolderMap[receiver].AddCard(newCard); // CardLocation will become PlayerHand inside AddCard
 
             // offically end turn after drawing new card
-            _localPlayerState = PlayerState.NONE;
+            _interaction.SetIdle();
         }
         else
         {
@@ -1045,7 +872,7 @@ public class NetworkBoardManager : NetworkBehaviour
         GameplayManager.Instance.HandleNewTurn(nextPlayerId, turnNumber);
     }
 
-    private Vector3 GetMouseWorldPointOnBoard()
+    internal Vector3 GetMouseWorldPointOnBoard()
     {
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.value);
         if (_boardPlane.Raycast(ray, out float enter))
@@ -1055,6 +882,17 @@ public class NetworkBoardManager : NetworkBehaviour
         }
         return Vector3.zero;
     }
+
+    internal BoardCore BoardCore => _boardCore;
+    internal Dictionary<ulong, CardHolder> PlayerAndHolderMap => _playerAndHolderMap;
+    internal void RequestMovePlacingCard(Vector2Int slot, Quaternion rotation) => MovePlacingCardServerRpc(slot, rotation);
+    internal void RequestConfirmPlacement(Vector2Int slot, Quaternion rotation) => ConfirmCardPlacementServerRpc(slot, rotation);
+    internal void RequestRotatePlacingCard() => RotateCardServerRpc();
+    internal void RequestBombPath(Vector2Int slot, ulong senderId) => BombThisPathServerRpc(slot, senderId);
+    internal void RequestApplyActionToTarget(ulong targetPlayer, ulong senderId) => ApplyActionCardOnPlayerServerRpc(targetPlayer, senderId);
+    internal void RequestCheckGoal(ulong requesterId, Vector2Int slot) => CheckThisGoalServerRpc(requesterId, slot);
+    internal void RequestSwapGoals(Vector2Int slotA, Vector2Int slotB, ulong senderId) => SwapGoalsServerRpc(slotA, slotB, senderId);
+    internal void RequestSwitchTargetPlayer(ulong targetId) => SwitchTargerPlayerServerRpc(targetId);
     #endregion
 
     #region AutoPlay
@@ -1085,9 +923,9 @@ public class NetworkBoardManager : NetworkBehaviour
             return;
         }
         Debug.Log("End time");
-        if (_placingCard)
+        if (_interaction.PlacingCard)
         {
-            _localPlayerState = PlayerState.NONE; // fast switching state on in-turn side
+            _interaction.SetIdle();
             DiscardPlacingCardServerRpc();
         }
         else
@@ -1109,11 +947,13 @@ public class NetworkBoardManager : NetworkBehaviour
     [ClientRpc]
     private void DiscardPlacingCardClientRpc()
     {
-        _localPlayerState = PlayerState.NONE;
-        _placingCard.transform.SetParent(_discardPile.transform);
-        _placingCard.transform.DOScale(1f, 1f).SetEase(Ease.OutCubic);
-        _placingCard.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
-        _placingCard.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
+        _interaction.SetIdle();
+        Card placingCard = _interaction.PlacingCard;
+        _interaction.ClearPlacement();
+        placingCard.transform.SetParent(_discardPile.transform);
+        placingCard.transform.DOScale(1f, 1f).SetEase(Ease.OutCubic);
+        placingCard.transform.DOMove(_discardPile.transform.position + _discardPile.transform.childCount * _deckStackSpace * Vector3.up, 1f).SetEase(Ease.OutCubic);
+        placingCard.transform.DOLocalRotate(Vector3.zero, 1f).SetEase(Ease.OutCubic);
     }
 
     private IEnumerator CountDownTurnRoutine()
@@ -1174,10 +1014,7 @@ public class NetworkBoardManager : NetworkBehaviour
         _turnIndicator.gameObject.SetActive(false);
         _cardHolders.Clear();
         _playerAndHolderMap.Clear();
-        _placingCard = null;
-        _hoveringSlot = null;
-        _targerPlayer = null;
-        _localPlayerState = PlayerState.NONE;
+        _interaction.Reset();
         _deckPlace.DeleteChildren();
         _discardPile.DeleteChildren();
         _boardCore.transform.DeleteChildren();
@@ -1260,16 +1097,4 @@ public class NetworkBoardManager : NetworkBehaviour
     }
 
     #endregion
-
-
-
-}
-public enum PlayerState
-{
-    NONE,
-    PLACING_CARD,
-    SELECTING_PLACE_TO_BOMB,
-    SELECTING_TARGET_PLAYER,
-    CHECKING_GOAL,
-    SWAPING_GOALS,
 }
