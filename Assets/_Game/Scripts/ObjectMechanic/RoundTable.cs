@@ -109,14 +109,20 @@ public class RoundTable : NetworkBehaviour
 
     private void HandlePlayerLeaveLobby(LobbyManager.PlayerLeftLobbyEventArgs args)
     {
+        Debug.Log("HandlePlayerLeaveLobby");
         if (GameManager.Instance.GetNetIdByAuthId(args.AuthId, out ulong playerId))
         {
-            foreach (var seat in _seats)
+            foreach (var seatRef in _netSeats)
             {
+                Seat seat = seatRef.TryGet(out NetworkObject netObj) ? netObj.GetComponent<Seat>() : null;
                 if (seat && seat.GetOccupyingClientId() == playerId)
                 {
                     Debug.Log(args.AuthId + " " + playerId);
                     seat.ServerEmptySeat();
+                }
+                else if(seat)
+                {
+                    Debug.Log($"SeatID: {seat.GetOccupyingClientId()}");
                 }
             }
         }
