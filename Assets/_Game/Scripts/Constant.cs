@@ -6,11 +6,12 @@ public class Constant
     public const int INTERACTABLE_LAYER = 3;
     // public const int NOT_RENDER_LAYER = 11;
     // public const int OUTLINE_LAYER = 12;
-    
+
     public const string PLAYER_TAG = "Player";
     public const string RESPAWN_TAG = "Respawn";
     public const string FINISH_TAG = "Finish";
     public const string GAME_SEAT_TAG = "GameSeat";
+    public const string KEY_PLAYER_OUTFIT = "OutfitId";
     public const string KEY_PLAYER_NAME = "PlayerName";
     public const string KEY_GAME_MODE_DATA = "GameData";
     public const string KEY_PLAYER_ICON_ID = "PlayerIconID";
@@ -22,7 +23,7 @@ public class Constant
     public const float RESTART_INTERVAL = 5f;
     public const float START_GAME_COUNTDOWN = 5f;
 
-  
+
     public const float DEFAULT_TURN_INTERVAL = 20f;
     public const float DEFAULT_VOTING_INTERVAL = 15f;
     public const float DEFAULT_DISCUSSION_INTERVAL = 40f;

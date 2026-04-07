@@ -58,6 +58,11 @@ public class UICustomPlayer : UIView
         _pantsButtons[1].onClick.RemoveAllListeners();
         _shoesButtons[0].onClick.RemoveAllListeners();
         _shoesButtons[1].onClick.RemoveAllListeners();
+
+        if (_outfitSelector != null)
+        {
+            _outfitSelector.OwnerSaveOutfit();
+        }
     }
     private void HandleClickButton(int outfitId, bool next)
     {
