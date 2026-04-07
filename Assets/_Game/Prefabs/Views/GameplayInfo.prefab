@@ -2250,8 +2250,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Use this card to <color=#ff00ff>look up</color> 1 in 3 goal cards.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4480,7 +4480,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 1000}
   m_SizeDelta: {x: 0, y: 2100}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &114499479079107601
@@ -5024,8 +5024,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Use this card to <color=#ff00ff>remove</color> a path card from the map.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5768,8 +5768,8 @@ MonoBehaviour:
   m_text: Use this card to <color=#ff00ff>prevent</color> your tools from being broken
     during the next Night phase.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6681,8 +6681,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Use these cards to <color=#00ff00>repair</color> the indicated tools.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7367,8 +7367,8 @@ MonoBehaviour:
   m_text: Use this card to <color=#ff00ff>switch</color> the positions of 2 goal
     cards.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7815,8 +7815,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Use these cards to <color=#ff0000>break</color> the indicated tools.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8875,7 +8875,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 514169948132339053}
   m_HandleRect: {fileID: 3536990016947892695}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0.32998326
   m_Size: 0.28928572
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -9223,8 +9223,8 @@ MonoBehaviour:
   m_text: "Normal Path Cards (Require all 3 tools <color=#ffff00>\u2014Cart, Helmet,
     and Shovel\u2014</color> to be used)"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9911,8 +9911,8 @@ MonoBehaviour:
   m_text: Use this card to be granted <color=#ff00ff>full vision</color> of the board
     until the sun comes up.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
-  m_sharedMaterial: {fileID: 7735652128103997767, guid: 4b3e8377e936de1419eb806735f9faa8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
+  m_sharedMaterial: {fileID: -505493051952191101, guid: 3a39dc00239725e4fbf868bb2be003ac, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

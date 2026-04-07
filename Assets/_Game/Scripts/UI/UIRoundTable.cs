@@ -16,6 +16,7 @@ public class UIRoundTable : MonoBehaviour
     [SerializeField] private List<RectTransform> _sliderContainers;
     [SerializeField] private TextMeshProUGUI _noteTMP;
     [SerializeField] private Button _saveBTN;
+    [SerializeField] private Button _startBTN;
     [SerializeField] private Button _toggleDataContainerBTN;
     [SerializeField] private RectTransform _dataContainer;
     
@@ -37,7 +38,7 @@ public class UIRoundTable : MonoBehaviour
         {
             slider.Slider.onValueChanged.AddListener(HandleSliderValueChange);
         }
-
+        _startBTN.onClick.AddListener(HandleClickStart);
         _saveBTN.onClick.AddListener(HandleClickSave);
         _toggleDataContainerBTN.onClick.AddListener(HandleClickToggle);
         
@@ -52,7 +53,7 @@ public class UIRoundTable : MonoBehaviour
         {
             slider.Slider.onValueChanged.RemoveAllListeners();
         }
-
+        _startBTN.onClick.RemoveListener(HandleClickStart);
         _saveBTN.onClick.RemoveListener(HandleClickSave);
         _toggleDataContainerBTN.onClick.RemoveListener(HandleClickToggle);
         
@@ -117,6 +118,11 @@ public class UIRoundTable : MonoBehaviour
     private void HandleClickSave()
     {
         SoundManager.Play2D(SoundType.ButtonClick);
+        SaveLobbyData();
+    }
+    private void HandleClickStart()
+    {
+        if (!LobbyManager.Instance.isHost) return;
         SaveLobbyData();
     }
     private void HandleClickToggle()
