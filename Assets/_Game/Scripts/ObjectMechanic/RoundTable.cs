@@ -12,6 +12,7 @@ public class RoundTable : NetworkBehaviour
     [SerializeField] private Seat _seatPrefab;
     [SerializeField] private CardHolder _cardHolderPrefab;
     [SerializeField] private float _radius = 2.5f;
+    [SerializeField] private Transform _highlightArrow;
     private readonly int _currentCapacity = 8;
 
     [SerializeField] private NetworkBoardManager _boardManager; // local version, each has 1. 
@@ -52,6 +53,7 @@ public class RoundTable : NetworkBehaviour
                 seat.OnPlayerEnterSeat += HandleChangeGameStateRpc;
             }
             InitSeats();
+            ShowHighlightArrow();
             GameplayManager.Instance.OnResetGame += ResetServerRpc;
             LobbyManager.Instance.OnPlayerLeftLobby += HandlePlayerLeaveLobby;
         }
@@ -85,12 +87,14 @@ public class RoundTable : NetworkBehaviour
         if (newValue)
         {
             _uiRoundTable.gameObject.SetActive(false);
+            HideHighlightArrow();
             HandleCountdownTimer();
         }
         else
         {
             _uiRoundTable.gameObject.SetActive(true);
             _countdownTMP.gameObject.SetActive(false);
+            ShowHighlightArrow();
         }
     }
     private async void HandleCountdownTimer()
@@ -311,6 +315,7 @@ public class RoundTable : NetworkBehaviour
                 if (NetworkManager.Singleton.LocalClientId == seat.GetOccupyingClientId())
                 {
                     _uiRoundTable.gameObject.SetActive(true);
+                    ShowHighlightArrow();
                     GameplayManager.Instance.TriggerEndGame(seat.GetOccupyingClientId());
                 }
                 Transform occupantTf = seat.GetOccupant().transform;
@@ -320,6 +325,19 @@ public class RoundTable : NetworkBehaviour
                                        .SetEase(easeType);
             }
         }
+    }
+    private void ShowHighlightArrow()
+    {
+        _highlightArrow.gameObject.SetActive(true);
+        _highlightArrow.DOKill();
+        _highlightArrow.localPosition = new Vector3(0, 3f, 0);
+        _highlightArrow.DOLocalMoveY(4f, 0.5f).SetEase(Ease.OutSine).SetLoops(-1, LoopType.Yoyo);
+        _highlightArrow.DOLocalRotate(new Vector3(0, 180f, -90), 2f).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+    }
+    private void HideHighlightArrow()
+    {
+        _highlightArrow.gameObject.SetActive(false);
+        _highlightArrow.DOKill();
     }
 }
 
