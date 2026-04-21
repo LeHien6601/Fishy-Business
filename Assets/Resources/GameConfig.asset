@@ -127,6 +127,7 @@ MonoBehaviour:
   MapScenes:
   - DungeonCabin
   - OceanMap
+  - Playground
   ColorList:
   - {r: 0, g: 0.32480717, b: 1, a: 1}
   - {r: 0, g: 0.8957093, b: 1, a: 1}

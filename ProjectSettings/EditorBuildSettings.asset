@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Game/_Scene/DungeonCabin.unity
     guid: 12d2ea7b3de95f34180309bfdf932001
+  - enabled: 1
+    path: Assets/_Game/_Scene/Playground.unity
+    guid: bf68e85d2ff232a48893ca7bf2f7f014
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
