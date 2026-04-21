@@ -25,6 +25,8 @@ public class GameConfig : SingletonScriptableObject<GameConfig>
 
     [Header("Game Modes")]
     public List<GameMode> GameModes = new();
+    [Header("Card Databases")]
+    public List<CardDatabaseSO> CardDatabases = new();
     [Header("Map Config")]
     public List<string> MapScenes = new();
     [Header("Color list")]

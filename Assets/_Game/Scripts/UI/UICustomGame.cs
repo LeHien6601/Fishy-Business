@@ -150,6 +150,11 @@ public class UICustomGame : UIView
         SoundManager.Play2D(SoundType.ButtonClick);
         _mapSelectionRect.gameObject.SetActive(true);
     }
+    public void HandleCloseSelectMapPanel()
+    {
+        SoundManager.Play2D(SoundType.ButtonClick);
+        _mapSelectionRect.gameObject.SetActive(false);
+    }
     private async void Create(int mapIndex)
     {
         SoundManager.Play2D(SoundType.ButtonClick);

@@ -11,7 +11,6 @@ using UnityEngine.InputSystem;
 
 public class NetworkBoardManager : NetworkBehaviour
 {
-    [SerializeField] private CardDatabaseSO _cardDatabase;
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _deckPlace;
     [SerializeField] private Transform _discardPile;
@@ -43,7 +42,7 @@ public class NetworkBoardManager : NetworkBehaviour
     private IEnumerator _countDownTurnRoutine;
     private int _playerStartGameCount = 0;
     public NetworkVariable<float> BoardHeight = new NetworkVariable<float>();
-
+    private CardDatabaseSO _cardDatabase;
 
     // API - transfer visual effects/ sound effects to another class to handle
     public event UnityAction<Vector3> BombEvent = delegate { };
@@ -64,7 +63,8 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         if (!IsServer) return;
         _playerOrders = playerOrders;
-
+        _currentGameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
+        _cardDatabase = GameConfig.Instance.CardDatabases[_currentGameData.GameModeIndex];
         // Perform server-only setup
         InitializeAndShuffleDeck();
 
@@ -97,6 +97,7 @@ public class NetworkBoardManager : NetworkBehaviour
     {
         Debug.Log("START GAME ON CLIENT");
         _currentGameData = JsonUtility.FromJson<GameData>(LobbyManager.Instance.currentLobby.Data[Constant.KEY_GAME_MODE_DATA].Value);
+        _cardDatabase = GameConfig.Instance.CardDatabases[_currentGameData.GameModeIndex];
         _turnIndicator.gameObject.SetActive(_currentGameData.GameModeIndex == 0); // classic mode has turn indicator, others don't
         // spawn board, facing towards local player
         _boardCore.GenerateBoard();
