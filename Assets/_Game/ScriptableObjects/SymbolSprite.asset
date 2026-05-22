@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e71af3c4e905022448444fc7f9dbae8b, type: 3}
-  m_Name: SymbolSrpite
+  m_Name: SymbolSprite
   m_EditorClassIdentifier: Assembly-CSharp::SymbolSpriteSO
   Bomb: {fileID: 21300000, guid: da73b70db20fa2c48a95188a6f0bab3a, type: 3}
   Map: {fileID: 21300000, guid: 4e68cab871216f241b4cdeaf8a796f68, type: 3}

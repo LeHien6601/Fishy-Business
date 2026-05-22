@@ -658,6 +658,7 @@ MonoBehaviour:
     Address: 
     Port: 0
     ServerListenAddress: 0.0.0.0
+    ClientBindPort: 0
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
