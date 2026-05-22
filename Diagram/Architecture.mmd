@@ -1,0 +1,41 @@
+graph LR
+
+    %% Visual style definitions
+    classDef client fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
+    classDef ugs fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000;
+    classDef flow stroke:#37474f,stroke-width:2px;
+
+    %% COMPONENT ZONES
+    subgraph CLIENTS [UNITY CLIENT ZONE]
+        HOST["🎮 HOST (Room Owner)<br/>- Unity Client<br/>- NGO NetworkManager (Server)<br/>- Board Game Logic Processing"]:::client
+        CLIENT["📱 CLIENT (Remote Player)<br/>- Unity Client<br/>- NGO NetworkManager (Client)<br/>- Input Handling & UI Updates"]:::client
+    end
+
+    subgraph UGS [UNITY GAMING SERVICES - BACKEND]
+        AUTH["🔐 Authentication<br/>(Player Authentication)"]:::ugs
+        LOBBY["📋 Lobby Service<br/>(Room Management / Matchmaking)"]:::ugs
+        RELAY["🌐 Relay Server<br/>(NAT Traversal / Data Relay)"]:::ugs
+    end
+
+    %% STAGE 1: AUTHENTICATION & INITIALIZATION
+    HOST -->|1. Sign In / Authenticate| AUTH
+    CLIENT -->|2. Sign In / Authenticate| AUTH
+
+    %% STAGE 2: CONNECT AND CREATE ROOM
+    HOST -->|3. Request Allocation| RELAY
+    RELAY -.->|4. Return Join Code| HOST
+    HOST -->|5. Create Room & Send Join Code| LOBBY
+
+    CLIENT -->|6. Find Room & Fetch Join Code| LOBBY
+    CLIENT -->|7. Send Join Code to Connect| RELAY
+
+    %% STAGE 3: GAMEPLAY LOOP (NGO FLOW)
+    CLIENT ===>|8. Send action via ServerRpc| RELAY
+    RELAY ===> HOST
+
+    HOST -.->|9. Compute logic & update state| RELAY
+    RELAY -.->|10. Sync via NetworkVariable / ClientRpc| CLIENT
+
+    %% Edge styling (0-6 are setup/auth, 7-10 are gameplay)
+    linkStyle 0,1,2,3,4,5,6 stroke:#f57c00,stroke-width:2px;
+    linkStyle 7,8,9,10 stroke:#0288d1,stroke-width:3px;
